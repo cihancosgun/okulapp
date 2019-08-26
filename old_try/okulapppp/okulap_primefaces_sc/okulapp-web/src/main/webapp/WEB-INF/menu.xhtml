@@ -1,0 +1,209 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui">
+
+    <div class="layout-sidebar">
+        <div class="nano">
+            <div class="nano-content menu-scroll-content">               
+
+                <ul id="layout-menu" class="layout-menu">
+                    <li id="submenu-school">
+                        <a href="#">
+                            <i class="pi pi-home"></i>
+                            <span>#{texts.getText("school")}</span>
+                        </a>
+                        <div>
+                            <ul>
+                                <li>
+                                    <h:link outcome="/school/branch">
+                                        <i class="pi pi-sitemap"></i>
+                                        <span class="menuitem-text">#{texts.getText("branch")}</span>
+                                    </h:link>
+                                </li>
+
+                                <li>
+                                    <h:link outcome="/school/class">
+                                        <i class="pi pi-external-link"></i>
+                                        <span class="menuitem-text">#{texts.getText("class")}</span>
+                                    </h:link>
+                                </li>
+
+                                <li>
+                                    <h:link outcome="/school/teachers">
+                                        <i class="pi pi-users"></i>
+                                        <span class="menuitem-text">#{texts.getText("teacher")}</span>
+                                    </h:link>
+                                </li>
+                                <li>
+                                    <h:link outcome="/school/stuff">
+                                        <i class="pi pi-users"></i>
+                                        <span class="menuitem-text">#{texts.getText("stuff")}</span>
+                                    </h:link>
+                                </li>
+                                <li>
+                                    <h:link outcome="/school/student">
+                                        <i class="pi pi-users"></i>
+                                        <span class="menuitem-text">#{texts.getText("student")}</span>
+                                    </h:link>
+                                </li>
+                                <li>
+                                    <h:link outcome="/school/parent">
+                                        <i class="pi pi-users"></i>
+                                        <span class="menuitem-text">#{texts.getText("parent")}</span>
+                                    </h:link>
+                                </li>
+                            </ul>                            
+                        </div>
+                    </li>   
+
+                    <li id="submenu-student">
+                        <a href="#">
+                            <i class="pi pi-users"></i>
+                            <span>#{texts.getText("student")}</span>
+                        </a>
+                        <div>
+                            <ul>
+                                <li>
+                                    <h:link outcome="/student/event">
+                                        <i class="pi pi-calendar"></i>
+                                        <span class="menuitem-text">#{texts.getText("event")}</span>
+                                    </h:link>
+                                </li>    
+                                <li>
+                                    <h:link outcome="/student/food">
+                                        <i class="pi pi-briefcase"></i>
+                                        <span class="menuitem-text">#{texts.getText("food")}</span>
+                                    </h:link>
+                                </li>   
+                                <li>
+                                    <h:link outcome="/student/attendance">
+                                        <i class="pi pi-check"></i>
+                                        <span class="menuitem-text">#{texts.getText("attendance")}</span>
+                                    </h:link>
+                                </li>  
+                                <li>
+                                    <h:link outcome="/student/pill">
+                                        <i class="pi pi-check"></i>
+                                        <span class="menuitem-text">#{texts.getText("pill")}</span>
+                                    </h:link>
+                                </li>  
+                                <li>
+                                    <h:link outcome="/student/homework">
+                                        <i class="pi pi-check"></i>
+                                        <span class="menuitem-text">#{texts.getText("homework")}</span>
+                                    </h:link>
+                                </li>  
+                                <li>
+                                    <h:link outcome="/student/health">
+                                        <i class="pi pi-exclamation-triangle"></i>
+                                        <span class="menuitem-text">#{texts.getText("health")}</span>
+                                    </h:link>
+                                </li>  
+                                <li>
+                                    <h:link outcome="/student/improvement">
+                                        <i class="pi pi-chart-bar"></i>
+                                        <span class="menuitem-text">#{texts.getText("improvement")}</span>
+                                    </h:link>
+                                </li>  
+                                <li>
+                                    <h:link outcome="/student/dailyRoutine">
+                                        <i class="pi pi-step-forward"></i>
+                                        <span class="menuitem-text">#{texts.getText("dailyRoutine")}</span>
+                                    </h:link>
+                                </li>  
+                                <li>
+                                    <h:link outcome="/student/weightHeight">
+                                        <i class="pi pi-chart-bar"></i>
+                                        <span class="menuitem-text">#{texts.getText("weightHeight")}</span>
+                                    </h:link>
+                                </li>                                  
+                            </ul>
+                        </div>
+                    </li>   
+                    <li id="submenu-school-bus">
+                        <a href="#">
+                            <i class="pi pi-eye"></i>
+                            <span>#{texts.getText("schoolBus")}</span>
+                        </a>
+                        <div>
+                            <ul>
+                                <li>
+                                    <h:link outcome="/schoolbus/schoolbus">
+                                        <i class="pi pi-eye"></i>
+                                        <span class="menuitem-text">#{texts.getText("schoolBus")}</span>
+                                    </h:link>
+                                </li>                                                              
+                            </ul>
+                        </div>
+                    </li>   
+                    <li id="submenu-contact">
+                        <a href="#">
+                            <i class="pi pi-envelope"></i>
+                            <span>#{texts.getText("contact")}</span>
+                        </a>
+                        <div>
+                            <ul>
+                                <li>
+                                    <h:link outcome="/contact/messages">
+                                        <i class="pi pi-envelope"></i>
+                                        <span class="menuitem-text">#{texts.getText("messages")}</span>
+                                    </h:link>
+                                </li>    
+                                <li>
+                                    <h:link outcome="/contact/reminding">
+                                        <i class="pi pi-calendar"></i>
+                                        <span class="menuitem-text">#{texts.getText("reminding")}</span>
+                                    </h:link>
+                                </li> 
+                                <li>
+                                    <h:link outcome="/contact/announcement">
+                                        <i class="pi pi-envelope"></i>
+                                        <span class="menuitem-text">#{texts.getText("announcement")}</span>
+                                    </h:link>
+                                </li> 
+                                <li>
+                                    <h:link outcome="/contact/notification">
+                                        <i class="pi pi-bell"></i>
+                                        <span class="menuitem-text">#{texts.getText("notification")}</span>
+                                    </h:link>
+                                </li>                                 
+                            </ul>
+                        </div>
+                    </li> 
+                    <li id="submenu-cash">
+                        <a href="#">
+                            <i class="pi pi-money-bill"></i>
+                            <span>#{texts.getText("cash")}</span>
+                        </a>
+                        <div>
+                            <ul>
+                                <li>
+                                    <h:link outcome="/cash/cash">
+                                        <i class="pi pi-money-bill"></i>
+                                        <span class="menuitem-text">#{texts.getText("cash")}</span>
+                                    </h:link>
+                                </li>                                                              
+                            </ul>
+                        </div>
+                    </li>   
+                    <li id="submenu-reports">
+                        <a href="#">
+                            <i class="pi pi-list"></i>
+                            <span>#{texts.getText("reports")}</span>
+                        </a>
+                        <div>
+                            <ul>
+                                <li>
+                                    <h:link outcome="/reports/reports">
+                                        <i class="pi pi-list"></i>
+                                        <span class="menuitem-text">#{texts.getText("reports")}</span>
+                                    </h:link>
+                                </li>                                                              
+                            </ul>
+                        </div>
+                    </li>  
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</ui:composition>
