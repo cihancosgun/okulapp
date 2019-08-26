@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="http://xmlns.jcp.org/jsf/composite"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <!-- INTERFACE -->
+    <cc:interface>
+        <cc:attribute name = "version" />
+        <cc:attribute name = "link" />
+        <cc:attribute name = "copyrightYears" />
+        <cc:attribute name = "copyrightOwner" />
+    </cc:interface>
+
+    <!-- IMPLEMENTATION -->
+    <cc:implementation>
+        <h:panelGroup id="footerPanel">
+            <footer class="main-footer">
+                <div class="pull-right hidden-xs">
+                    <b>Version</b> #{cc.attrs.version}
+                </div>
+                <strong>Copyright &copy; #{cc.attrs.copyrightYears} <a target="_blank" href="#{cc.attrs.link}">#{cc.attrs.copyrightOwner}</a></strong>
+            </footer>       
+        </h:panelGroup>
+    </cc:implementation>
+</html>

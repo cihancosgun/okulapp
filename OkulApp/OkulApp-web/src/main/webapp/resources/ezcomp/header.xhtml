@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="http://xmlns.jcp.org/jsf/composite"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <!-- INTERFACE -->
+    <cc:interface>
+        <cc:attribute name = "shortHeader" />
+        <cc:attribute name = "header" />
+        <cc:attribute name = "userName" />
+        <cc:attribute name = "logoutText" />
+        <cc:attribute name = "logoutButtonAction" 
+                      method-signature = "java.lang.Void signOut()" />
+    </cc:interface>
+
+    <!-- IMPLEMENTATION -->
+    <cc:implementation>
+
+        <header class="main-header">           
+            <!-- Logo -->
+            <a href="#" class="logo">
+                <!-- mini logo for sidebar mini 50x50 pixels -->
+                <span class="logo-mini">#{cc.attrs.shortHeader}</span>
+                <!-- logo for regular state and mobile devices -->
+                <span class="logo-lg">#{cc.attrs.header}</span>
+            </a>
+            <!-- Header Navbar: style can be found in header.less -->
+            <nav class="navbar navbar-static-top">
+                <!-- Sidebar toggle button-->
+                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                    <span class="sr-only"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </a>
+
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <!-- User Account: style can be found in dropdown.less -->
+                        <li class="dropdown user user-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">                                
+                                <span class="hidden-xs">#{cc.attrs.userName}</span>
+                            </a>
+                            <ul class="dropdown-menu">                               
+                                <li class="user-footer">                                    
+                                    <div class="pull-right">     
+                                        <h:form id="logoutForm">
+                                            <h:commandLink class="btn btn-default btn-flat" action="#{securityMB.signOut}" value="#{cc.attrs.logoutText}" immediate="true"/>                                         
+                                        </h:form>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>                      
+                    </ul>
+
+                </div>            
+            </nav>
+        </header>
+    </cc:implementation>
+</html>

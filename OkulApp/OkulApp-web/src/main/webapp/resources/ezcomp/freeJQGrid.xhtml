@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="http://xmlns.jcp.org/jsf/composite">
+    <!-- INTERFACE -->
+    <cc:interface>
+        <cc:attribute name="data"/>
+        <cc:attribute name="totals"/>
+        <cc:attribute name="footerTotals"/>
+        <cc:attribute name="xDimension"/>
+        <cc:attribute name="yDimension"/>
+        <cc:attribute name="aggregates"/>
+    </cc:interface>
+
+    <!-- IMPLEMENTATION -->
+    <cc:implementation>
+        <table id="grid"></table>
+
+        <script type="text/javascript">
+            if (#{cc.attrs.data != null}) {
+                $("#grid").jqGrid("jqPivot",
+                        #{cc.attrs.data},
+                        {
+                            totals: #{cc.attrs.totals},
+                            footerTotals: #{cc.attrs.footerTotals},
+                            xDimension: #{cc.attrs.xDimension},
+                            yDimension: #{cc.attrs.yDimension},
+                            aggregates: #{cc.attrs.aggregates}
+                        },
+                        // grid options
+                                {
+                                    iconSet: "fontAwesome",
+                                    cmTemplate: {autoResizable: true, width: 80},
+                                    shrinkToFit: false,
+                                    useUnformattedDataForCellAttr: false,
+                                    autoresizeOnLoad: true,
+                                    autoResizing: {compact: true},
+                                    pager: true,
+                                    rowNum: 20,
+                                    rowList: [5, 10, 20, 100, "10000:Tümü"]
+                                }
+                        );
+                    }
+        </script>
+
+    </cc:implementation>
+</html>

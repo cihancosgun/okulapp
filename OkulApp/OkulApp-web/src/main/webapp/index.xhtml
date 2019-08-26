@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui" xmlns:ezcomp="http://xmlns.jcp.org/jsf/composite/ezcomp">
+
+    <f:view contentType="text/html">
+        <h:head>
+            <f:facet name="first">
+                <meta content='text/html; charset=UTF-8' http-equiv="Content-Type"/>
+                <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+                <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>
+                <link rel="stylesheet" href="css/bootstrap.min.css"/>
+                <link rel="stylesheet" href="css/font-awesome.min.css"/>
+                <link rel="stylesheet" href="css/ionicons.min.css"/>
+                <link rel="stylesheet" href="css/AdminLTE.min.css"/>
+                <link rel="stylesheet" href="css/skin-black-light.min.css"/>
+                <link rel="stylesheet" href="css/freejqgrid/ui.jqgrid.min.css"/>
+
+                <h:outputScript name="jquery/jquery.js" library="primefaces"/>
+                <h:outputScript name="jquery/jquery-plugins.js" library="primefaces"/>
+
+
+                <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+                <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+                <!--[if lt IE 9]>
+                <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+                <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+                <![endif]-->
+
+                <!-- Google Font -->
+                <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic"/>
+                <title>#{texts.APP_NAME}</title>
+                <style>
+                    .ui-dialog-titlebar-close  {
+                        margin-top: 0px !important;
+                    }
+                </style>
+            </f:facet>
+        </h:head>
+
+        <h:body class="hold-transition skin-black-light sidebar-mini">
+            <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+
+            <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+                <img src="images/ajaxloadingbar.gif" alt=""/>
+            </p:dialog>            
+            <h:form id="confirmDialogForm">
+                <p:confirmDialog global="true">
+                    <p:commandButton value="#{texts.yes}" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+                    <p:commandButton value="#{texts.no}" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+                </p:confirmDialog>
+            </h:form>
+
+            <!-- Site wrapper -->
+            <div class="wrapper">
+                <ezcomp:header 
+                    header="#{texts.APP_NAME}" 
+                    shortHeader="#{texts.SHORT_APP_NAME}"
+                    logoutText="#{texts.logout}"
+                    userName="#{securityMB.remoteUserName}"
+                    logoutButtonAction="#{securityMB.signOut}"
+                    />
+
+                <ezcomp:navigation
+                    header="#{navigationMB.header}"
+                    menus="#{navigationMB.menus}"                    
+                    />
+
+                <ezcomp:content  id="contentCmp" 
+                                 currentPageTitle="#{dispatcherMB.currentPage.title}"
+                                 currentPage="#{dispatcherMB.currentPage.pageUrl}"
+                                 />                    
+                <ezcomp:footer id="footerCmp"
+                               copyrightOwner="OkulApp"
+                               copyrightYears="2019"
+                               link="https://www.okulapp.com"
+                               version="1.0-SNAPSHOT"
+                               />
+            </div>
+            <!-- Site wrapper end-->
+
+
+            <!-- Bootstrap 3.3.7 -->
+            <script src="js/bootstrap.min.js"></script>
+            <!-- SlimScroll -->
+            <script src="js/jquery.slimscroll.min.js"></script>
+            <!-- FastClick -->
+            <script src="js/fastclick.js"></script>
+            <!-- AdminLTE App -->
+            <script src="js/adminlte.min.js"></script>
+
+            <script src="js/freejqgrid/jquery.jqGrid.js"></script>
+            <script src="js/freejqgrid/grid.locale-tr.js"></script>
+
+            <script>
+                $(document).ready(function () {
+                    $('.sidebar-menu').tree();
+                })
+            </script>
+
+        </h:body>
+
+    </f:view>
+</html>
+
