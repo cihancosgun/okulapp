@@ -43,12 +43,15 @@
         </web-resource-collection>
         <auth-constraint>
             <description/>
-            <role-name>uysarchitect</role-name>
+            <role-name>admin</role-name>
+            <role-name>teacher</role-name>
+            <role-name>stuff</role-name>
+            <role-name>parent</role-name>
         </auth-constraint>
     </security-constraint>
     <login-config>
         <auth-method>FORM</auth-method>
-        <realm-name>OpenDS</realm-name>
+        <realm-name>okulAppRealm</realm-name>
         <form-login-config>
             <form-login-page>/faces/login.xhtml</form-login-page>
             <form-error-page>/faces/login.xhtml</form-error-page>
@@ -56,6 +59,18 @@
     </login-config>
     <security-role>
         <description/>
-        <role-name>uysarchitect</role-name>
+        <role-name>admin</role-name>
+    </security-role>
+    <security-role>
+        <description/>
+        <role-name>teacher</role-name>
+    </security-role>
+    <security-role>
+        <description/>
+        <role-name>stuff</role-name>
+    </security-role>
+    <security-role>
+        <description/>
+        <role-name>parent</role-name>
     </security-role>
 </web-app>

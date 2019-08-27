@@ -46,9 +46,6 @@ public class CrudMB implements Serializable {
     DispatcherMB dispatcherMB;
 
     private @Inject
-    CrudMB crudMB;
-
-    private @Inject
     SecurityMB securityMB;
 
     private @Inject
@@ -62,6 +59,7 @@ public class CrudMB implements Serializable {
 
     private static final String CRUD_FORM = "/dialogs/crudForm.xhtml";
     private static final String CRUD_PAGE = "/pages/crudPage.xhtml";
+    private final List<String> userForms = Arrays.asList("stuff", "teachers", "studentParent");
 
     private String id;
 
@@ -94,8 +92,8 @@ public class CrudMB implements Serializable {
             CrudForm cf = (CrudForm) currentForm;
             cf.setAda(myDataSB.getAdvancedDataAdapter());
             cf.setDbName(myDataSB.getDbName());
-            crudMB.setCrudForm(cf);
-            crudMB.setLazyDataModel(new CrudDataTableLazyDataModel(cf));
+            setCrudForm(cf);
+            setLazyDataModel(new CrudDataTableLazyDataModel(cf));
         }
     }
 
@@ -108,8 +106,8 @@ public class CrudMB implements Serializable {
             CrudForm cf = (CrudForm) currentForm;
             cf.setAda(myDataSB.getAdvancedDataAdapter());
             cf.setDbName(myDataSB.getDbName());
-            crudMB.setCrudForm(cf);
-            crudMB.setLazyDataModel(new CrudDataTableLazyDataModel(cf));
+            setCrudForm(cf);
+            setLazyDataModel(new CrudDataTableLazyDataModel(cf));
             crudForm.setPageUrl(CRUD_FORM);
             dispatcherMB.setCurrentPage(crudForm);
             this.newRecord();
@@ -144,11 +142,20 @@ public class CrudMB implements Serializable {
     }
 
     public void saveRecord() {
+        Map<String, Object> record = crudForm.fillCrudObjectWithFormControls();
         if (crudForm.getNewMode()) {
-            crudForm.create(crudForm.fillCrudObjectWithFormControls());
+            crudForm.create(record);
         } else {
-            crudForm.update(crudForm.fillCrudObjectWithFormControls());
+            crudForm.update(record);
         }
+
+        if (crudForm instanceof CrudForm) {
+            CrudForm cf = (CrudForm) crudForm;
+            if (userForms.contains(cf.getCrudFormCode())) {
+                securityMB.syncUser(record, cf);
+            }
+        }
+
         crudForm.setPageUrl(CRUD_PAGE);
         dispatcherMB.setCurrentPage(crudForm);
     }
@@ -186,6 +193,13 @@ public class CrudMB implements Serializable {
         rec = crudForm.read(rec);//lazy to eager
         crudForm.setId(rec.get("_id"));
         crudForm.delete(rec);
+
+        if (crudForm instanceof CrudForm) {
+            CrudForm cf = (CrudForm) crudForm;
+            if (userForms.contains(cf.getCrudFormCode())) {
+                securityMB.deleteUser(rec, cf);
+            }
+        }
     }
 
     public List<Map<String, Object>> getList() {

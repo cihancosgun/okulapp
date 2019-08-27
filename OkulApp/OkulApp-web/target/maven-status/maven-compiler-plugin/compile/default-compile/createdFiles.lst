@@ -3,6 +3,7 @@ com/okulapp/forms/controls/InputDoubleFormControl.class
 com/okulapp/forms/controls/InputDateFormControl.class
 com/okulapp/forms/FormControlFactory.class
 com/okulapp/forms/controls/InputCheckBoxControl.class
+com/okulapp/security/PasswordHasher.class
 com/okulapp/security/CrudSecurityRole.class
 com/okulapp/forms/controls/InputSelectOneDbFormControl.class
 com/okulapp/navigation/Menu$1.class

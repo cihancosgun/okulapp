@@ -31,11 +31,17 @@ public class CrudForm extends Form {
     private AdvancedDataAdapter ada;
     private Boolean newMode = true;
     private Object _id = null;
+    
+    private String crudFormCode;
 
     private Map<String, Integer> mapFormControlsIndex;
 
     private CrudForm() {
         setPageUrl("/pages/crudPage.xhtml");
+    }
+
+    public String getCrudFormCode() {
+        return crudFormCode;
     }
 
     public List<CrudSecurityRole> getCrudSecurityRoles() {
@@ -44,6 +50,10 @@ public class CrudForm extends Form {
 
     public Map<String, Integer> getMapFormControlsIndex() {
         return mapFormControlsIndex;
+    }
+
+    public void setCrudFormCode(String crudFormCode) {
+        this.crudFormCode = crudFormCode;
     }
 
     public void setCrudSecurityRoles(List<CrudSecurityRole> crudSecurityRoles) {
@@ -192,6 +202,7 @@ public class CrudForm extends Form {
 
         public Builder createCrudFromFromDb(String crudFormCode) {
             this.crudFormCode = crudFormCode;
+            cf.setCrudFormCode(crudFormCode);
             Map<String, Object> find = new HashMap();
             find.put(CRUD_FORM_CODE, crudFormCode);
             cf.setAda(ada);

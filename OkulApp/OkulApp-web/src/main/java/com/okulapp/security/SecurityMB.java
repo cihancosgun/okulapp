@@ -5,14 +5,22 @@
  */
 package com.okulapp.security;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DBObject;
+import com.okulapp.forms.CrudForm;
 import java.io.IOException;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.security.Principal;
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -24,6 +32,7 @@ import javax.security.jacc.PolicyContextException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.bson.types.ObjectId;
 
 /**
  *
@@ -42,27 +51,15 @@ public class SecurityMB implements Serializable {
 
     @PostConstruct
     public void init() {
-        RolesToByte.put("uysarchitect", (byte) 0);
-        RolesToByte.put("uysadmin", (byte) 1);
-        RolesToByte.put("kpbadmin", (byte) 2);
-        RolesToByte.put("uysuser", (byte) 3);
-        RolesToByte.put("pyuser", (byte) 4);
-        RolesToByte.put("spkuser", (byte) 5);
-        RolesToByte.put("takasbank", (byte) 6);
-        RolesToByte.put("tuik", (byte) 7);
-        RolesToByte.put("tcmb", (byte) 8);
-        RolesToByte.put("anonim", (byte) 9);
+        RolesToByte.put("admin", (byte) 0);
+        RolesToByte.put("teacher", (byte) 1);
+        RolesToByte.put("stuff", (byte) 2);
+        RolesToByte.put("parent", (byte) 3);
 
-        ByteToRole.put((byte) 0, "uysarchitect");
-        ByteToRole.put((byte) 1, "uysadmin");
-        ByteToRole.put((byte) 2, "kpbadmin");
-        ByteToRole.put((byte) 3, "uysuser");
-        ByteToRole.put((byte) 4, "pyuser");
-        ByteToRole.put((byte) 5, "spkuser");
-        ByteToRole.put((byte) 6, "takasbank");
-        ByteToRole.put((byte) 7, "tuik");
-        ByteToRole.put((byte) 8, "tcmb");
-        ByteToRole.put((byte) 9, "anonim");
+        ByteToRole.put((byte) 0, "admin");
+        ByteToRole.put((byte) 1, "teacher");
+        ByteToRole.put((byte) 2, "stuff");
+        ByteToRole.put((byte) 3, "parent");
     }
 
     public HttpServletRequest getRequest() {
@@ -134,4 +131,79 @@ public class SecurityMB implements Serializable {
         this.userRoles = userRoles;
     }
 
+    public void syncUser(Map<String, Object> userRecord, CrudForm cf) {
+        if (userRecord.containsKey("email")) {
+            Map<String, Object> dboUser = cf.getAda().read(cf.getDbName(), "users", new BasicDBObject("login", userRecord.get("email").toString()));
+            if (dboUser == null) {
+                createUser(cf, userRecord.get("email").toString(), userRecord.get("password").toString().toCharArray(), getUserRoleFromCrudForm(cf, userRecord));
+            } else {
+                changePassword(cf, (ObjectId) dboUser.get("_id"), userRecord.get("password").toString().toCharArray());
+            }
+        }
+    }
+
+    private String generateRandomSalt() {
+        SecureRandom random = new SecureRandom();
+        return new BigInteger(130, random).toString(32);
+    }
+
+    private char[] concatenatePasswordWithSalt(char[] password, char[] salt) {
+        char[] passwordWithSalt = new char[password.length + salt.length];
+        System.arraycopy(password, 0, passwordWithSalt, 0, password.length);
+        System.arraycopy(salt, 0, passwordWithSalt, password.length, salt.length);
+        return passwordWithSalt;
+    }
+
+    private ObjectId createUser(CrudForm cf, String login, char[] password, String group) {
+        String randomSalt = generateRandomSalt();
+        Vector<String> groups = new Vector<String>();
+        groups.add(group);
+        DBObject newUser = BasicDBObjectBuilder.start()
+                .append("login", login)
+                .append("password", PasswordHasher.hash(concatenatePasswordWithSalt(password, randomSalt.toCharArray()), "SHA-512"))
+                .append("salt", randomSalt)
+                .append("groups", groups)
+                .get();
+        cf.getAda().create(cf.getDbName(), "users", newUser.toMap());
+        return (ObjectId) newUser.get("_id");
+    }
+
+    public void changePassword(CrudForm cf, ObjectId userId, char[] newPassword) {
+        SecureRandom random = new SecureRandom();
+        String salt = new BigInteger(130, random).toString(32);
+        DBObject update = BasicDBObjectBuilder.start()
+                .push("$set")
+                .append("password", PasswordHasher.hash(concatenatePasswordWithSalt(newPassword, salt.toCharArray()), "SHA-512"))
+                .append("salt", salt)
+                .pop()
+                .get();
+        cf.getAda().update(cf.getDbName(), "users", update.toMap());
+    }
+
+    public void deleteUser(Map<String, Object> userRecord, CrudForm cf) {
+        if (userRecord.containsKey("email")) {
+            Map<String, Object> rec = cf.getAda().read(cf.getDbName(), "users", new BasicDBObject("login", userRecord.get("email").toString()).toMap());
+            if (rec != null) {
+             cf.getAda().delete(cf.getDbName(), "users", rec);   
+            }            
+        }
+    }
+
+    private String getUserRoleFromCrudForm(CrudForm cf, Map<String, Object> userRecord) {
+        if ("stuff".equals(cf.getCrudFormCode())) {
+            if (Arrays.asList("Okul Müdürü", "Şube Müdürü").contains(userRecord.get("title").toString())) {
+                return "admin";
+            } else {
+                return "stuff";
+            }
+        } else if ("teachers".equals(cf.getCrudFormCode())) {
+            return "teacher";
+        } else if ("stuff".equals(cf.getCrudFormCode())) {
+            return "stuff";
+        } else if ("studentParent".equals(cf.getCrudFormCode())) {
+            return "parent";
+        } else {
+            return "stuff";
+        }
+    }
 }
