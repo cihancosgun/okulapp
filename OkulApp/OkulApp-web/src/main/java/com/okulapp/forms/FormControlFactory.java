@@ -14,6 +14,7 @@ import com.okulapp.forms.controls.InputCheckBoxControl;
 import com.okulapp.forms.controls.InputCodeMirrorFormControl;
 import com.okulapp.forms.controls.InputDateFormControl;
 import com.okulapp.forms.controls.InputDoubleFormControl;
+import com.okulapp.forms.controls.InputImage;
 import com.okulapp.forms.controls.InputIntegerFormControl;
 import com.okulapp.forms.controls.InputMaskFormControl;
 import com.okulapp.forms.controls.InputSelectManyDbFormControl;
@@ -134,6 +135,9 @@ public class FormControlFactory {
                     if (rec.get("mode") != null) {
                         ((InputCodeMirrorFormControl) bfc).setMode(rec.get("mode").toString());
                     }
+                    break;
+                case "InputImage":
+                    bfc = new InputImage();
                     break;
             }
 

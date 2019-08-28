@@ -28,11 +28,22 @@ import com.okulapp.texts.TextBundlerSMB;
 import com.okulapp.navigation.NavigationMB;
 import com.okulapp.security.SecurityMB;
 import com.okulapp.data.okul.MyDataSBLocal;
+import com.okulapp.forms.controls.InputImage;
 import com.okulapp.forms.controls.InputSelectManyDbFormControl;
 import com.okulapp.forms.controls.InputSelectManyFormControl;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.context.SessionScoped;
+import javax.faces.application.FacesMessage;
 import javax.faces.event.AjaxBehaviorEvent;
 import org.bson.Document;
+import org.primefaces.event.FileUploadEvent;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 
 /**
  *
@@ -324,6 +335,46 @@ public class CrudMB implements Serializable {
                 } else if (fcEffected instanceof InputSelectManyDbFormControl) {
                     ((InputSelectManyDbFormControl) fcEffected).setItemQuery(query.toJson());
                 }
+            }
+        }
+
+    }
+
+    public void handleFileUpload(FileUploadEvent event) {
+        try {
+            BaseFormControl fc = crudForm.getFormControls().get(crudForm.getMapFormControlsIndex().get(event.getComponent().getId()));
+            if (fc != null) {
+                if ("image".equals(fc.getType())) {
+                    InputImage inputImage = (InputImage) fc;
+                    InputStream is = event.getFile().getInputstream();
+                    ObjectId fileId = myDataSB.getFileUpDownManager().uploadFile(is, event.getFile().getFileName());
+
+                    if (fileId != null) {
+                        inputImage.set(fileId);
+                        inputImage.setValue(fileId);
+                        FacesMessage msg = new FacesMessage("Dosya Yüklendi", event.getFile().getFileName());
+                        FacesContext.getCurrentInstance().addMessage(null, msg);
+                    }
+                }
+            }
+
+        } catch (IOException ex) {
+            Logger.getLogger(InputImage.class.getName()).log(Level.SEVERE, null, ex);
+            FacesMessage msg = new FacesMessage("Dosya Yüklenemedi", event.getFile().getFileName());
+            FacesContext.getCurrentInstance().addMessage(null, msg);
+        }
+    }
+
+    public StreamedContent handleImageFileDownload(ObjectId fileId) {
+        if (fileId == null) {
+            InputStream is = getClass().getClassLoader().getResourceAsStream("imageholder.png");
+            return new DefaultStreamedContent(is, "image/png");
+        } else {
+            byte[] bytes = myDataSB.getFileUpDownManager().downloadFile(fileId);
+            if (bytes != null) {
+                return new DefaultStreamedContent(new ByteArrayInputStream(bytes));
+            } else {
+                return null;
             }
         }
 

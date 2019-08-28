@@ -5,14 +5,8 @@
  */
 package com.okulapp.data;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import com.okulapp.crud.dao.CrudListResult;
 import org.bson.Document;
 

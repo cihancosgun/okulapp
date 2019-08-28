@@ -4,5 +4,6 @@
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-ejb/src/main/java/com/okulapp/crud/dao/CrudListResult.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-ejb/src/main/java/com/okulapp/data/okul/MyDataSB.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-ejb/src/main/java/com/okulapp/data/DataAdapter.java
+/home/cihan/github_cihan/okulapp/OkulApp/OkulApp-ejb/src/main/java/com/okulapp/data/MyFileUpDownManager.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-ejb/src/main/java/com/okulapp/data/okul/MyDataSBLocal.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-ejb/src/main/java/com/okulapp/data/AdvancedDataAdapter.java

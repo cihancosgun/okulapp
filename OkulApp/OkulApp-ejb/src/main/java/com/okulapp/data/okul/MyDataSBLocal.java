@@ -7,6 +7,7 @@ package com.okulapp.data.okul;
 
 import javax.ejb.Local;
 import com.okulapp.data.AdvancedDataAdapter;
+import com.okulapp.data.MyFileUpDownManager;
 
 /**
  *
@@ -18,4 +19,6 @@ public interface MyDataSBLocal {
     public AdvancedDataAdapter getAdvancedDataAdapter();
 
     public String getDbName();
+
+    public MyFileUpDownManager getFileUpDownManager();
 }

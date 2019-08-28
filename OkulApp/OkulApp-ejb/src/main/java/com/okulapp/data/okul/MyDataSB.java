@@ -13,6 +13,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import com.okulapp.data.AdvancedDataAdapter;
 import com.okulapp.data.MongoDataAdapter;
+import com.okulapp.data.MyFileUpDownManager;
 
 /**
  *
@@ -26,6 +27,7 @@ public class MyDataSB implements MyDataSBLocal {
     private String dbName;
     private String dbHost;
     private Integer dbPort;
+    private MyFileUpDownManager fileUpDownManager;
 
     Properties myProperties;
 
@@ -46,6 +48,10 @@ public class MyDataSB implements MyDataSBLocal {
             MongoDataAdapter mda = (MongoDataAdapter) ada.getSelectedDataAdapter();
             mda.setMongoHost(dbHost);
             mda.setMongoPort(dbPort);
+            fileUpDownManager = new MyFileUpDownManager();
+            fileUpDownManager.setAda(mda);
+            fileUpDownManager.setDbName(dbName);
+            fileUpDownManager.setFsName("okulapp_files");
         }
     }
 
@@ -57,6 +63,11 @@ public class MyDataSB implements MyDataSBLocal {
     @Override
     public String getDbName() {
         return dbName;
+    }
+
+    @Override
+    public MyFileUpDownManager getFileUpDownManager() {
+        return fileUpDownManager;
     }
 
 }

@@ -4,6 +4,7 @@ com/okulapp/data/AdvancedDataAdapter$DbType.class
 com/okulapp/data/DataAdapter.class
 com/okulapp/data/MongoDataAdapter.class
 com/okulapp/data/okul/MyDataSBLocal.class
+com/okulapp/data/MyFileUpDownManager.class
 com/okulapp/NewSessionBean.class
 com/okulapp/data/okul/MyDataSB.class
 com/okulapp/data/AdvancedDataAdapter.class

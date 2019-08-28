@@ -195,7 +195,7 @@ public class MongoDataAdapter implements DataAdapter {
         }
         this.connect();
         Map<String,Object> result = rec;
-        MongoDatabase db = client.getDatabase(dbName);
+        MongoDatabase db = client.getDatabase(dbName);        
         MongoCollection<Document> collection = db.getCollection(tableName);
         collection.insertOne(new Document(rec));
         this.disconnect();
