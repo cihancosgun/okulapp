@@ -32,7 +32,6 @@ import com.okulapp.forms.controls.InputImage;
 import com.okulapp.forms.controls.InputSelectManyDbFormControl;
 import com.okulapp.forms.controls.InputSelectManyFormControl;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
@@ -367,7 +366,7 @@ public class CrudMB implements Serializable {
 
     public StreamedContent handleImageFileDownload(ObjectId fileId) {
         if (fileId == null) {
-            InputStream is = getClass().getClassLoader().getResourceAsStream("imageholder.png");
+            InputStream is = getClass().getClassLoader().getResourceAsStream("user-profile.png");
             return new DefaultStreamedContent(is, "image/png");
         } else {
             byte[] bytes = myDataSB.getFileUpDownManager().downloadFile(fileId);

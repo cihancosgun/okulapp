@@ -67,8 +67,8 @@
                             </p:selectManyMenu>
                         </c:if>
                         <c:if test="#{'selectOneDb' eq fc.type}">
-                            <p:selectOneMenu id="#{fc.generatedId}" rendered="#{'selectOneDb' eq fc.type}" value="#{fc.value}" required="#{fc.required}" label="#{fc.label}" >
-                                <p:ajax rendered="#{fc.ajaxUpdateFieldName ne ''}" listener="#{crudMB.onSelectOneChanged}" update="#{fc.ajaxUpdateFieldName} @(.selectObject)" />
+                            <p:selectOneMenu class="selectObject" id="#{fc.generatedId}" rendered="#{'selectOneDb' eq fc.type}" value="#{fc.value}" required="#{fc.required}" label="#{fc.label}" >
+                                <p:ajax rendered="#{fc.ajaxUpdateFieldQueryFieldName ne ''}" listener="#{crudMB.onSelectOneChanged}" update="@(.selectObject)" />
                                 <f:selectItem itemLabel="#{texts.selectOne}" itemValue="#{null}" noSelectionOption="true" />
                                 <f:selectItems var="itm" value="#{crudMB.getSelectItemsFromCacheDB(fc.name, fc.dbName, fc.tableName, fc.itemQuery, fc.itemValueField, fc.itemLabelField)}" itemLabel="#{itm[fc.itemLabelField]}" itemValue="#{itm[fc.itemValueField]}" />
                                 <f:converter converterId="SelectConverter" />

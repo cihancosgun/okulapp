@@ -13,6 +13,7 @@
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputSelectManyFormControl.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/CrudMB.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/navigation/NavigationMB.java
+/home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/chat/ChatMB.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/dispatcher/DispatcherMB.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputDoubleFormControl.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputImage.java

@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+      xmlns:pe="http://primefaces.org/ui/extensions">
+    <h:body>
+        <link href="#{request.contextPath}/css/chat.css" rel="stylesheet" type="text/css"/>
+        <h:form id="chatForm" class="chatForm">
+            <p:growl id="messages" showDetail="true" />
+
+            <h:panelGroup rendered="#{chatMB.showRecents}">
+                <div class="inbox_msg">
+                    <div class="inbox_people">
+                        <div class="headind_srch">
+                            <div class="recent_heading">
+                                <h4>Konuşmalar</h4>
+                            </div>
+                            <div class="srch_bar">
+                                <div class="ui-inputgroup">
+                                    <p:inputText class="search-bar" value="#{chatMB.searchConversation}" placeholder="Konuşma ara.." />
+                                    <p:commandButton icon="pi pi-search"  title="Konuşma Ara" styleClass="white-button" actionListener="#{chatMB.searchConversationsAction()}" update="@(.chatForm)"/>
+                                    <p:commandButton title="Yeni Konuşma Başlat" icon="pi pi-plus" actionListener="#{chatMB.showContactsForm()}" update="@(.chatForm)"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="inbox_chat">
+                            <c:forEach items="#{chatMB.conversations}" var="rec">
+                                <div class="chat_list active_chat">
+                                    <div class="chat_people">
+                                        <p:commandLink actionListener="#{chatMB.switchToChat(rec)}" update="@(.chatForm)">
+                                            <div class="chat_img">
+                                                <p:graphicImage value="#{chatMB.handleImageFileDownload(chatMB.getConversationReceiver(rec).image)}" stream="false" style="width: 50px;" alt="sunil"/>
+                                            </div>
+                                            <div class="chat_ib">
+                                                <h5>#{chatMB.getConversationReceiver(rec).nameSurname}<span class="chat_date">#{chatMB.formatDateTime(rec.startDate)}</span></h5>                                                
+                                            </div>
+                                        </p:commandLink>
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </div>
+                    </div>                            
+                </div>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{chatMB.showContacts}">
+                <p:panel header="Kişiler">
+                    <p:panelGrid columns="2" style="width: 100%;">
+                        <p:outputLabel for="branch" value="Şube Seçiniz"/>
+                        <p:selectOneMenu id="branch" class="selectObject" value="#{chatMB.selectedBranch}" required="true" label="Şube" filter="true" filterMatchMode="contains">
+                            <p:ajax listener="#{chatMB.searchContactsAction()}" update="@(.chatForm)"/>
+                            <f:selectItems var="itm" value="#{chatMB.branches}" itemLabel="#{itm.name}" itemValue="#{itm._id}" />
+                            <f:converter converterId="SelectConverter" />
+                        </p:selectOneMenu>
+                        <p:outputLabel for="branch" value="Ara"/>
+                        <h:panelGroup>
+                            <div class="ui-inputgroup">
+                                <p:inputText placeholder="Ara" value="#{chatMB.searchContact}" />
+                                <p:commandButton icon="pi pi-search"  title="Konuşma Ara" styleClass="white-button" actionListener="#{chatMB.searchContactsAction()}" update="@(.chatForm)"/>
+                            </div>
+                        </h:panelGroup>                        
+                    </p:panelGrid>
+                    <p:accordionPanel style="margin-top:20px">
+                        <p:tab title="Yöneticiler">                               
+                            <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-4,ui-g-12 ui-md-8" layout="grid" styleClass="ui-panelgrid-blank">
+                                <p:repeat value="#{chatMB.listStuff}" var="rec">
+                                    <p:commandLink update="@(.chatForm)" actionListener="#{chatMB.startNewConversation(rec)}">                                                                                    
+                                        <p:graphicImage width="50" value="#{chatMB.handleImageFileDownload(rec.image)}" />
+                                        <p:outputLabel value="#{rec.nameSurname}"/>
+                                    </p:commandLink><br/>
+                                </p:repeat>
+                            </p:panelGrid>
+                        </p:tab>
+                        <p:tab title="Öğretmenler">                               
+                            <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-4,ui-g-12 ui-md-8" layout="grid" styleClass="ui-panelgrid-blank">
+                                <p:repeat value="#{chatMB.listTeacher}" var="rec">
+                                    <p:commandLink update="@(.chatForm)" actionListener="#{chatMB.startNewConversation(rec)}">                                                                                    
+                                        <p:graphicImage width="50" value="#{chatMB.handleImageFileDownload(rec.image)}" />
+                                        <p:outputLabel value="#{rec.nameSurname}"/>
+                                    </p:commandLink><br/>
+                                </p:repeat>                                    
+                            </p:panelGrid>
+                        </p:tab>
+                        <p:tab title="Veliler" rendered="#{chatMB.canSeeStudentParent}">
+                            <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-4,ui-g-12 ui-md-8" layout="grid" styleClass="ui-panelgrid-blank">
+                                <p:repeat value="#{chatMB.listStudentParent}" var="rec">
+                                    <p:commandLink update="@(.chatForm)" actionListener="#{chatMB.startNewConversation(rec)}">                                                                                    
+                                        <p:graphicImage width="50" value="#{chatMB.handleImageFileDownload(rec.image)}" />
+                                        <p:outputLabel value="#{rec.nameSurname}"/>
+                                    </p:commandLink><br/>
+                                </p:repeat>                                    
+                            </p:panelGrid>
+                        </p:tab>
+                    </p:accordionPanel>
+                </p:panel>
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{chatMB.showChat}">
+                <p:toolbar>                       
+                    <f:facet name="right">                        
+                        <p:commandButton title="Konuşmayı Sil" icon="pi pi-trash" actionListener="#{chatMB.deleteMessageFromMe()}"  update="@(.chatForm)">
+                            <p:confirm header="Onay" message="Konuşmayı silmek istediğinize emin misiniz?" icon="pi pi-exclamation-triangle" />
+                        </p:commandButton>
+                        <p:commandButton title="Yenile" icon="pi pi-refresh" actionListener="#{chatMB.refreshChat()}"  update="msg_history" oncomplete="chatScrollToBottom()"/>                        
+                        <p:commandButton title="Kapat" icon="pi pi-bars" actionListener="#{chatMB.showRecentsForm()}"  update="@(.chatForm)"/>
+                    </f:facet>
+
+                </p:toolbar>
+
+                <div class="messaging">
+                    <div class="mesgs">
+                        <h:panelGroup id="msg_history" class="msg_history" layout="block">
+                            <c:forEach items="#{chatMB.currentChat.messages}" var="rec">
+                                <c:if test="#{rec.senderEmail eq securityMB.remoteUserName}"> 
+                                    <div class="outgoing_msg">
+                                        <div class="sent_msg">
+                                            <p>#{securityMB.getUserFromEmail(rec.senderEmail).nameSurname}</p>
+                                            <p>#{rec.message}</p>
+                                            <span class="time_date">#{chatMB.formatDateTime(rec.sendingTime)}</span></div>
+                                    </div>
+                                </c:if>
+
+                                <c:if test="#{not (rec.senderEmail eq securityMB.remoteUserName)}"> 
+                                    <div class="incoming_msg">
+                                        <div class="incoming_msg_img"> 
+                                            <p:graphicImage value="#{chatMB.handleImageFileDownload(securityMB.getUserFromEmail(rec.senderEmail).image)}" stream="false" style="width: 50px;" alt="sunil"/>
+                                        </div>
+                                        <div class="received_msg">
+                                            <div class="received_withd_msg">
+                                                <p>#{securityMB.getUserFromEmail(rec.senderEmail).nameSurname}</p>
+                                                <p>#{rec.message}</p>
+                                                <span class="time_date">#{chatMB.formatDateTime(rec.sendingTime)}</span></div>
+                                        </div>
+                                    </div>
+                                </c:if>
+                            </c:forEach>                                
+                        </h:panelGroup>
+                        <div class="type_msg">
+                            <div class="input_msg_write">
+                                <p:defaultCommand target="sendMsg" />
+                                <p:inputText class="write_msg" placeholder="Mesaj" value="#{chatMB.currentMessageText}" />
+                                <p:commandButton id="sendMsg" class="msg_send_btn" icon="fa fa-paper-plane-o"  actionListener="#{chatMB.addMessageToConversation()}" update="@(.chatForm)" oncomplete="chatScrollToBottom()"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p:remoteCommand name="refreshChat" update="msg_history" action="#{chatMB.refreshChat()}" oncomplete="chatScrollToBottom()"/>
+
+            </h:panelGroup>
+
+            <script type="text/javascript">
+                function chatScrollToBottom() {
+                    var objDiv = $(".msg_history")[0];
+                    objDiv.scrollTop = objDiv.scrollHeight;
+                }
+
+                chatScrollToBottom();
+                setInterval(function () {
+                    refreshChat();
+                }, 5000);
+
+            </script>
+        </h:form>
+    </h:body>
+</html>
+

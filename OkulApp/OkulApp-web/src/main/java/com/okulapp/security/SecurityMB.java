@@ -8,6 +8,8 @@ package com.okulapp.security;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
+import com.mongodb.QueryBuilder;
+import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.forms.CrudForm;
 import java.io.IOException;
 import javax.enterprise.context.SessionScoped;
@@ -24,6 +26,7 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
 import javax.security.auth.Subject;
@@ -42,9 +45,15 @@ import org.bson.types.ObjectId;
 @SessionScoped
 public class SecurityMB implements Serializable {
 
+    @EJB
+    MyDataSBLocal myDataSB;
+
     private List<Byte> userRoles = null;
     private final Map<String, Byte> RolesToByte = new HashMap<>();
     private final Map<Byte, String> ByteToRole = new HashMap<>();
+    private String loginUserRole;
+    private Map<String, Object> loginUser;
+    private Map<String, Object> userCache = new HashMap<>();
 
     public SecurityMB() {
     }
@@ -78,6 +87,10 @@ public class SecurityMB implements Serializable {
         return getRequest().getRemoteUser();
     }
 
+    public void setLoginUserRole(String loginUserRole) {
+        this.loginUserRole = loginUserRole;
+    }
+
     public void signOut() {
         try {
             getRequest().logout();
@@ -101,6 +114,7 @@ public class SecurityMB implements Serializable {
                     if (!principal.getName().contains("=")) {
                         if (i > 0) {
                             String role = principal.getName();
+                            setLoginUserRole(role);
                             byte oldRoleOrder = userRoles.isEmpty() ? 100 : userRoles.get(0);
                             if (RolesToByte.containsKey(role)) {
                                 if (RolesToByte.get(role) < oldRoleOrder) {
@@ -184,8 +198,8 @@ public class SecurityMB implements Serializable {
         if (userRecord.containsKey("email")) {
             Map<String, Object> rec = cf.getAda().read(cf.getDbName(), "users", new BasicDBObject("login", userRecord.get("email").toString()).toMap());
             if (rec != null) {
-             cf.getAda().delete(cf.getDbName(), "users", rec);   
-            }            
+                cf.getAda().delete(cf.getDbName(), "users", rec);
+            }
         }
     }
 
@@ -206,4 +220,36 @@ public class SecurityMB implements Serializable {
             return "stuff";
         }
     }
+
+    public Map<String, Object> getUserFromEmail(String email) {
+        Map<String, Object> user = null;
+        if (email != null) {
+            user = (Map<String, Object>) userCache.get(email);
+            if (user == null) {
+                if ("admin".equals(getLoginUserRole())) {
+                    user = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "stuff", QueryBuilder.start("email").is(email).get().toMap());
+                } else if ("teacher".equals(getLoginUserRole())) {
+                    user = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "teachers", QueryBuilder.start("email").is(email).get().toMap());
+                } else if ("stuff".equals(getLoginUserRole())) {
+                    user = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "stuff", QueryBuilder.start("email").is(email).get().toMap());
+                } else if ("parent".equals(getLoginUserRole())) {
+                    user = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "studentParent", QueryBuilder.start("email").is(email).get().toMap());
+                }
+                userCache.put(email, user);
+            }
+        }
+        return user;
+    }
+
+    public Map<String, Object> getLoginUser() {
+        if (loginUser == null && getRemoteUserName() != null && getLoginUserRole() != null) {
+            return getUserFromEmail(getRemoteUserName());
+        }
+        return loginUser;
+    }
+
+    public String getLoginUserRole() {
+        return loginUserRole;
+    }
+
 }

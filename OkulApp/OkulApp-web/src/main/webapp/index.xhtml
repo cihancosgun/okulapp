@@ -40,11 +40,11 @@
         </h:head>
 
         <h:body class="hold-transition skin-black-light sidebar-mini">
-            <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+            <!--<p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />-->
 
-            <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+<!--            <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
                 <img src="images/ajaxloadingbar.gif" alt=""/>
-            </p:dialog>            
+            </p:dialog>-->
             <h:form id="confirmDialogForm">
                 <p:confirmDialog global="true">
                     <p:commandButton value="#{texts.yes}" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />

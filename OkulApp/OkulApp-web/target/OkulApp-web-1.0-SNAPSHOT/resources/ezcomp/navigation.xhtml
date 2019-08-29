@@ -32,7 +32,7 @@
                                 </h:panelGroup>
                                 <h:panelGroup rendered="#{m.menus == null}">
                                     <p:commandLink immediate="true" update="contentCmp:contentPanelGroup"  
-                                                   actionListener="#{navigationMB.setFormFromMenu(m)}">
+                                                   >
                                         <i class="#{m.iconClass}"></i>#{m.title}
                                         <h:panelGroup rendered="#{m.menus != null}">
                                             <span class="pull-right-container">
