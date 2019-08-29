@@ -221,18 +221,31 @@ public class SecurityMB implements Serializable {
         }
     }
 
+    public String getUserRoleFromUserTable(String email) {
+        Map<String, Object> userRecord = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "users", QueryBuilder.start("login").is(email).get().toMap());
+        if (userRecord == null) {
+            return "";
+        }
+        List<String> groups = (List<String>) userRecord.get("groups");
+        if (groups == null) {
+            return "";
+        }
+        return groups.get(0);
+    }
+
     public Map<String, Object> getUserFromEmail(String email) {
         Map<String, Object> user = null;
         if (email != null) {
             user = (Map<String, Object>) userCache.get(email);
             if (user == null) {
-                if ("admin".equals(getLoginUserRole())) {
+                String role = getUserRoleFromUserTable(email);
+                if ("admin".equals(role)) {
                     user = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "stuff", QueryBuilder.start("email").is(email).get().toMap());
-                } else if ("teacher".equals(getLoginUserRole())) {
+                } else if ("teacher".equals(role)) {
                     user = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "teachers", QueryBuilder.start("email").is(email).get().toMap());
-                } else if ("stuff".equals(getLoginUserRole())) {
+                } else if ("stuff".equals(role)) {
                     user = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "stuff", QueryBuilder.start("email").is(email).get().toMap());
-                } else if ("parent".equals(getLoginUserRole())) {
+                } else if ("parent".equals(role)) {
                     user = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "studentParent", QueryBuilder.start("email").is(email).get().toMap());
                 }
                 userCache.put(email, user);

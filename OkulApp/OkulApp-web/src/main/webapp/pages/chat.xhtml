@@ -3,8 +3,7 @@
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:p="http://primefaces.org/ui"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
-      xmlns:pe="http://primefaces.org/ui/extensions">
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
     <h:body>
         <link href="#{request.contextPath}/css/chat.css" rel="stylesheet" type="text/css"/>
         <h:form id="chatForm" class="chatForm">
@@ -67,7 +66,7 @@
                             <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-4,ui-g-12 ui-md-8" layout="grid" styleClass="ui-panelgrid-blank">
                                 <p:repeat value="#{chatMB.listStuff}" var="rec">
                                     <p:commandLink update="@(.chatForm)" actionListener="#{chatMB.startNewConversation(rec)}">                                                                                    
-                                        <p:graphicImage width="50" value="#{chatMB.handleImageFileDownload(rec.image)}" />
+                                        <p:graphicImage width="50" value="#{chatMB.handleImageFileDownload(rec.image)}" stream="false"/>
                                         <p:outputLabel value="#{rec.nameSurname}"/>
                                     </p:commandLink><br/>
                                 </p:repeat>
@@ -77,7 +76,7 @@
                             <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-4,ui-g-12 ui-md-8" layout="grid" styleClass="ui-panelgrid-blank">
                                 <p:repeat value="#{chatMB.listTeacher}" var="rec">
                                     <p:commandLink update="@(.chatForm)" actionListener="#{chatMB.startNewConversation(rec)}">                                                                                    
-                                        <p:graphicImage width="50" value="#{chatMB.handleImageFileDownload(rec.image)}" />
+                                        <p:graphicImage width="50" value="#{chatMB.handleImageFileDownload(rec.image)}" stream="false"/>
                                         <p:outputLabel value="#{rec.nameSurname}"/>
                                     </p:commandLink><br/>
                                 </p:repeat>                                    
@@ -87,7 +86,7 @@
                             <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-4,ui-g-12 ui-md-8" layout="grid" styleClass="ui-panelgrid-blank">
                                 <p:repeat value="#{chatMB.listStudentParent}" var="rec">
                                     <p:commandLink update="@(.chatForm)" actionListener="#{chatMB.startNewConversation(rec)}">                                                                                    
-                                        <p:graphicImage width="50" value="#{chatMB.handleImageFileDownload(rec.image)}" />
+                                        <p:graphicImage width="50" value="#{chatMB.handleImageFileDownload(rec.image)}" stream="false" />
                                         <p:outputLabel value="#{rec.nameSurname}"/>
                                     </p:commandLink><br/>
                                 </p:repeat>                                    
@@ -145,9 +144,8 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <p:remoteCommand name="refreshChat" update="msg_history" action="#{chatMB.refreshChat()}" oncomplete="chatScrollToBottom()"/>
-
+                </div>                
+                <p:poll interval="5" listener="#{chatMB.refreshChat()}" update="msg_history" oncomplete="chatScrollToBottom()" />
             </h:panelGroup>
 
             <script type="text/javascript">
@@ -155,12 +153,7 @@
                     var objDiv = $(".msg_history")[0];
                     objDiv.scrollTop = objDiv.scrollHeight;
                 }
-
                 chatScrollToBottom();
-                setInterval(function () {
-                    refreshChat();
-                }, 5000);
-
             </script>
         </h:form>
     </h:body>

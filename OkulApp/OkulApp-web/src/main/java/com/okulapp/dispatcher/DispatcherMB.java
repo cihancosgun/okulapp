@@ -40,4 +40,7 @@ public class DispatcherMB implements Serializable {
         this.currentPage = currentPage;
     }
 
+    public void switchToChatPage() {
+        currentPage = new Form("Mesajlaşma", "/pages/chat.xhtml");
+    }
 }

@@ -85,7 +85,7 @@ public class MongoDataAdapter implements DataAdapter {
     }
 
     @Override
-    public CrudListResult getList(String dbName, String tableName, Map<String,Object> filter, Map<String,Object> projection) {
+    public CrudListResult getList(String dbName, String tableName, Map<String, Object> filter, Map<String, Object> projection) {
         this.connect();
         CrudListResult result = new CrudListResult();
         MongoDatabase db = client.getDatabase(dbName);
@@ -109,7 +109,7 @@ public class MongoDataAdapter implements DataAdapter {
     }
 
     @Override
-    public CrudListResult getSortedList(String dbName, String tableName, Map<String,Object> filter, Map<String,Object> projection, Map<String,Object> sort) {
+    public CrudListResult getSortedList(String dbName, String tableName, Map<String, Object> filter, Map<String, Object> projection, Map<String, Object> sort) {
         this.connect();
         CrudListResult result = new CrudListResult();
         MongoDatabase db = client.getDatabase(dbName);
@@ -137,7 +137,7 @@ public class MongoDataAdapter implements DataAdapter {
     }
 
     @Override
-    public CrudListResult getPagedList(String dbName, String tableName, Map<String,Object> filter, Map<String,Object> projection, int page, int pageSize) {
+    public CrudListResult getPagedList(String dbName, String tableName, Map<String, Object> filter, Map<String, Object> projection, int page, int pageSize) {
         this.connect();
         CrudListResult result = new CrudListResult();
         MongoDatabase db = client.getDatabase(dbName);
@@ -161,7 +161,7 @@ public class MongoDataAdapter implements DataAdapter {
     }
 
     @Override
-    public CrudListResult getSortedPagedList(String dbName, String tableName, Map<String,Object> filter, Map<String,Object> projection, int page, int pageSize, Map<String,Object> sort) {
+    public CrudListResult getSortedPagedList(String dbName, String tableName, Map<String, Object> filter, Map<String, Object> projection, int page, int pageSize, Map<String, Object> sort) {
         this.connect();
         CrudListResult result = new CrudListResult();
         MongoDatabase db = client.getDatabase(dbName);
@@ -189,13 +189,13 @@ public class MongoDataAdapter implements DataAdapter {
     }
 
     @Override
-    public Map<String,Object> create(String dbName, String tableName, Map<String,Object> rec) {
+    public Map<String, Object> create(String dbName, String tableName, Map<String, Object> rec) {
         if (isSlaveServer) {
             throw new UnsupportedOperationException(NOT_SUPPORTED_FOR_SLAVE_SERVER);
         }
         this.connect();
-        Map<String,Object> result = rec;
-        MongoDatabase db = client.getDatabase(dbName);        
+        Map<String, Object> result = rec;
+        MongoDatabase db = client.getDatabase(dbName);
         MongoCollection<Document> collection = db.getCollection(tableName);
         collection.insertOne(new Document(rec));
         this.disconnect();
@@ -203,12 +203,12 @@ public class MongoDataAdapter implements DataAdapter {
     }
 
     @Override
-    public Map<String,Object> read(String dbName, String tableName, Map<String,Object> find) {
+    public Map<String, Object> read(String dbName, String tableName, Map<String, Object> find) {
         if (isSlaveServer) {
             throw new UnsupportedOperationException(NOT_SUPPORTED_FOR_SLAVE_SERVER);
         }
         this.connect();
-        Map<String,Object> result = null;
+        Map<String, Object> result = null;
         MongoDatabase db = client.getDatabase(dbName);
         MongoCollection<Document> collection = db.getCollection(tableName);
         Document df = new Document(find);
@@ -221,12 +221,12 @@ public class MongoDataAdapter implements DataAdapter {
     }
 
     @Override
-    public Map<String,Object> update(String dbName, String tableName, Map<String,Object> rec) {
+    public Map<String, Object> update(String dbName, String tableName, Map<String, Object> rec) {
         if (isSlaveServer) {
             throw new UnsupportedOperationException(NOT_SUPPORTED_FOR_SLAVE_SERVER);
         }
         this.connect();
-        Map<String,Object> result = rec;
+        Map<String, Object> result = rec;
         MongoDatabase db = client.getDatabase(dbName);
         MongoCollection<Document> collection = db.getCollection(tableName);
         Document dr = new Document(rec);
@@ -237,17 +237,34 @@ public class MongoDataAdapter implements DataAdapter {
     }
 
     @Override
-    public Map<String,Object> delete(String dbName, String tableName, Map<String,Object> rec) {
+    public Map<String, Object> delete(String dbName, String tableName, Map<String, Object> rec) {
         if (isSlaveServer) {
             throw new UnsupportedOperationException(NOT_SUPPORTED_FOR_SLAVE_SERVER);
         }
         this.connect();
-        Map<String,Object> result = rec;
+        Map<String, Object> result = rec;
         MongoDatabase db = client.getDatabase(dbName);
         MongoCollection<Document> collection = db.getCollection(tableName);
         Document dr = new Document(rec);
         Document df = new Document(_ID, dr.getObjectId(_ID));
         collection.deleteOne(df);
+        this.disconnect();
+        return result;
+    }
+
+    public CrudListResult executeAggregation(String dbName, String tableName, List<Document> list) {
+        CrudListResult result = new CrudListResult();
+        this.connect();
+        MongoDatabase db = client.getDatabase(dbName);
+        MongoCollection<Document> collection = db.getCollection(tableName);
+        MongoCursor<Document> cursor = collection.aggregate(list).iterator();
+        int i = 0;
+        while (cursor.hasNext()) {
+            Document next = cursor.next();
+            result.addToList(next);
+            i++;
+        }
+        result.setTotalRecordCount(i);
         this.disconnect();
         return result;
     }

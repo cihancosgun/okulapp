@@ -7,6 +7,7 @@ package com.okulapp.chat;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.QueryBuilder;
+import com.okulapp.data.MongoDataAdapter;
 import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.dispatcher.DispatcherMB;
 import com.okulapp.forms.CrudMB;
@@ -25,6 +26,7 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.inject.Inject;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.primefaces.model.StreamedContent;
 
@@ -52,7 +54,7 @@ public class ChatMB implements Serializable {
     private List<Map<String, Object>> listTeacher;
     private List<Map<String, Object>> listStudentParent;
     private Map<String, Object> currentChat;
-
+    private List<Map<String, Object>> myUnreadedMessages;
     @EJB
     MyDataSBLocal myDataSB;
 
@@ -123,6 +125,7 @@ public class ChatMB implements Serializable {
         }
         searchConversationsAction();
         refreshChat();
+        refreshMyUnreadMessages();
     }
 
     public void searchContactsAction() {
@@ -256,12 +259,20 @@ public class ChatMB implements Serializable {
             currentChat.put("deleted", false);
             myDataSB.getAdvancedDataAdapter().create(myDataSB.getDbName(), "chat", currentChat);
         }
+        List<Map<String, Object>> messages = (List<Map<String, Object>>) currentChat.getOrDefault("messages", new ArrayList());
+        for (Map<String, Object> message : messages) {
+            if (securityMB.getRemoteUserName().equals(message.get("receiverEmail"))) {
+                message.put("readed", true);
+                message.put("readedDateTime", new Date());
+            }
+        }
+        currentChat.put("messages", messages);
         List<String> deletedUsers = (List<String>) currentChat.getOrDefault("deletedUsers", new ArrayList());
         if (deletedUsers.contains(securityMB.getRemoteUserName())) {
             deletedUsers.remove(securityMB.getRemoteUserName());
             currentChat.put("deletedUsers", deletedUsers);
-            myDataSB.getAdvancedDataAdapter().update(myDataSB.getDbName(), "chat", currentChat);
         }
+        myDataSB.getAdvancedDataAdapter().update(myDataSB.getDbName(), "chat", currentChat);
         showChatForm();
     }
 
@@ -278,6 +289,10 @@ public class ChatMB implements Serializable {
         message.put("sendingTime", new Date());
         message.put("sentStatus", 0);//0 : Not Sended, 1 : Sended, 2: Readed
         message.put("senderEmail", securityMB.getRemoteUserName());
+        message.put("receiverNameSurname", getConversationReceiver(currentChat).get("nameSurname"));
+        message.put("senderNameSurname", securityMB.getLoginUser().get("nameSurname"));
+        message.put("receiverEmail", getConversationReceiver(currentChat).get("email"));
+        message.put("readed", false);
         ArrayList msgList = (ArrayList) currentChat.get("messages");
         msgList.add(message);
         currentChat.put("messages", msgList);
@@ -311,6 +326,27 @@ public class ChatMB implements Serializable {
         }
     }
 
+    public List<Map<String, Object>> getMyUnreadedMessages() {
+        return myUnreadedMessages;
+    }
+
+    public void refreshMyUnreadMessages() {
+        MongoDataAdapter adapter = (MongoDataAdapter) myDataSB.getAdvancedDataAdapter().getSelectedDataAdapter();
+        List<Document> list = new ArrayList();
+        QueryBuilder match = QueryBuilder.start("$match").
+                is(QueryBuilder.start("messages.readed").is(false).and("messages.receiverEmail").is(securityMB.getRemoteUserName()).get());
+        QueryBuilder project = QueryBuilder.start("$project").
+                is(QueryBuilder.start("messages").is(true).get());
+        QueryBuilder unwind = QueryBuilder.start("$unwind").
+                is("$messages");
+
+        list.add(new Document(match.get().toMap()));
+        list.add(new Document(project.get().toMap()));
+        list.add(new Document(unwind.get().toMap()));
+        list.add(new Document(match.get().toMap()));
+        myUnreadedMessages = adapter.executeAggregation(myDataSB.getDbName(), "chat", list);
+    }
+
     public Map<String, Object> getConversationReceiver(Map<String, Object> chat) {
         if (securityMB.getRemoteUserName().equals(chat.get("senderEmail"))) {
             return securityMB.getUserFromEmail(chat.get("receiverEmail").toString());
@@ -320,8 +356,7 @@ public class ChatMB implements Serializable {
     }
 
     public void switchToChat(Map<String, Object> chat) {
-        setCurrentChat(chat);
-        showChatForm();
+        startNewConversation(securityMB.getUserFromEmail(chat.get("receiverEmail").toString()));
     }
 
     public void refreshChat() {

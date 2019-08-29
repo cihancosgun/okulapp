@@ -2,7 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:cc="http://xmlns.jcp.org/jsf/composite"
-      xmlns:h="http://xmlns.jcp.org/jsf/html">
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
 
     <!-- INTERFACE -->
     <cc:interface>
@@ -34,27 +36,60 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </a>
+                <h:form>
+                    <h:panelGroup id="navBarCustomMenu" class="navbar-custom-menu" layout="block">
+                        <ul class="nav navbar-nav">
+                            <li class="dropdown messages-menu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    <i class="fa fa-envelope-o"></i>
+                                    <h:panelGroup id="messageCount" class="label label-success">
+                                        ${chatMB.myUnreadedMessages.size()}
+                                    </h:panelGroup>
+                                    <p:poll listener="#{chatMB.refreshMyUnreadMessages()}" interval="10" update="navBarCustomMenu"/>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li class="header">${chatMB.myUnreadedMessages.size()} adet okunmamış mesajınız var.</li>
+                                    <li>
+                                        <!-- inner menu: contains the actual data -->
+                                        <ul class="menu">
+                                            <c:forEach items="#{chatMB.myUnreadedMessages}" var="rec">
+                                                <li><!-- start message -->
+                                                    <p:commandLink actionListener="#{dispatcherMB.switchToChatPage()}" immediate="true" update="contentCmp:contentPanelGroup">
+                                                        <div class="pull-left">
+                                                            <p:graphicImage value="#{chatMB.handleImageFileDownload(securityMB.getUserFromEmail(rec.messages.senderEmail).image)}" stream="false" class="img-circle" alt="Sender User Image"/>
+                                                        </div>
+                                                        <h4>
+                                                            #{rec.messages.senderNameSurname}
+                                                            <small><i class="fa fa-clock-o"></i> #{chatMB.formatDateTime(rec.messages.sendingTime)}</small>
+                                                        </h4>
+                                                        <p>#{rec.messages.message}</p>
+                                                    </p:commandLink>
+                                                </li>
+                                                <!-- end message -->
+                                            </c:forEach>
+                                        </ul>
+                                    </li>
+                                    <li class="footer"><p:commandLink immediate="true" actionListener="#{dispatcherMB.switchToChatPage()}" update="contentCmp:contentPanelGroup">Tüm Mesajları Göster</p:commandLink></li>
+                                </ul>
+                            </li>
 
-                <div class="navbar-custom-menu">
-                    <ul class="nav navbar-nav">
-                        <!-- User Account: style can be found in dropdown.less -->
-                        <li class="dropdown user user-menu">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">                                
-                                <span class="hidden-xs">#{cc.attrs.userName}</span>
-                            </a>
-                            <ul class="dropdown-menu">                               
-                                <li class="user-footer">                                    
-                                    <div class="pull-right">     
-                                        <h:form id="logoutForm">
-                                            <h:commandLink class="btn btn-default btn-flat" action="#{securityMB.signOut}" value="#{cc.attrs.logoutText}" immediate="true"/>                                         
-                                        </h:form>
-                                    </div>
-                                </li>
-                            </ul>
-                        </li>                      
-                    </ul>
+                            <!-- User Account: style can be found in dropdown.less -->
+                            <li class="dropdown user user-menu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">                                
+                                    <span class="hidden-xs">#{cc.attrs.userName}</span>
+                                </a>
+                                <ul class="dropdown-menu">                               
+                                    <li class="user-footer">                                    
+                                        <div class="pull-right">     
+                                            <p:commandLink class="btn btn-default btn-flat" actionListener="#{securityMB.signOut()}" value="#{cc.attrs.logoutText}" immediate="true" ajax="false"/>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>                      
+                        </ul>
 
-                </div>            
+                    </h:panelGroup>    
+                </h:form>
             </nav>
         </header>
     </cc:implementation>
