@@ -2,9 +2,34 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
     <h:body>
-        Ana sayfa.
+
+        <h:form id="boardForm">
+            <div class="ui-fluid">    
+
+                <p:dataScroller value="#{boardMB.myBoard}" var="rec" chunkSize="5" mode="inline" scrollHeight="600">
+                    <p:panel header="#{rec.senderNameSurname.concat(' - ').concat(chatMB.formatDateTime(rec.startDate))}">
+                        <p:graphicImage value="#{chatMB.handleImageFileDownload(securityMB.getUserFromEmail(rec.senderEmail).image)}" width="50" stream="false"/>
+                        <p:outputLabel value="#{rec.message}"/>
+                        <p:spacer height="60"/> 
+                        <p:panel header="Albüm" visible="#{not rec.fileIds.isEmpty()}"> 
+                            <p:panelGrid columns="4" columnClasses="ui-g-12 ui-md-3,ui-g-12 ui-md-3,ui-g-12 ui-md-3,ui-g-12 ui-md-3" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                                <c:forEach items="#{rec.fileIds}" var="recI"> 
+                                    <p:graphicImage value="#{chatMB.handleImageFileDownload(recI)}" stream="false" width="100"/>
+                                </c:forEach>
+                            </p:panelGrid>    
+                        </p:panel>
+                    </p:panel>
+                    <p:spacer height="30"/>
+                </p:dataScroller>
+            </div>
+
+
+
+        </h:form>
+
     </h:body>
 </html>
 

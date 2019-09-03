@@ -38,14 +38,15 @@
                 </a>
                 <h:form>
                     <h:panelGroup id="navBarCustomMenu" class="navbar-custom-menu" layout="block">
+                        <p:growl id="myNotifyMsgs" showDetail="true"/>
                         <ul class="nav navbar-nav">
                             <li class="dropdown messages-menu">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                     <i class="fa fa-envelope-o"></i>
-                                    <h:panelGroup id="messageCount" class="label label-success">
-                                        ${chatMB.myUnreadedMessages.size()}
+                                    <h:panelGroup id="messageCount" class="label label-success" rendered="#{not chatMB.myUnreadedMessages.isEmpty()}">
+                                        ${chatMB.myUnreadedMessages.size()} 
                                     </h:panelGroup>
-                                    <p:poll listener="#{chatMB.refreshMyUnreadMessages()}" interval="10" update="navBarCustomMenu"/>
+                                    <p:poll listener="#{chatMB.refreshMyUnreadMessages()}" interval="10" update="navBarCustomMenu myNotifyMsgs"/>
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li class="header">${chatMB.myUnreadedMessages.size()} adet okunmamış mesajınız var.</li>
@@ -59,9 +60,9 @@
                                                             <p:graphicImage value="#{chatMB.handleImageFileDownload(securityMB.getUserFromEmail(rec.messages.senderEmail).image)}" stream="false" class="img-circle" alt="Sender User Image"/>
                                                         </div>
                                                         <h4>
-                                                            #{rec.messages.senderNameSurname}
-                                                            <small><i class="fa fa-clock-o"></i> #{chatMB.formatDateTime(rec.messages.sendingTime)}</small>
+                                                            #{rec.messages.senderNameSurname}                                                            
                                                         </h4>
+                                                        <small><i class="fa fa-clock-o"></i> #{chatMB.formatDateTime(rec.messages.sendingTime)}</small>
                                                         <p>#{rec.messages.message}</p>
                                                     </p:commandLink>
                                                 </li>
@@ -70,6 +71,40 @@
                                         </ul>
                                     </li>
                                     <li class="footer"><p:commandLink immediate="true" actionListener="#{dispatcherMB.switchToChatPage()}" update="contentCmp:contentPanelGroup">Tüm Mesajları Göster</p:commandLink></li>
+                                </ul>
+                            </li>
+
+                            <li class="dropdown notifications-menu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    <i class="fa fa-bell-o"></i>
+                                    <h:panelGroup class="label label-warning" rendered="#{not boardMB.myUnreadedBoard.isEmpty()}">
+                                        ${boardMB.myUnreadedBoard.size()}
+                                    </h:panelGroup>
+                                    <p:poll listener="#{boardMB.refreshMyBoard()}" interval="10" update="navBarCustomMenu myNotifyMsgs"/>
+                                </a>
+                                <ul class="dropdown-menu"> 
+                                    <li class="header">${boardMB.myUnreadedBoard.size()} adet okunmamış bildiriminiz var.</li>
+                                    <li>
+                                        <!-- inner menu: contains the actual data -->
+                                        <ul class="menu">
+                                            <c:forEach items="#{boardMB.myUnreadedBoard}" var="rec">
+                                                <li><!-- start message -->
+                                                    <p:commandLink actionListener="#{dispatcherMB.switchToBoardPage()}" immediate="true" update="contentCmp:contentPanelGroup">
+                                                        <div class="pull-left">
+                                                            <img src="#{request.contextPath}/images/images.png" class="img-circle" alt="nfimg" width="30px;"/>
+                                                        </div>
+                                                        <h4> 
+                                                            #{rec.senderNameSurname}                                                            
+                                                        </h4>
+                                                        <small><i class="fa fa-clock-o"></i> #{chatMB.formatDateTime(rec.startDate)}</small>
+                                                        <p>#{rec.message}</p>
+                                                    </p:commandLink>
+                                                </li>
+                                                <!-- end message -->
+                                            </c:forEach>
+                                        </ul>
+                                    </li>
+                                    <li class="footer"><p:commandLink actionListener="#{dispatcherMB.switchToBoardPage()}" immediate="true" update="contentCmp:contentPanelGroup">Tüm Bildirimleri Göster</p:commandLink></li>
                                 </ul>
                             </li>
 

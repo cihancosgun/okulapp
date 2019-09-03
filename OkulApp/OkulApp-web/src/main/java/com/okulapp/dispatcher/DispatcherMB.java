@@ -43,4 +43,8 @@ public class DispatcherMB implements Serializable {
     public void switchToChatPage() {
         currentPage = new Form("Mesajlaşma", "/pages/chat.xhtml");
     }
+    
+    public void switchToBoardPage() {
+        currentPage = new Form("Pano", "/pages/home.xhtml");
+    }
 }

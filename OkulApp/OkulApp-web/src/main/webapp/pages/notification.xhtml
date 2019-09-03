@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:body>
+        <style type="text/css">
+            .ui-treetable table {
+                table-layout: fixed
+            }
+
+            .value {
+                font-weight: bold
+            }
+
+            .ui-dialog table {
+                margin-left:auto; 
+                margin-right:auto;
+            }
+
+            .ui-outputlabel {
+                font-weight: bold;
+            }
+
+            .ui-orderlist .ui-orderlist-list {
+                height: auto;
+            }
+
+        </style>
+
+
+        <h:form id="notificationForm" class="notificationForm">            
+            <p:tabView>
+                <p:tab title="Alıcılıar">
+                    <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-12" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                        <h:panelGroup class="ui-inputgroup" layout="block">
+                            <p:inputText id="searchContact" value="#{notificationMB.searchContact}"/>
+                            <p:commandButton icon="fa fa-search" actionListener="#{notificationMB.searchContactsAction()}" update="contactList" />
+                        </h:panelGroup>                            
+                    </p:panelGrid> 
+                    <p:treeTable id="contactList" value="#{notificationMB.rootContacts}" var="rec" selectionMode="checkbox" selection="#{notificationMB.selectedContacts}">
+                        <f:facet name="header">
+                            Kişiler 
+                        </f:facet> 
+                        <p:column>
+                            <p:graphicImage value="#{chatMB.handleImageFileDownload(rec.image)}" stream="false" style="width: 50px;"/>
+                            <h:outputText value="#{rec.nameSurname}" />
+                        </p:column>
+                    </p:treeTable> 
+                </p:tab> 
+                <p:tab title="Mesaj">
+                    <p:growl id="myMsgs" showDetail="true" /> 
+                    <div class="ui-fluid">                        
+                        <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-4,ui-g-12 ui-md-8" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                            <p:outputLabel for="notificationMessage" value="Mesaj"/>
+                            <p:inputTextarea id="notificationMessage" value="#{notificationMB.notificationMessage}"/>
+                            <p:outputLabel for="files" value="Dosyalar"/>
+                            <p:fileUpload id="files" fileUploadListener="#{notificationMB.handleFileUpload}" mode="advanced" dragDropSupport="false"
+                                          multiple="true" update="myMsgs" sizeLimit="3145728" fileLimit="50" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" auto="true" />
+                            <p:outputLabel value=""/>
+                            <p:panelGrid columns="2">
+                                <p:commandButton id="send" icon="fa fa-send" value="Mesajı Gönder" actionListener="#{notificationMB.sendMessage()}" update="@(.notificationForm)" />
+                                <p:commandButton id="clean" icon="fa fa-remove" value="Temizle" actionListener="#{notificationMB.clean()}" update="@(.notificationForm)" />
+                            </p:panelGrid>
+                        </p:panelGrid>
+                    </div>
+                </p:tab>                
+            </p:tabView>
+        </h:form>
+    </h:body>
+</html>
+

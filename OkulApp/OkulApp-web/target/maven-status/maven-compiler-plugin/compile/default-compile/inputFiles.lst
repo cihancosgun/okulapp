@@ -1,5 +1,6 @@
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputSelectOneDbFormControl.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/FormControlFactory.java
+/home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/notify/BoardMB.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/dispatcher/NewJSFManagedBean.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputTextFormControl.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/texts/TextsMB.java
@@ -10,6 +11,7 @@
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/ListField.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputSelectManyDbFormControl.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/navigation/Menu.java
+/home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/notify/NotificationMB.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputSelectManyFormControl.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/CrudMB.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/navigation/NavigationMB.java

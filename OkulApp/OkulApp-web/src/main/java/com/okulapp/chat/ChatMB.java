@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -55,6 +57,8 @@ public class ChatMB implements Serializable {
     private List<Map<String, Object>> listStudentParent;
     private Map<String, Object> currentChat;
     private List<Map<String, Object>> myUnreadedMessages;
+    private Date lastMessageDate = new Date();
+
     @EJB
     MyDataSBLocal myDataSB;
 
@@ -120,8 +124,8 @@ public class ChatMB implements Serializable {
         showChat = false;
         canSeeStudentParent = Arrays.asList("admin", "teacher").contains(securityMB.getLoginUserRole());
         branches = myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "branch", new BasicDBObject(), new BasicDBObject());
-        if (branches != null) {
-            setSelectedBranch((ObjectId) branches.get(0).get("_id"));
+        if (branches != null && securityMB.getLoginUser() != null) {
+            setSelectedBranch((ObjectId) securityMB.getLoginUser().getOrDefault("branch", branches.get(0).get("_id")));
         }
         searchConversationsAction();
         refreshChat();
@@ -212,8 +216,8 @@ public class ChatMB implements Serializable {
     }
 
     public void setSelectedBranch(ObjectId selectedBranch) {
-        this.searchContactsAction();
         this.selectedBranch = selectedBranch;
+        this.searchContactsAction();
     }
 
     public void setShowRecents(boolean showRecents) {
@@ -344,7 +348,16 @@ public class ChatMB implements Serializable {
         list.add(new Document(project.get().toMap()));
         list.add(new Document(unwind.get().toMap()));
         list.add(new Document(match.get().toMap()));
+        list.add(new Document("$sort", new Document("messages.sendingTime", -1)));
         myUnreadedMessages = adapter.executeAggregation(myDataSB.getDbName(), "chat", list);
+        if (!myUnreadedMessages.isEmpty()) {
+            Date dtMsgDate = (Date) ((Map) myUnreadedMessages.get(0).get("messages")).get("sendingTime");
+            if (dtMsgDate.after(lastMessageDate)) {
+                FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Mesaj", String.format("%d adet okunmamış mesajınız var.", myUnreadedMessages.size()));
+                FacesContext.getCurrentInstance().addMessage(null, msg);
+            }
+            lastMessageDate = dtMsgDate;
+        }
     }
 
     public Map<String, Object> getConversationReceiver(Map<String, Object> chat) {

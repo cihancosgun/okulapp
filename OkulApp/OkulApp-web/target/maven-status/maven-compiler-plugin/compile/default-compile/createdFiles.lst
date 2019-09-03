@@ -11,6 +11,7 @@ com/okulapp/chat/ChatMB.class
 com/okulapp/navigation/Menu$1.class
 com/okulapp/forms/controls/InputSelectManyFormControl.class
 com/okulapp/forms/controls/InputSelectManyDbFormControl.class
+com/okulapp/notify/NotificationMB.class
 com/okulapp/forms/controls/InputIntegerFormControl.class
 com/okulapp/texts/TextsMB.class
 com/okulapp/forms/controls/InputTextFormControl.class
@@ -31,6 +32,7 @@ com/okulapp/forms/controls/SelectConverter.class
 com/okulapp/navigation/Menu$Builder.class
 com/okulapp/forms/CrudMB.class
 com/okulapp/security/SecurityMB.class
+com/okulapp/notify/BoardMB.class
 com/okulapp/navigation/Menu.class
 com/okulapp/forms/ListField.class
 com/okulapp/texts/TextBundlerSMB.class
