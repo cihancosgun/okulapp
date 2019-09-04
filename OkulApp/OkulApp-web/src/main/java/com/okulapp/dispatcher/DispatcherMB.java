@@ -5,12 +5,17 @@
  */
 package com.okulapp.dispatcher;
 
+import com.okulapp.chat.ChatMB;
+import com.okulapp.forms.CrudMB;
 import java.io.Serializable;
 import javax.inject.Inject;
 import javax.inject.Named;
 import com.okulapp.forms.Form;
+import com.okulapp.notify.BoardMB;
 import com.okulapp.texts.TextBundlerSMB;
+import java.util.Map;
 import javax.enterprise.context.SessionScoped;
+import org.bson.types.ObjectId;
 
 /**
  *
@@ -22,6 +27,15 @@ public class DispatcherMB implements Serializable {
 
     private @Inject
     TextBundlerSMB textBundlerSMB;
+
+    @Inject
+    CrudMB crudMB;
+
+    @Inject
+    ChatMB chatMB;
+
+    @Inject
+    BoardMB boardMB;
 
     private Form currentPage;
 
@@ -41,10 +55,24 @@ public class DispatcherMB implements Serializable {
     }
 
     public void switchToChatPage() {
+        chatMB.refreshChat();
+        chatMB.refreshMyUnreadMessages();
         currentPage = new Form("Mesajlaşma", "/pages/chat.xhtml");
     }
-    
+
     public void switchToBoardPage() {
+        boardMB.refreshMyBoard();
         currentPage = new Form("Pano", "/pages/home.xhtml");
+    }
+
+    public void switchToShowImagePage(ObjectId image, Map<String, Object> notify) {
+        boardMB.setCurrentImage(image);
+        boardMB.setCurrentNotify(notify);
+        currentPage = new Form("Resim", "/pages/showImage.xhtml");
+    }
+
+    public void switchToShowNotify(Map<String, Object> notify) {
+        boardMB.setCurrentNotify(notify);
+        currentPage = new Form("Resim", "/pages/showNotify.xhtml");
     }
 }

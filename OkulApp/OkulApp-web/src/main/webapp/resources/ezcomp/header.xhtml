@@ -89,7 +89,7 @@
                                         <ul class="menu">
                                             <c:forEach items="#{boardMB.myUnreadedBoard}" var="rec">
                                                 <li><!-- start message -->
-                                                    <p:commandLink actionListener="#{dispatcherMB.switchToBoardPage()}" immediate="true" update="contentCmp:contentPanelGroup">
+                                                    <p:commandLink actionListener="#{dispatcherMB.switchToShowNotify(rec)}" immediate="true" update="contentCmp:contentPanelGroup">
                                                         <div class="pull-left">
                                                             <img src="#{request.contextPath}/images/images.png" class="img-circle" alt="nfimg" width="30px;"/>
                                                         </div>

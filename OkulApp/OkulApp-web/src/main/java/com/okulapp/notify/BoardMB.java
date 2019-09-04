@@ -25,6 +25,7 @@ import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import org.bson.types.ObjectId;
 
 /**
  *
@@ -52,11 +53,21 @@ public class BoardMB implements Serializable {
     private List<Map<String, Object>> myBoard = new ArrayList();
     private List<Map<String, Object>> myUnreadedBoard = new ArrayList();
     private Date lastMessageDate = new Date();
+    private ObjectId currentImage;
+    private Map<String, Object> currentNotify;
 
     /**
      * Creates a new instance of BoardMB
      */
     public BoardMB() {
+    }
+
+    public ObjectId getCurrentImage() {
+        return currentImage;
+    }
+
+    public Map<String, Object> getCurrentNotify() {
+        return currentNotify;
     }
 
     public List<Map<String, Object>> getMyBoard() {
@@ -89,6 +100,20 @@ public class BoardMB implements Serializable {
             }
             lastMessageDate = dtMsgDate;
         }
+    }
+
+    public void setCurrentImage(ObjectId currentImage) {
+        this.currentImage = currentImage;
+    }
+
+    public void setCurrentNotify(Map<String, Object> currentNotify) {
+        List<String> readedUsers = (List<String>) currentNotify.get("readedUsers");
+        if (!readedUsers.contains(securityMB.getRemoteUserName())) {
+            readedUsers.add(securityMB.getRemoteUserName());
+        }
+        currentNotify.put("readedUsers", readedUsers);
+        myDataSB.getAdvancedDataAdapter().update(myDataSB.getDbName(), "notifications", currentNotify);
+        this.currentNotify = currentNotify;
     }
 
     public void setMyBoard(List<Map<String, Object>> myBoard) {

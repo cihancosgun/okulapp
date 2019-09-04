@@ -3,24 +3,47 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
     <h:body>
+        <style>
+            .albumImg {
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 5px;
+                width: 150px;
+            }
 
+            .albumImg:hover {
+                cursor: pointer;
+                box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
+            }
+        </style>
         <h:form id="boardForm">
             <div class="ui-fluid">    
-
-                <p:dataScroller value="#{boardMB.myBoard}" var="rec" chunkSize="5" mode="inline" scrollHeight="600">
+                <p:dataScroller value="#{boardMB.myBoard}" var="rec" chunkSize="2" mode="inline" scrollHeight="720">
+                    <f:facet name="loader">
+                        <p:commandButton type="button" value="Daha Fazla Yükle" icon="pi pi-chevron-circle-down"/>
+                    </f:facet>
                     <p:panel header="#{rec.senderNameSurname.concat(' - ').concat(chatMB.formatDateTime(rec.startDate))}">
-                        <p:graphicImage value="#{chatMB.handleImageFileDownload(securityMB.getUserFromEmail(rec.senderEmail).image)}" width="50" stream="false"/>
-                        <p:outputLabel value="#{rec.message}"/>
-                        <p:spacer height="60"/> 
-                        <p:panel header="Albüm" visible="#{not rec.fileIds.isEmpty()}"> 
-                            <p:panelGrid columns="4" columnClasses="ui-g-12 ui-md-3,ui-g-12 ui-md-3,ui-g-12 ui-md-3,ui-g-12 ui-md-3" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
-                                <c:forEach items="#{rec.fileIds}" var="recI"> 
-                                    <p:graphicImage value="#{chatMB.handleImageFileDownload(recI)}" stream="false" width="100"/>
-                                </c:forEach>
-                            </p:panelGrid>    
-                        </p:panel>
+                        <p:commandLink actionListener="#{dispatcherMB.switchToShowNotify(rec)}" update="contentCmp:contentPanelGroup">
+                            <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-1,ui-g-12 ui-md-11" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">                            
+                                <p:graphicImage value="#{chatMB.handleImageFileDownload(securityMB.getUserFromEmail(rec.senderEmail).image)}" width="50" stream="false"/>                            
+                                <p:outputLabel value="#{rec.message}"/>                            
+                            </p:panelGrid>
+                        </p:commandLink>
+                        <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-12" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                            <p:dataView value="#{rec.fileIds}" var="recI" layout="grid" gridIcon="pi pi-th-large" listIcon="pi pi-bars" rendered="#{not rec.fileIds.isEmpty()}"> 
+                                <f:facet name="header">
+                                    <p:outputLabel value="Albüm"/>
+                                </f:facet>
+                                <p:dataViewGridItem>
+                                    <p:commandLink actionListener="#{dispatcherMB.switchToShowImagePage(recI, rec)}" update="contentCmp:contentPanelGroup">
+                                        <p:graphicImage class="albumImg" value="#{chatMB.handleImageFileDownload(recI)}" stream="false"/>                                       
+                                    </p:commandLink>
+                                </p:dataViewGridItem>
+                            </p:dataView>
+                        </p:panelGrid>
                     </p:panel>
                     <p:spacer height="30"/>
                 </p:dataScroller>
