@@ -177,6 +177,10 @@ public class NotificationMB implements Serializable {
         }
     }
 
+    public CheckboxTreeNode prepearNodeForPersonRecord(Map<String, Object> rec) {
+        return new CheckboxTreeNode("", rec, null);
+    }
+
     public void handleFileUpload(FileUploadEvent event) {
         FacesMessage msg = new FacesMessage("Succesful", event.getFile().getFileName() + " is uploaded.");
         FacesContext.getCurrentInstance().addMessage(null, msg);

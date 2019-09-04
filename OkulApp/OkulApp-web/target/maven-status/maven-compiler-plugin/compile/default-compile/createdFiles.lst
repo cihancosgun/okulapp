@@ -4,6 +4,7 @@ com/okulapp/forms/controls/InputCheckBoxControl.class
 com/okulapp/security/PasswordHasher.class
 com/okulapp/forms/controls/InputSelectOneDbFormControl.class
 com/okulapp/navigation/Menu$1.class
+com/okulapp/inspection/InspectionMB.class
 com/okulapp/forms/controls/InputSelectManyFormControl.class
 com/okulapp/forms/controls/InputTextFormControl.class
 com/okulapp/forms/CrudForm$1.class
