@@ -12,6 +12,7 @@ import com.okulapp.dispatcher.DispatcherMB;
 import com.okulapp.forms.CrudMB;
 import com.okulapp.security.SecurityMB;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
@@ -34,6 +35,8 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.CheckboxTreeNode;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 import org.primefaces.model.TreeNode;
 import org.primefaces.model.UploadedFile;
 
@@ -265,7 +268,7 @@ public class NotificationMB implements Serializable {
         return list;
     }
 
-    private Map<String, Object> prepareNotifiyRecord() {
+    private Map<String, Object> prepareNotifiyRecord(String messageType) {
         Map<String, Object> rec = new HashMap();
         rec = new HashMap();
         rec.put("_id", new ObjectId());
@@ -274,7 +277,7 @@ public class NotificationMB implements Serializable {
         rec.put("users", getReceiverUsers());
         rec.put("usersNS", getReceiverUsersNS());
         rec.put("readedUsers", new ArrayList());
-        rec.put("messageType", "Pano");
+        rec.put("messageType", messageType);
         rec.put("message", notificationMessage);
         rec.put("fileIds", getFileIds());
         rec.put("startDate", new Date());
@@ -282,7 +285,16 @@ public class NotificationMB implements Serializable {
         return rec;
     }
 
-    public void sendMessage() {
+    public StreamedContent handleMessageTypeIcon(String messageType) {
+        InputStream is = getClass().getClassLoader().getResourceAsStream(messageType.concat(".png"));
+        if (is != null) {
+            return new DefaultStreamedContent(is, "image/png");
+        } else {
+            return new DefaultStreamedContent(getClass().getClassLoader().getResourceAsStream("board.png"), "image/png");
+        }
+    }
+
+    public void sendMessage(String messageType) {
         if (notificationMessage == null || notificationMessage.trim().isEmpty()) {
             FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Hata", "Lütfen bir mesaj giriniz.");
             FacesContext.getCurrentInstance().addMessage(null, msg);
@@ -295,7 +307,7 @@ public class NotificationMB implements Serializable {
             return;
         }
 
-        Map<String, Object> rec = prepareNotifiyRecord();
+        Map<String, Object> rec = prepareNotifiyRecord(messageType);
 
         myDataSB.getAdvancedDataAdapter().create(myDataSB.getDbName(), "notifications", rec);
 

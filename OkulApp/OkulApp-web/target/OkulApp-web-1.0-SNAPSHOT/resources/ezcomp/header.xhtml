@@ -19,7 +19,7 @@
     <!-- IMPLEMENTATION -->
     <cc:implementation>
 
-        <header class="main-header">           
+        <header class="main-header">
             <!-- Logo -->
             <a href="#" class="logo">
                 <!-- mini logo for sidebar mini 50x50 pixels -->
@@ -91,8 +91,8 @@
                                                 <li><!-- start message -->
                                                     <p:commandLink actionListener="#{dispatcherMB.switchToShowNotify(rec)}" immediate="true" update="contentCmp:contentPanelGroup">
                                                         <div class="pull-left">
-                                                            <img src="#{request.contextPath}/images/images.png" class="img-circle" alt="nfimg" width="30px;"/>
-                                                        </div>
+                                                            <p:graphicImage value="#{notificationMB.handleMessageTypeIcon(rec.messageType)}" class="img-circle" alt="nfimg" width="30px;" stream="false"/>
+                                                        </div> 
                                                         <h4> 
                                                             #{rec.senderNameSurname}                                                            
                                                         </h4>

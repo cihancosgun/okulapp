@@ -27,7 +27,14 @@
             </p:toolbar>
             <br/>
             <div class="ui-fluid">                         
-                <p:panel header="#{boardMB.currentNotify.senderNameSurname.concat(' - ').concat(chatMB.formatDateTime(boardMB.currentNotify.startDate))}">
+                <p:panel>
+                    <f:facet name="header"> 
+                        <p:panelGrid columns="4" columnClasses="ui-widget-header,ui-widget-header,ui-widget-header,ui-widget-header">
+                            <p:graphicImage value="#{notificationMB.handleMessageTypeIcon(boardMB.currentNotify.messageType)}" width="20" stream="false"/>
+                            <p:outputLabel value="#{boardMB.currentNotify.senderNameSurname}"/><p> - </p>
+                            <p:outputLabel value="#{chatMB.formatDateTime(boardMB.currentNotify.startDate)}"/>
+                        </p:panelGrid>
+                    </f:facet>
                     <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-1,ui-g-12 ui-md-11" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
                         <p:graphicImage value="#{chatMB.handleImageFileDownload(securityMB.getUserFromEmail(boardMB.currentNotify.senderEmail).image)}" width="50" stream="false"/>
                         <p:outputLabel value="#{boardMB.currentNotify.message}"/>                             

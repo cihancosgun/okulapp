@@ -3,7 +3,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
       xmlns:f="http://xmlns.jcp.org/jsf/core">
     <h:body>
         <style>
@@ -25,10 +24,17 @@
                     <f:facet name="loader">
                         <p:commandButton type="button" value="Daha Fazla Yükle" icon="pi pi-chevron-circle-down"/>
                     </f:facet>
-                    <p:panel header="#{rec.senderNameSurname.concat(' - ').concat(chatMB.formatDateTime(rec.startDate))}">
+                    <p:panel>
+                        <f:facet name="header"> 
+                            <p:panelGrid columns="4" columnClasses="ui-widget-header,ui-widget-header,ui-widget-header,ui-widget-header">
+                                <p:graphicImage value="#{notificationMB.handleMessageTypeIcon(rec.messageType)}" width="20" stream="false"/>
+                                <p:outputLabel value="#{rec.senderNameSurname}"/><p> - </p>
+                                <p:outputLabel value="#{chatMB.formatDateTime(rec.startDate)}"/>
+                            </p:panelGrid>
+                        </f:facet>
                         <p:commandLink actionListener="#{dispatcherMB.switchToShowNotify(rec)}" update="contentCmp:contentPanelGroup">
                             <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-1,ui-g-12 ui-md-11" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">                            
-                                <p:graphicImage value="#{chatMB.handleImageFileDownload(securityMB.getUserFromEmail(rec.senderEmail).image)}" width="50" stream="false"/>                            
+                                <p:graphicImage value="#{chatMB.handleImageFileDownload(securityMB.getUserFromEmail(rec.senderEmail).image)}" width="50" stream="false"/>
                                 <p:outputLabel value="#{rec.message}"/>                            
                             </p:panelGrid>
                         </p:commandLink>

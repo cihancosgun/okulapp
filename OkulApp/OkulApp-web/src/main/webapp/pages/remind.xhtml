@@ -59,7 +59,7 @@
                                           multiple="true" update="myMsgs" sizeLimit="3145728" fileLimit="50" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" auto="true" />
                             <p:outputLabel value=""/>
                             <p:panelGrid columns="2">
-                                <p:commandButton id="send" icon="fa fa-send" value="Mesajı Gönder" actionListener="#{notificationMB.sendMessage('board')}" update="@(.notificationForm)" />
+                                <p:commandButton id="send" icon="fa fa-send" value="Mesajı Gönder" actionListener="#{notificationMB.sendMessage('remind')}" update="@(.notificationForm)" />
                                 <p:commandButton id="clean" icon="fa fa-remove" value="Temizle" actionListener="#{notificationMB.clean()}" update="@(.notificationForm)" />
                             </p:panelGrid>
                         </p:panelGrid>
