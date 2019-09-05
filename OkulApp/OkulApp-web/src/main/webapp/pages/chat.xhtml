@@ -47,8 +47,8 @@
             <h:panelGroup rendered="#{chatMB.showContacts}">
                 <p:panel header="Kişiler">
                     <p:panelGrid columns="2" style="width: 100%;">
-                        <p:outputLabel for="branch" value="Şube Seçiniz"/>
-                        <p:selectOneMenu id="branch" class="selectObject" value="#{chatMB.selectedBranch}" required="true" label="Şube" filter="true" filterMatchMode="contains">
+                        <p:outputLabel for="branch" value="Şube Seçiniz" rendered="#{securityMB.loginUserRole eq 'admin'}"/>
+                        <p:selectOneMenu id="branch" rendered="#{securityMB.loginUserRole eq 'admin'}" class="selectObject" value="#{chatMB.selectedBranch}" required="true" label="Şube" filter="true" filterMatchMode="contains">
                             <p:ajax listener="#{chatMB.searchContactsAction()}" update="@(.chatForm)"/>
                             <f:selectItems var="itm" value="#{chatMB.branches}" itemLabel="#{itm.name}" itemValue="#{itm._id}" />
                             <f:converter converterId="SelectConverter" />

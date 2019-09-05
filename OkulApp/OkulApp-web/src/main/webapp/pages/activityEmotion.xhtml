@@ -13,36 +13,37 @@
                 color:red;
             }
         </style>
-        <h:form id="inspectionForm" class="inspectionForm">
+        <h:form id="activityForm" class="activityForm">
             <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-10" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
                 <p:outputLabel for="branch" value="Şube Seçiniz"/>
-                <p:selectOneMenu id="branch" class="selectObject" value="#{inspectionMB.selectedBranch}" required="true" label="Şube" filter="true" filterMatchMode="contains" disabled="#{securityMB.loginUserRole ne 'admin'}">
-                    <p:ajax update="@(.inspectionForm)"/>
+                <p:selectOneMenu id="branch" class="selectObject" value="#{activityMB.selectedBranch}" required="true" label="Şube" filter="true" filterMatchMode="contains" disabled="#{securityMB.loginUserRole ne 'admin'}">
+                    <p:ajax update="@(.activityForm)"/>
                     <f:selectItem itemLabel="#{texts.selectOne}" itemValue="#{null}" noSelectionOption="true" />
-                    <f:selectItems var="itm" value="#{inspectionMB.branches}" itemLabel="#{itm.name}" itemValue="#{itm._id}" />
+                    <f:selectItems var="itm" value="#{activityMB.branches}" itemLabel="#{itm.name}" itemValue="#{itm._id}" />
                     <f:converter converterId="SelectConverter" />
                 </p:selectOneMenu>
                 <p:outputLabel for="class" value="Sınıf Seçiniz"/>
-                <p:selectOneMenu id="class" class="selectObject" value="#{inspectionMB.selectedClass}" required="true" label="Sınıf" filter="true" filterMatchMode="contains">
-                    <p:ajax update="@(.inspectionForm)"/>
+                <p:selectOneMenu id="class" class="selectObject" value="#{activityMB.selectedClass}" required="true" label="Sınıf" filter="true" filterMatchMode="contains">
+                    <p:ajax update="@(.activityForm)"/>
                     <f:selectItem itemLabel="#{texts.selectOne}" itemValue="#{null}" noSelectionOption="true" />
-                    <f:selectItems var="itm" value="#{inspectionMB.listClasses}" itemLabel="#{itm.name}" itemValue="#{itm._id}" />
+                    <f:selectItems var="itm" value="#{activityMB.listClasses}" itemLabel="#{itm.name}" itemValue="#{itm._id}" />
                     <f:converter converterId="SelectConverter" />
-                </p:selectOneMenu>                
+                </p:selectOneMenu>                   
             </p:panelGrid>
 
             <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-12" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
-                <p:dataView var="rec" value="#{inspectionMB.listStudents}" gridIcon="pi pi-th-large" listIcon="pi pi-bars" layout="grid">
+                <p:dataView var="rec" value="#{activityMB.listStudents}" gridIcon="pi pi-th-large" listIcon="pi pi-bars" layout="grid">
                     <p:dataViewGridItem> 
                         <p:panel header="#{rec.nameSurname}" style="text-align: center;">
                             <p:panelGrid columns="1" layout="grid">
                                 <p:graphicImage value="#{chatMB.handleImageFileDownload(rec.image)}" stream="false" width="120" height="120"/>
                                 <p:outputLabel value="#{rec.schoolNo}"/>
                                 <p:outputLabel value="#{rec.nameSurname}"/>
-                                <p:outputLabel value="#{inspectionMB.isStudentIn(rec) ? 'Geldi' : 'Gelmedi'}" styleClass="#{inspectionMB.isStudentIn(rec) ? 'studentIn': 'studentNotIn'}"/>                               
-                                <p:panelGrid columns="2" layout="grid">
-                                    <p:commandButton disabled="#{inspectionMB.isStudentIn(rec)}" value="Geldi" icon="fa fa-check" style="background-color: green;"  styleClass="btn btn-success" actionListener="#{inspectionMB.setInspectionStatusOfStudent(rec, true)}" update="@(.inspectionForm)"/>
-                                    <p:commandButton disabled="#{inspectionMB.isStudentNotIn(rec)}" value="Gelmedi"  icon="fa fa-remove" style="background-color: red;" styleClass="btn btn-danger" actionListener="#{inspectionMB.setInspectionStatusOfStudent(rec, false)}" update="@(.inspectionForm)"/>
+                                <p:outputLabel value="#{activityMB.getStudentStatus(rec._id)}" styleClass="#{activityMB.getStudentStatus(rec._id) eq 'Mutlu' ? 'studentIn': 'studentNotIn'}"/>                               
+                                <p:panelGrid columns="3" layout="grid"> 
+                                    <p:commandButton disabled="#{activityMB.getStudentStatus(rec._id) eq 'Mutlu'}"   value="Mutlu"  icon="fa fa-smile-o" actionListener="#{activityMB.setEmotionStatusOfStudent(rec, 'Mutlu')}" update="@(.activityForm)"/>
+                                    <p:commandButton disabled="#{activityMB.getStudentStatus(rec._id) eq 'Durgun'}"   value="Durgun"  icon="fa fa-meh-o" actionListener="#{activityMB.setEmotionStatusOfStudent(rec, 'Durgun')}" update="@(.activityForm)"/>
+                                    <p:commandButton disabled="#{activityMB.getStudentStatus(rec._id) eq 'Üzgün'}"   value="Üzgün"  icon="fa fa-frown-o" actionListener="#{activityMB.setEmotionStatusOfStudent(rec, 'Üzgün')}" update="@(.activityForm)"/>
                                 </p:panelGrid>
                             </p:panelGrid>
                         </p:panel>

@@ -6,6 +6,7 @@
 package com.okulapp.notify;
 
 import com.mongodb.QueryBuilder;
+import com.okulapp.chat.ChatMB;
 import com.okulapp.data.MongoDataAdapter;
 import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.dispatcher.DispatcherMB;
@@ -41,6 +42,9 @@ public class BoardMB implements Serializable {
 
     @Inject
     CrudMB crudMB;
+
+    @Inject
+    ChatMB chatMB;
 
     private @Inject
     SecurityMB securityMB;
@@ -122,5 +126,14 @@ public class BoardMB implements Serializable {
 
     public void setMyUnreadedBoard(List<Map<String, Object>> myUnreadedBoard) {
         this.myUnreadedBoard = myUnreadedBoard;
+    }
+
+    public void refreshAllNotify() {
+        if (!dispatcherMB.getCurrentPage().getPageUrl().contains("home.xhtml")) {
+            refreshMyBoard();
+        }
+        if (!dispatcherMB.getCurrentPage().getPageUrl().contains("chat.xhtml")) {
+            chatMB.refreshMyUnreadMessages();
+        }
     }
 }

@@ -46,7 +46,7 @@
                                     <h:panelGroup id="messageCount" class="label label-success" rendered="#{not chatMB.myUnreadedMessages.isEmpty()}">
                                         ${chatMB.myUnreadedMessages.size()} 
                                     </h:panelGroup>
-                                    <p:poll listener="#{chatMB.refreshMyUnreadMessages()}" interval="10" update="navBarCustomMenu myNotifyMsgs"/>
+                                    <p:poll listener="#{boardMB.refreshAllNotify()}" interval="15" update="navBarCustomMenu myNotifyMsgs"/>
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li class="header">${chatMB.myUnreadedMessages.size()} adet okunmamış mesajınız var.</li>
@@ -80,7 +80,6 @@
                                     <h:panelGroup class="label label-warning" rendered="#{not boardMB.myUnreadedBoard.isEmpty()}">
                                         ${boardMB.myUnreadedBoard.size()}
                                     </h:panelGroup>
-                                    <p:poll listener="#{boardMB.refreshMyBoard()}" interval="10" update="navBarCustomMenu myNotifyMsgs"/>
                                 </a>
                                 <ul class="dropdown-menu"> 
                                     <li class="header">${boardMB.myUnreadedBoard.size()} adet okunmamış bildiriminiz var.</li>
@@ -111,12 +110,15 @@
                             <!-- User Account: style can be found in dropdown.less -->
                             <li class="dropdown user user-menu">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">                                
-                                    <span class="hidden-xs">#{cc.attrs.userName}</span>
+                                    <i class="fa fa-user"></i>
                                 </a>
                                 <ul class="dropdown-menu">                               
-                                    <li class="user-footer">                                    
-                                        <div class="pull-right">     
-                                            <p:commandLink class="btn btn-default btn-flat" actionListener="#{securityMB.signOut()}" value="#{cc.attrs.logoutText}" immediate="true" ajax="false"/>
+                                    <li class="user-footer">
+                                        <div class="pull-right">
+                                            <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-12" layout="grid" styleClass="ui-panelgrid-blank">
+                                                <p:outputLabel value="${securityMB.loginUser.nameSurname}"/>
+                                                <p:commandButton actionListener="#{securityMB.signOut()}" value="#{cc.attrs.logoutText}" immediate="true" ajax="false"/>
+                                            </p:panelGrid>
                                         </div>
                                     </li>
                                 </ul>

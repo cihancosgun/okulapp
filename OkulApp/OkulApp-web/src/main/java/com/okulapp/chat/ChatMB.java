@@ -248,7 +248,10 @@ public class ChatMB implements Serializable {
         if (receiver == null || !receiver.containsKey("email")) {
             return;
         }
-        currentChat = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "chat", QueryBuilder.start("users").is(securityMB.getRemoteUserName()).and("users").is(receiver.get("email")).and("deleted").is(false).get().toMap());
+        Map<String, Object> query = QueryBuilder
+                .start("users").all(Arrays.asList(securityMB.getRemoteUserName(), receiver.get("email")))
+                .and("deleted").is(false).get().toMap();
+        currentChat = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "chat", query);
         if (currentChat == null) {
             currentChat = new HashMap();
             currentChat.put("_id", new ObjectId());
@@ -369,7 +372,7 @@ public class ChatMB implements Serializable {
     }
 
     public void switchToChat(Map<String, Object> chat) {
-        startNewConversation(securityMB.getUserFromEmail(chat.get("receiverEmail").toString()));
+        startNewConversation(getConversationReceiver(chat));
     }
 
     public void refreshChat() {

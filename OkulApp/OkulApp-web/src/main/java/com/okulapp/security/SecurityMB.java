@@ -48,9 +48,9 @@ public class SecurityMB implements Serializable {
     @EJB
     MyDataSBLocal myDataSB;
 
-    private List<Byte> userRoles = null;
-    private final Map<String, Byte> RolesToByte = new HashMap<>();
-    private final Map<Byte, String> ByteToRole = new HashMap<>();
+    private List<Integer> userRoles = null;
+    private final Map<String, Integer> RolesToByte = new HashMap<>();
+    private final Map<Integer, String> ByteToRole = new HashMap<>();
     private String loginUserRole;
     private Map<String, Object> loginUser;
     private Map<String, Object> userCache = new HashMap<>();
@@ -60,15 +60,15 @@ public class SecurityMB implements Serializable {
 
     @PostConstruct
     public void init() {
-        RolesToByte.put("admin", (byte) 0);
-        RolesToByte.put("teacher", (byte) 1);
-        RolesToByte.put("stuff", (byte) 2);
-        RolesToByte.put("parent", (byte) 3);
+        RolesToByte.put("admin", 0);
+        RolesToByte.put("teacher", 1);
+        RolesToByte.put("stuff", 2);
+        RolesToByte.put("parent", 3);
 
-        ByteToRole.put((byte) 0, "admin");
-        ByteToRole.put((byte) 1, "teacher");
-        ByteToRole.put((byte) 2, "stuff");
-        ByteToRole.put((byte) 3, "parent");
+        ByteToRole.put(0, "admin");
+        ByteToRole.put(1, "teacher");
+        ByteToRole.put(2, "stuff");
+        ByteToRole.put(3, "parent");
     }
 
     public HttpServletRequest getRequest() {
@@ -103,7 +103,7 @@ public class SecurityMB implements Serializable {
         }
     }
 
-    public List<Byte> getUserRoles() {
+    public List<Integer> getUserRoles() {
         if (userRoles == null) {
             userRoles = new ArrayList<>();
             Subject subject;
@@ -115,7 +115,7 @@ public class SecurityMB implements Serializable {
                         if (i > 0) {
                             String role = principal.getName();
                             setLoginUserRole(role);
-                            byte oldRoleOrder = userRoles.isEmpty() ? 100 : userRoles.get(0);
+                            Integer oldRoleOrder = userRoles.isEmpty() ? 100 : userRoles.get(0);
                             if (RolesToByte.containsKey(role)) {
                                 if (RolesToByte.get(role) < oldRoleOrder) {
                                     userRoles.add(0, RolesToByte.get(role));
@@ -135,13 +135,13 @@ public class SecurityMB implements Serializable {
         return userRoles;
     }
 
-    public Byte[] getUserRolesArray() {
-        Byte[] result = new Byte[getUserRoles().size()];
+    public Integer[] getUserRolesArray() {
+        Integer[] result = new Integer[getUserRoles().size()];
         getUserRoles().toArray(result);
         return result;
     }
 
-    public void setUserRoles(List<Byte> userRoles) {
+    public void setUserRoles(List<Integer> userRoles) {
         this.userRoles = userRoles;
     }
 
@@ -253,9 +253,9 @@ public class SecurityMB implements Serializable {
         }
         return user;
     }
-
+ 
     public Map<String, Object> getLoginUser() {
-        if (loginUser == null && getRemoteUserName() != null && getLoginUserRole() != null) {
+        if (loginUser == null && getRemoteUserName() != null) {
             return getUserFromEmail(getRemoteUserName());
         }
         return loginUser;

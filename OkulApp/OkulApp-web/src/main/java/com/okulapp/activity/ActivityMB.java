@@ -3,7 +3,7 @@
  * 
  * 
  */
-package com.okulapp.inspection;
+package com.okulapp.activity;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.QueryBuilder;
@@ -18,13 +18,16 @@ import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import org.bson.types.ObjectId;
 import org.primefaces.model.TreeNode;
 
@@ -33,9 +36,9 @@ import org.primefaces.model.TreeNode;
  * @author Cihan Coşgun 2019 TSPB web:https://www.tspb.org.tr
  * mailto:cihan_cosgun@outlook.com
  */
-@Named(value = "inspectionMB")
+@Named(value = "activityMB")
 @SessionScoped
-public class InspectionMB implements Serializable {
+public class ActivityMB implements Serializable {
 
     @EJB
     MyDataSBLocal myDataSB;
@@ -59,30 +62,66 @@ public class InspectionMB implements Serializable {
     private ObjectId selectedClass;
     private List<Map<String, Object>> listClasses;
     private List<Map<String, Object>> listStudents;
-    private Map<String, Object> dailyInspection;
+    private Map<String, Object> dailyActivity;
+    private final List<String> meals = Arrays.asList("Sabah Kahvaltısı", "Öğle Yemeği", "İkindi Yemeği", "Akşam Yemeği");
+    private String selectedMeal;
 
     /**
      * Creates a new instance of InspectionMB
      */
-    public InspectionMB() {
+    public ActivityMB() {
     }
 
-    public Map<String, Object> getDailyInspection() {
-        dailyInspection = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "dailyInspection", QueryBuilder.start("date").is(sdfDate.format(new Date())).get().toMap());
-        if (dailyInspection == null) {
-            dailyInspection = new HashMap();
-            dailyInspection.put("_id", new ObjectId());
-            dailyInspection.put("date", sdfDate.format(new Date()));
-            dailyInspection.put("students", new ArrayList());
-            dailyInspection.put("creator", securityMB.getRemoteUserName());
-            dailyInspection.put("createDate", new Date());
-            myDataSB.getAdvancedDataAdapter().create(myDataSB.getDbName(), "dailyInspection", dailyInspection);
+    private String getActivityType() {
+        if ("/pages/activityFood.xhtml".equals(dispatcherMB.getCurrentPage().getPageUrl())) {
+            return "lunch";
+        } else if ("/pages/activitySleep.xhtml".equals(dispatcherMB.getCurrentPage().getPageUrl())) {
+            return "sleep";
+        } else if ("/pages/activityEmotion.xhtml".equals(dispatcherMB.getCurrentPage().getPageUrl())) {
+            return "emotion";
         }
-        return dailyInspection;
+        return "";
+    }
+
+    public Map<String, Object> getDailyActivity() {
+        QueryBuilder qb = QueryBuilder
+                .start("date").is(sdfDate.format(new Date()))
+                .and("class").is(selectedClass)
+                .and("activityType").is(getActivityType());
+
+        if ("lunch".equals(getActivityType())) {
+            qb.and("meal").is(selectedMeal);
+        }
+
+        dailyActivity = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "dailyActivity", qb
+                .get().toMap());
+        if (dailyActivity == null) {
+            dailyActivity = new HashMap();
+            dailyActivity.put("_id", new ObjectId());
+            dailyActivity.put("date", sdfDate.format(new Date()));
+            dailyActivity.put("class", selectedClass);
+            dailyActivity.put("activityType", getActivityType());
+            if ("lunch".equals(getActivityType())) {
+                dailyActivity.put("meal", selectedMeal);
+            }
+            dailyActivity.put("students", new ArrayList());
+            dailyActivity.put("creator", securityMB.getRemoteUserName());
+            dailyActivity.put("createDate", new Date());
+            myDataSB.getAdvancedDataAdapter().create(myDataSB.getDbName(), "dailyActivity", dailyActivity);
+        }
+        return dailyActivity;
     }
 
     public ObjectId getSelectedClass() {
         return selectedClass;
+    }
+
+    public List<String> getMeals() {
+        return meals;
+    }
+
+    public String getSelectedMeal() {
+        return selectedMeal;
     }
 
     @PostConstruct
@@ -106,8 +145,8 @@ public class InspectionMB implements Serializable {
         return selectedBranch;
     }
 
-    public void setDailyInspection(Map<String, Object> dailyInspection) {
-        this.dailyInspection = dailyInspection;
+    public void setDailyInspection(Map<String, Object> dailyActivity) {
+        this.dailyActivity = dailyActivity;
     }
 
     public void setSelectedBranch(ObjectId selectedBranch) {
@@ -159,27 +198,16 @@ public class InspectionMB implements Serializable {
         }
     }
 
-    public boolean isStudentIn(Map<String, Object> student) {
-        Map<String, Object> rec = new HashMap();
-        rec.put("studentId", student.get("_id"));
-        rec.put("nameSurname", student.get("nameSurname"));
-        rec.put("comeInStatus", true);
-        Map<String, Object> di = getDailyInspection();
-        List<Map<String, Object>> students = (List<Map<String, Object>>) di.get("students");
-        return students.contains(rec);
+    public String getStudentStatus(ObjectId studentId) {
+        for (Map<String, Object> student : (List<Map>) getDailyActivity().get("students")) {
+            if (student.get("studentId").equals(studentId)) {
+                return student.get("status").toString();
+            }
+        }
+        return "";
     }
 
-    public boolean isStudentNotIn(Map<String, Object> student) {
-        Map<String, Object> rec = new HashMap();
-        rec.put("studentId", student.get("_id"));
-        rec.put("nameSurname", student.get("nameSurname"));
-        rec.put("comeInStatus", false);
-        Map<String, Object> di = getDailyInspection();
-        List<Map<String, Object>> students = (List<Map<String, Object>>) di.get("students");
-        return students.contains(rec);
-    }
-
-    public void sendNotificationsToParents(Map<String, Object> student, boolean comeIn) {
+    public void sendNotificationsToParents(Map<String, Object> student, String head, String status, String messageType) {
         CrudListResult listOfParents = myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "studentParent", QueryBuilder.start("student").is(student.get("_id")).get().toMap(), null);
         if (listOfParents != null && !listOfParents.isEmpty()) {
             notificationMB.clean();
@@ -190,18 +218,18 @@ public class InspectionMB implements Serializable {
             TreeNode[] arrayOfList = new TreeNode[receivers.size()];
             receivers.toArray(arrayOfList);
             notificationMB.setSelectedContacts(arrayOfList);
-            notificationMB.setNotificationMessage(student.get("nameSurname").toString().concat(" ").concat(sdf.format(new Date())).concat(" tarihinde okulumuza ").concat(comeIn ? "geldi" : "gelmedi"));
-            notificationMB.sendMessage("inspection");
+            notificationMB.setNotificationMessage(student.get("nameSurname").toString().concat(" ").concat(sdf.format(new Date())).concat(" tarihinde ").concat(head).concat(" ").concat(status));
+            notificationMB.sendMessage(messageType);
         }
     }
 
-    public void setInspectionStatusOfStudent(Map<String, Object> student, boolean comeIn) {
-        Map<String, Object> di = getDailyInspection();
+    private void setStatusOfStudent(Map<String, Object> student, String status) {
+        Map<String, Object> di = getDailyActivity();
         List<Map<String, Object>> students = (List<Map<String, Object>>) di.get("students");
         Map<String, Object> rec = new HashMap();
         rec.put("studentId", student.get("_id"));
         rec.put("nameSurname", student.get("nameSurname"));
-        rec.put("comeInStatus", comeIn);
+        rec.put("status", status);
         Map<String, Object> toRemoveRec = null;
         for (Map<String, Object> finds : students) {
             if (finds.get("studentId").equals(rec.get("studentId"))) {
@@ -213,8 +241,34 @@ public class InspectionMB implements Serializable {
         }
         students.add(rec);
         di.put("students", students);
-        myDataSB.getAdvancedDataAdapter().update(myDataSB.getDbName(), "dailyInspection", di);
-        sendNotificationsToParents(student, comeIn);
+        myDataSB.getAdvancedDataAdapter().update(myDataSB.getDbName(), "dailyActivity", di);
+    }
+
+    public void setMealStatusOfStudent(Map<String, Object> student, String status) {
+        setStatusOfStudent(student, status);
+        sendNotificationsToParents(student, selectedMeal.concat(" öğününde yemeğini "), status, getActivityType());
+    }
+
+    public void setSleepStatusOfStudent(Map<String, Object> student, String status) {
+        setStatusOfStudent(student, status);
+        sendNotificationsToParents(student, "Öğlen Uykusunu", status, getActivityType());
+    }
+
+    public void setEmotionStatusOfStudent(Map<String, Object> student, String status) {
+        setStatusOfStudent(student, status);
+        String statuss = "happy";
+        if ("Mutlu".equals(status)) {
+            statuss = "happy";
+        } else if ("Durgun".equals(status)) {
+            statuss = "sad";
+        } else if ("Üzgün".equals(status)) {
+            statuss = "cry";
+        }
+        sendNotificationsToParents(student, "Duygu Durumu", status, statuss);
+    }
+
+    public void setSelectedMeal(String selectedMeal) {
+        this.selectedMeal = selectedMeal;
     }
 
 }

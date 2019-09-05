@@ -34,6 +34,7 @@ com/okulapp/forms/controls/PhoneConverter.class
 com/okulapp/navigation/Navigation.class
 com/okulapp/forms/controls/InputMaskFormControl.class
 com/okulapp/forms/CrudForm.class
+com/okulapp/activity/ActivityMB.class
 com/okulapp/forms/controls/SelectConverter.class
 com/okulapp/forms/CrudMB.class
 com/okulapp/notify/BoardMB.class

@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:body>
+        <style>
+            .studentIn{
+                color:green;
+            }
+            .studentNotIn{
+                color:red;
+            }
+        </style>
+        <h:form id="activityForm" class="activityForm">
+            <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-10" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                <p:outputLabel for="branch" value="Şube Seçiniz"/>
+                <p:selectOneMenu id="branch" class="selectObject" value="#{activityMB.selectedBranch}" required="true" label="Şube" filter="true" filterMatchMode="contains" disabled="#{securityMB.loginUserRole ne 'admin'}">
+                    <p:ajax update="@(.activityForm)"/>
+                    <f:selectItem itemLabel="#{texts.selectOne}" itemValue="#{null}" noSelectionOption="true" />
+                    <f:selectItems var="itm" value="#{activityMB.branches}" itemLabel="#{itm.name}" itemValue="#{itm._id}" />
+                    <f:converter converterId="SelectConverter" />
+                </p:selectOneMenu>
+                <p:outputLabel for="class" value="Sınıf Seçiniz"/>
+                <p:selectOneMenu id="class" class="selectObject" value="#{activityMB.selectedClass}" required="true" label="Sınıf" filter="true" filterMatchMode="contains">
+                    <p:ajax update="@(.activityForm)"/>
+                    <f:selectItem itemLabel="#{texts.selectOne}" itemValue="#{null}" noSelectionOption="true" />
+                    <f:selectItems var="itm" value="#{activityMB.listClasses}" itemLabel="#{itm.name}" itemValue="#{itm._id}" />
+                    <f:converter converterId="SelectConverter" />
+                </p:selectOneMenu>    
+                <p:outputLabel for="meal" value="Öğün Seçiniz"/>
+                <p:selectOneMenu id="meal" class="selectObject"  value="#{activityMB.selectedMeal}" required="true" label="Öğün" filter="true" filterMatchMode="contains">
+                    <p:ajax update="@(.activityForm)"/>
+                    <f:selectItem itemLabel="#{texts.selectOne}" itemValue="#{null}" noSelectionOption="true" />
+                    <f:selectItems var="itm" value="#{activityMB.meals}" itemLabel="#{itm}" itemValue="#{itm}" />
+                    <f:converter converterId="SelectConverter" />
+                </p:selectOneMenu>       
+            </p:panelGrid>
+
+            <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-12" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                <p:dataView var="rec" value="#{activityMB.listStudents}" gridIcon="pi pi-th-large" listIcon="pi pi-bars" layout="grid">
+                    <p:dataViewGridItem> 
+                        <p:panel header="#{rec.nameSurname}" style="text-align: center;">
+                            <p:panelGrid columns="1" layout="grid">
+                                <p:graphicImage value="#{chatMB.handleImageFileDownload(rec.image)}" stream="false" width="120" height="120"/>
+                                <p:outputLabel value="#{rec.schoolNo}"/>
+                                <p:outputLabel value="#{rec.nameSurname}"/>
+                                <p:outputLabel value="#{activityMB.getStudentStatus(rec._id)}" styleClass="#{activityMB.getStudentStatus(rec._id) eq 'Hepsini Yedi' ? 'studentIn': 'studentNotIn'}"/>                               
+                                <p:panelGrid columns="3" layout="grid"> 
+                                    <p:commandButton disabled="#{activityMB.getStudentStatus(rec._id) eq 'Hepsini Yedi'}"   value="Hepsini Yedi"  icon="fa fa-smile-o" style="background-color: green;"  styleClass="btn btn-success" actionListener="#{activityMB.setMealStatusOfStudent(rec, 'Hepsini Yedi')}" update="@(.activityForm)"/>
+                                    <p:commandButton disabled="#{activityMB.getStudentStatus(rec._id) eq 'Az Yedi'}" value="Az Yedi" icon="fa fa-meh-o" style="background-color: salmon;" styleClass="btn btn-warning" actionListener="#{activityMB.setMealStatusOfStudent(rec, 'Az Yedi')}" update="@(.activityForm)"/>
+                                    <p:commandButton disabled="#{activityMB.getStudentStatus(rec._id) eq 'Yemedi'}" value="Yemedi" icon="fa fa-frown-o" style="background-color: red;" styleClass="btn btn-danger" actionListener="#{activityMB.setMealStatusOfStudent(rec, 'Yemedi')}" update="@(.activityForm)"/>
+                                </p:panelGrid>
+                            </p:panelGrid>
+                        </p:panel>
+                    </p:dataViewGridItem>
+                </p:dataView>
+            </p:panelGrid>
+        </h:form>
+    </h:body>
+</html>
+

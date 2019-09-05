@@ -5,6 +5,7 @@
  */
 package com.okulapp.navigation;
 
+import com.mongodb.QueryBuilder;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import com.okulapp.crud.dao.CrudListResult;
 import com.okulapp.data.AdvancedDataAdapter;
+import java.util.Arrays;
+import org.bson.Document;
 
 /**
  *
@@ -52,10 +55,10 @@ public class Navigation implements Serializable {
         private Navigation n;
         private final AdvancedDataAdapter ada;
         private final String dbName;
-        private final Byte[] roles;
+        private final Integer[] roles;
         private final String locale;
 
-        public Builder(String header, AdvancedDataAdapter ada, String dbName, Byte[] roles, String locale) {
+        public Builder(String header, AdvancedDataAdapter ada, String dbName, Integer[] roles, String locale) {
             n = new Navigation();
             n.setHeader(header);
             this.ada = ada;
@@ -73,10 +76,12 @@ public class Navigation implements Serializable {
             List<Menu> menus = new ArrayList();
             Map<String, Object> sort = new HashMap();
             sort.put(ORDER, 1);
-            CrudListResult clr = ada.getSelectedDataAdapter().getSortedPagedList(dbName, menuTable, null, null, 0, 1000, sort);
-            Map<String, Object> subMenuQuery = new HashMap();
+            Document query = new Document();
+            query.put("roles", new Document("$in", Arrays.asList(roles)));
+            CrudListResult clr = ada.getSelectedDataAdapter().getSortedPagedList(dbName, menuTable, query, null, 0, 1000, sort);
+            Document subMenuQuery = new Document();
             for (Map<String, Object> menu : clr) {
-                subMenuQuery.put(PARENT_MENU_NAME, menu.get(NAME));
+                subMenuQuery.append(PARENT_MENU_NAME, menu.get(NAME)).append("roles", new Document("$in", Arrays.asList(roles)));
                 CrudListResult clrSubMenus = ada.getSelectedDataAdapter().getSortedPagedList(dbName, subMenuTable, subMenuQuery, null, 0, 10000, sort);
                 List<Menu> subMenu = null;
                 if (clrSubMenus != null && clrSubMenus.getTotalRecordCount() > 0) {
