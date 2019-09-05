@@ -29,6 +29,7 @@ com/okulapp/notify/NotificationMB.class
 com/okulapp/forms/controls/InputIntegerFormControl.class
 com/okulapp/texts/TextsMB.class
 com/okulapp/forms/controls/BaseFormControl.class
+com/okulapp/foodcalendar/FoodCalendarMB.class
 com/okulapp/forms/controls/PhoneConverter.class
 com/okulapp/navigation/Navigation.class
 com/okulapp/forms/controls/InputMaskFormControl.class

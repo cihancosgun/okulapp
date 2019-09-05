@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:body>
+
+        <h:form id="foodCalendarForm" class="foodCalendarForm">
+            <p:growl id="foodCalendarFormMsgs" showDetail="true"/>
+            <div class="ui-fluid">
+                <p:toolbar rendered="#{securityMB.loginUserRole eq 'admin'}">
+                    <f:facet name="left">
+                        <p:commandButton value="Kaydet" immediate="true" icon="pi pi-save" actionListener="#{foodCalendarMB.save()}" update="contentCmp:foodCalendarForm:foodCalendarFormMsgs foodList"/>
+                    </f:facet> 
+                </p:toolbar>
+                <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-2,ui-g-12 ui-md-10" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
+                    <p:outputLabel for="branch" value="Şube Seçiniz" rendered="#{securityMB.loginUserRole eq 'admin'}"/>
+                    <p:selectOneMenu rendered="#{securityMB.loginUserRole eq 'admin'}" id="branch" class="selectObject" value="#{foodCalendarMB.selectedBranch}" required="true" label="Şube" filter="true" filterMatchMode="contains">
+                        <p:ajax update="@(.foodCalendarForm)"/>
+                        <f:selectItem itemLabel="#{texts.selectOne}" itemValue="#{null}" noSelectionOption="true" />
+                        <f:selectItems var="itm" value="#{foodCalendarMB.branches}" itemLabel="#{itm.name}" itemValue="#{itm._id}" />
+                        <f:converter converterId="SelectConverter" />
+                    </p:selectOneMenu>
+                    <p:outputLabel for="month" value="Ay Seçiniz"/>
+                    <p:selectOneMenu id="month" class="selectObject" value="#{foodCalendarMB.selectedMonth}" required="true" label="Ay" filter="true" filterMatchMode="contains">
+                        <p:ajax update="@(.foodCalendarForm)"/>
+                        <f:selectItem itemLabel="#{texts.selectOne}" itemValue="#{null}" noSelectionOption="true" />
+                        <f:selectItems var="itm" value="#{foodCalendarMB.monthList}" itemLabel="#{itm}" itemValue="#{itm}" />
+                    </p:selectOneMenu>
+                </p:panelGrid>
+                <p:dataTable id="foodList" widgetVar="foodList" var="rec" value="#{foodCalendarMB.currentRec.foods}" editable="#{securityMB.loginUserRole eq 'admin'}"  editMode="cell" style="margin-bottom:20px" reflow="true">
+                    <f:facet name="header">
+                        Yemek Takvimi
+                    </f:facet>
+
+                    <p:ajax event="cellEdit" listener="#{foodCalendarMB.onCellEdit}" update="contentCmp:foodCalendarForm:foodCalendarFormMsgs foodList" />
+
+                    <p:column headerText="Gün">
+                        <p:outputLabel value="#{rec.dateStr}"/>
+                    </p:column>
+
+                    <p:column headerText="Sabah">                         
+                        <p:cellEditor>
+                            <f:facet name="output"><h:outputText value="#{rec.sabah}" /></f:facet>
+                            <f:facet name="input"><p:inputText value="#{rec.sabah}" style="width:100%" label="Sabah Kahvaltısı"/></f:facet>
+                        </p:cellEditor>
+                    </p:column>
+
+                    <p:column headerText="Öğle">                        
+                        <p:cellEditor>
+                            <f:facet name="output"><h:outputText value="#{rec.ogle}" /></f:facet>
+                            <f:facet name="input"><p:inputText value="#{rec.ogle}" style="width:100%" label="Öğle Yemeği"/></f:facet>
+                        </p:cellEditor>
+                    </p:column>
+
+                    <p:column headerText="İkindi">                        
+                        <p:cellEditor>
+                            <f:facet name="output"><h:outputText value="#{rec.ikindi}" /></f:facet>
+                            <f:facet name="input"><p:inputText value="#{rec.ikindi}" style="width:100%" label="İkindi"/></f:facet>
+                        </p:cellEditor>
+                    </p:column>
+
+                    <p:column headerText="Akşam">                        
+                        <p:cellEditor>
+                            <f:facet name="output"><h:outputText value="#{rec.aksam}" /></f:facet>
+                            <f:facet name="input"><p:inputText value="#{rec.aksam}" style="width:100%" label="Akşam Yemeği"/></f:facet>
+                        </p:cellEditor>
+                    </p:column>
+
+                </p:dataTable>
+            </div>
+        </h:form>
+
+    </h:body>
+</html>
+
