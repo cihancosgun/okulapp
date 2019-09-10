@@ -3,14 +3,61 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
     <h:body>
+        <!-- ==== Google Font ==== -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700%7CRoboto:300,400,400i,500,700"/>
+        <link href="#{request.contextPath}/css/activity/plugins.min.css" rel="stylesheet" type="text/css"/> 
+        <link href="#{request.contextPath}/css/activity/style.min.css" rel="stylesheet" type="text/css"/> 
+        <link href="#{request.contextPath}/css/activity/responsive-style.min.css" rel="stylesheet" type="text/css"/>
+        <link href="#{request.contextPath}/css/activity/color-1.css" rel="stylesheet" type="text/css"/>
+        <link href="#{request.contextPath}/css/activity/custom.css" rel="stylesheet" type="text/css"/>        
+        <!-- ==== HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries ==== -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
         <style>
+            .albumParent{
+                display: block; 
+                position: relative;
+                padding: 20px 10px 0;
+                z-index: 0;
+            }
+
+            .albumParent:before { 
+                top: 20px;
+                left: 10px;
+                right: 10px;
+                bottom: 0;
+                width: auto;
+                height: auto;
+                z-index: 1;
+            }
+
+            .albumSpan{
+                display: block;
+                position: absolute;
+                top: 50%;
+                left: 10px;
+                right: 10px;
+                margin-top: -10px;
+                color: #fff;
+                font-size: 18px;
+                line-height: 28px;
+                text-align: center;
+                z-index: 1;
+            }
             .albumImg {
                 border: 1px solid #ddd;
                 border-radius: 4px;
                 padding: 5px;
-                width: 150px;
+                width: 200px !important;
+                height: 200px !important;
             }
 
             .albumImg:hover {
@@ -18,46 +65,93 @@
                 box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
             }
         </style>
+
+
         <h:form id="boardForm">
-            <div class="ui-fluid">    
-                <p:dataScroller value="#{boardMB.myBoard}" var="rec" chunkSize="3" mode="inline" scrollHeight="720">
-                    <f:facet name="loader">
-                        <p:commandButton type="button" value="Devamı" icon="pi pi-chevron-circle-down"/>
-                    </f:facet>
-                    <p:panel>
-                        <f:facet name="header"> 
-                            <p:panelGrid columns="4" columnClasses="ui-widget-header,ui-widget-header,ui-widget-header,ui-widget-header">
-                                <p:graphicImage value="#{notificationMB.handleMessageTypeIcon(rec.messageType)}" width="20" stream="false"/>
-                                <p:outputLabel value="#{rec.senderNameSurname}"/><p> - </p>
-                                <p:outputLabel value="#{chatMB.formatDateTime(rec.startDate)}"/>
-                            </p:panelGrid>
+            <!-- Activity List Start -->
+            <div class="activity--list">
+                <!-- Activity Items Start -->
+                <ul class="activity--items nav">
+                    <p:dataScroller value="#{boardMB.myBoard}" var="rec" chunkSize="3" mode="inline" scrollHeight="720">
+                        <f:facet name="loader">
+                            <!-- Load More Button Start -->
+                            <div class="load-more--btn pt--30 text-center">
+                                <a href="#" class="btn btn-animate">
+                                    <span>Devamını görmek için tıklayınız<i class="fa ml--10 fa-caret-right"></i></span>
+                                </a>
+                            </div> 
+                            <!-- Load More Button End -->
                         </f:facet>
-                        <p:commandLink actionListener="#{dispatcherMB.switchToShowNotify(rec)}" update="contentCmp:contentPanelGroup">
-                            <p:panelGrid columns="2" columnClasses="ui-g-12 ui-md-1,ui-g-12 ui-md-11" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">                            
-                                <p:graphicImage value="#{chatMB.handleImageFileDownload(securityMB.getUserFromEmail(rec.senderEmail).image)}" width="50" stream="false"/>
-                                <p:outputLabel value="#{rec.message}"/>                            
-                            </p:panelGrid>
-                        </p:commandLink>
-                        <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-12" layout="grid" styleClass="ui-panelgrid-blank ui-fluid">
-                            <p:dataView value="#{rec.fileIds}" var="recI" layout="grid" gridIcon="pi pi-th-large" listIcon="pi pi-bars" rendered="#{not rec.fileIds.isEmpty()}"> 
-                                <f:facet name="header">
-                                    <p:outputLabel value="Albüm"/>
-                                </f:facet>
-                                <p:dataViewGridItem>
-                                    <p:commandLink actionListener="#{dispatcherMB.switchToShowImagePage(recI, rec)}" update="contentCmp:contentPanelGroup">
-                                        <p:graphicImage class="albumImg" value="#{chatMB.handleImageFileDownload(recI)}" stream="false"/>                                       
-                                    </p:commandLink>
-                                </p:dataViewGridItem>
-                            </p:dataView>
-                        </p:panelGrid>
-                    </p:panel>
-                    <p:spacer height="30"/>
-                </p:dataScroller>
+                        <li>
+                            <!-- Activity Item Start -->
+                            <div class="activity--item">
+                                <div class="activity--avatar">
+                                    <a href="member-activity-personal.html">
+                                        <p:graphicImage value="#{notificationMB.handleMessageTypeIcon(rec.messageType)}" width="50" stream="false"/>
+                                    </a>
+                                </div>
+
+                                <div class="activity--info fs--14">
+                                    <div class="activity--header">
+                                        <p><a href="#"><h:outputText value="#{rec.senderNameSurname}"/></a> yeni bir gönderi paylaştı</p>
+                                    </div>
+
+                                    <div class="activity--meta fs--12">
+                                        <p><i class="fa mr--8 fa-clock-o"></i><h:outputText value="#{chatMB.formatDateTime(rec.startDate)}"/></p>
+                                    </div>
+
+                                    <div class="activity--content">
+                                        <p><h:outputText value="#{rec.message}"/></p>
+                                        <h:panelGroup rendered="#{not rec.fileIds.isEmpty()}" class="gallery" layout="block">
+                                            <div class="g_album_#{rec._id}"  data-trigger="gallery_popup">
+                                                <ul class="nav AdjustRow">
+                                                    <ui:repeat var="recI" value="#{rec.fileIds}">
+                                                        <li>
+                                                            <a href="#{request.contextPath}/downloadFile?id=#{recI}" class="albumParent">
+                                                                <img src="#{request.contextPath}/downloadFile?id=#{recI}" class="albumImg"/>
+                                                            </a>
+                                                        </li>                                                        
+                                                    </ui:repeat>
+                                                </ul>
+                                            </div>
+                                            <script>
+                                                $(document).ready(function () {
+                                                    $('.g_album_#{rec._id}').magnificPopup({
+                                                        delegate: 'a',
+                                                        type: 'image',
+                                                        gallery: {
+                                                            enabled: true
+                                                        },
+                                                        zoom: {
+                                                            enabled: true
+                                                        }
+                                                    });
+                                                });
+                                            </script>
+                                        </h:panelGroup>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Activity Item End -->
+                            <hr/>
+                        </li>
+                    </p:dataScroller>
+                </ul>
+                <!-- Activity Items End -->
             </div>
+            <!-- Activity List End --> 
 
 
-
+            <!-- Back To Top Button Start -->
+            <div id="backToTop">
+                <a href="#" class="btn"><i class="fa fa-caret-up"></i></a>
+            </div>
+            <!-- Back To Top Button End -->           
         </h:form>
+        <!-- ==== Plugins Bundle ==== -->
+        <script src="#{request.contextPath}/js/activity/plugins.min.js"></script>
+
+
 
     </h:body>
 </html>

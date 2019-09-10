@@ -32,6 +32,7 @@ import com.okulapp.forms.controls.InputImage;
 import com.okulapp.forms.controls.InputSelectManyDbFormControl;
 import com.okulapp.forms.controls.InputSelectManyFormControl;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
@@ -39,6 +40,7 @@ import java.util.logging.Logger;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.event.AjaxBehaviorEvent;
+import org.apache.commons.codec.binary.Base64;
 import org.bson.Document;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.DefaultStreamedContent;
@@ -70,6 +72,7 @@ public class CrudMB implements Serializable {
     private static final String CRUD_FORM = "/dialogs/crudForm.xhtml";
     private static final String CRUD_PAGE = "/pages/crudPage.xhtml";
     private final List<String> userForms = Arrays.asList("stuff", "teachers", "studentParent");
+    private Map<ObjectId, String> imagesCache = new HashMap();
 
     private String id;
 
@@ -376,6 +379,39 @@ public class CrudMB implements Serializable {
                 return null;
             }
         }
-
     }
+
+    public String encodeFileToBase64Binary(ObjectId fileId) {
+        String rval = null;
+        if (fileId == null) {
+            try {
+                InputStream is = getClass().getClassLoader().getResourceAsStream("user-profile.png");
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                int nRead;
+                byte[] data = new byte[1024];
+                while ((nRead = is.read(data, 0, data.length)) != -1) {
+                    buffer.write(data, 0, nRead);
+                }
+
+                buffer.flush();
+                byte[] byteArray = buffer.toByteArray();
+                rval = Base64.encodeBase64String(byteArray);
+            } catch (IOException ex) {
+                Logger.getLogger(CrudMB.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+
+            if (imagesCache.containsKey(fileId)) {
+                rval = imagesCache.get(fileId);
+            } else {
+                byte[] bytes = myDataSB.getFileUpDownManager().downloadFile(fileId);
+                if (bytes != null) {
+                    rval = Base64.encodeBase64String(bytes);
+                    imagesCache.put(fileId, rval);
+                }
+            }
+        }
+        return rval;
+    }
+
 }

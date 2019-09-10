@@ -102,13 +102,16 @@
 
                                     <div class="activity--content">
                                         <p><h:outputText value="#{rec.message}"/></p>
-                                        <h:panelGroup rendered="#{not rec.fileIds.isEmpty()}" class="gallery" layout="block">
+                                        <h:panelGroup rendered="#{not rec.fileIdsLimited.isEmpty()}" class="gallery" layout="block">
                                             <div class="g_album_#{rec._id}"  data-trigger="gallery_popup">
                                                 <ul class="nav AdjustRow">
-                                                    <ui:repeat var="recI" value="#{rec.fileIds}">
+                                                    <ui:repeat var="recI" value="#{rec.fileIdsLimited}">
                                                         <li>
-                                                            <a href="#{request.contextPath}/downloadFile?id=#{recI}" class="albumParent">
+                                                            <a href="#{request.contextPath}/downloadFile?id=#{recI}" data-overlay="#{(rec.fileIdsLimited.size() lt rec.fileIds.size()) and (recI eq rec.fileIdsLimited.get(rec.fileIdsLimited.size()-1)) ? 0.5 : 0 }" class="albumParent">
                                                                 <img src="#{request.contextPath}/downloadFile?id=#{recI}" class="albumImg"/>
+                                                                <h:panelGroup class="albumSpan" layout="span" rendered="#{(rec.fileIdsLimited.size() lt rec.fileIds.size()) and (recI eq rec.fileIdsLimited.get(rec.fileIdsLimited.size()-1))}">
+                                                                    #{rec.fileIds.size()-rec.fileIdsLimited.size()} daha
+                                                                </h:panelGroup> 
                                                             </a>
                                                         </li>                                                        
                                                     </ui:repeat>

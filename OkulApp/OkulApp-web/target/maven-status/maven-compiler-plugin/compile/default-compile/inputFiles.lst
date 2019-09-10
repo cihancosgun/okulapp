@@ -22,6 +22,7 @@
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputImage.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/texts/TextBundlerSMB.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputCheckBoxControl.java
+/home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/servlets/downloadFile.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputIntegerFormControl.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/BaseFormControl.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/security/SecurityMB.java

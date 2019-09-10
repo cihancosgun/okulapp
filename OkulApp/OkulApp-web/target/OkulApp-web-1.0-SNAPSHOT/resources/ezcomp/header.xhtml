@@ -114,12 +114,8 @@
                                 </a>
                                 <ul class="dropdown-menu">                               
                                     <li class="user-footer">
-                                        <div class="pull-right">
-                                            <p:panelGrid columns="1" columnClasses="ui-g-12 ui-md-12" layout="grid" styleClass="ui-panelgrid-blank">
-                                                <p:outputLabel value="${securityMB.loginUser.nameSurname}"/>
-                                                <p:commandButton actionListener="#{securityMB.signOut()}" value="#{cc.attrs.logoutText}" immediate="true" ajax="false"/>
-                                            </p:panelGrid>
-                                        </div>
+                                        <p:outputLabel value="${securityMB.loginUser.nameSurname}"/>
+                                        <p:commandButton actionListener="#{securityMB.signOut()}" value="#{cc.attrs.logoutText}" immediate="true" ajax="false"/>
                                     </li>
                                 </ul>
                             </li>                      
