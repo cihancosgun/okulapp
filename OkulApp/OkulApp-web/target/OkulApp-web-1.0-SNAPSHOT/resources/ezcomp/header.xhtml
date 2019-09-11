@@ -118,10 +118,10 @@
                                     </li>
                                     <li class="footer">    
                                         <div class="pull-right">
-                                            <p:commandButton actionListener="#{securityMB.signOut()}" value="#{cc.attrs.logoutText}" immediate="true" ajax="false"/>
+                                            <p:commandButton actionListener="#{securityMB.signOut()}" value="#{cc.attrs.logoutText}" immediate="true" oncomplete="location.reload()"/>
                                         </div>
                                     </li>
-                                </ul>
+                                </ul> 
                             </li>                      
                         </ul>
 

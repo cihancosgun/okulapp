@@ -151,7 +151,9 @@
             <script type="text/javascript">
                 function chatScrollToBottom() {
                     var objDiv = $(".msg_history")[0];
-                    objDiv.scrollTop = objDiv.scrollHeight;
+                    if (objDiv != null) {
+                        objDiv.scrollTop = objDiv.scrollHeight;
+                    }
                 }
                 chatScrollToBottom();
             </script>

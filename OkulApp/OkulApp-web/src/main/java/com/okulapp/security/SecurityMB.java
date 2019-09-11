@@ -95,10 +95,7 @@ public class SecurityMB implements Serializable {
         try {
             getRequest().logout();
             getRequest().getSession().invalidate();
-            getResponse().sendRedirect("/OkulApp-web/");
         } catch (ServletException ex) {
-            Logger.getLogger(SecurityMB.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
             Logger.getLogger(SecurityMB.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -253,7 +250,7 @@ public class SecurityMB implements Serializable {
         }
         return user;
     }
- 
+
     public Map<String, Object> getLoginUser() {
         if (loginUser == null && getRemoteUserName() != null) {
             return getUserFromEmail(getRemoteUserName());

@@ -59,7 +59,10 @@ public class NavigationMB extends Navigation {
         } else {
             dispatcherMB.setCurrentPage(new Form(menu.getTitle(), menu.getLink()));
         }
+    }
 
+    public void showHomePage() {
+        dispatcherMB.setCurrentPage(new Form("Ana Sayfa", "/pages/home.xhtml"));
     }
 
 }

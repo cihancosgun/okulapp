@@ -19,8 +19,16 @@
                 <section class="sidebar">
                     <ul class="sidebar-menu" data-widget="tree">
                         <li class="header">#{cc.attrs.header}</li>
+                        <li class="treeview">
+                            <h:panelGroup>
+                                <p:commandLink immediate="true" update="contentCmp:contentPanelGroup"  actionListener="#{navigationMB.showHomePage()}">
+                                    <i class="fa fa-home"></i> 
+                                    <span>Ana Sayfa</span>
+                                </p:commandLink>
+                            </h:panelGroup>
+                        </li>
                         <ui:repeat value="#{cc.attrs.menus}" var="m">
-                            <li class="treeview">     
+                            <li class="treeview">                            
                                 <h:panelGroup rendered="#{m.menus != null}">
                                     <a href="#" class="ui-commandlink ui-widget">
                                         <i class="#{m.iconClass}"></i> 

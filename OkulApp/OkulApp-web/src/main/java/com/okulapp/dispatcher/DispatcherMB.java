@@ -77,6 +77,6 @@ public class DispatcherMB implements Serializable {
 
     public void switchToShowNotify(Map<String, Object> notify) {
         boardMB.setCurrentNotify(notify);
-        setCurrentPage(new Form("Resim", "/pages/showNotify.xhtml"));
+        setCurrentPage(new Form("Pano", "/pages/showNotify.xhtml"));
     }
 }
