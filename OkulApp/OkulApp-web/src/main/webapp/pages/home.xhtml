@@ -13,7 +13,8 @@
         <link href="#{request.contextPath}/css/activity/style.min.css" rel="stylesheet" type="text/css"/> 
         <link href="#{request.contextPath}/css/activity/responsive-style.min.css" rel="stylesheet" type="text/css"/>
         <link href="#{request.contextPath}/css/activity/color-1.css" rel="stylesheet" type="text/css"/>
-        <link href="#{request.contextPath}/css/activity/custom.css" rel="stylesheet" type="text/css"/>        
+        <link href="#{request.contextPath}/css/activity/custom.css" rel="stylesheet" type="text/css"/>
+        <script src="#{request.contextPath}/js/activity/jquery.magnific-popup.min.js" type="text/javascript"></script>
         <!-- ==== HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries ==== -->
         <!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -105,15 +106,15 @@
                                         <h:panelGroup rendered="#{not rec.fileIds.isEmpty()}" class="gallery" layout="block">
                                             <div class="g_album_#{rec._id}"  data-trigger="gallery_popup">
                                                 <ul class="nav AdjustRow">
-                                                    <ui:repeat var="recI" value="#{rec.fileIds}">
+                                                    <ui:repeat var="recI" varStatus="recStat" value="#{rec.fileIds}">
                                                         <li>
                                                             <a href="#{request.contextPath}/downloadFile?id=#{recI}" class="albumParent">
-                                                                <img src="#{request.contextPath}/downloadFile?id=#{recI}" class="albumImg"/>
+                                                                <p:graphicImage value="#{chatMB.handleImageFileDownload(rec.thumbFileIds[recStat.index])}"  stream="false" styleClass="albumImg"/>
                                                             </a>
                                                         </li>                                                        
                                                     </ui:repeat>
                                                 </ul>
-                                            </div>
+                                            </div> 
                                             <script>
                                                 $(document).ready(function () {
                                                     $('.g_album_#{rec._id}').magnificPopup({
@@ -148,11 +149,6 @@
             </div>
             <!-- Back To Top Button End -->           
         </h:form>
-        <!-- ==== Plugins Bundle ==== -->
-        <script src="#{request.contextPath}/js/activity/plugins.min.js"></script>
-
-
-
     </h:body>
 </html>
 

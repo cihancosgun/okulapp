@@ -41,6 +41,7 @@ public class downloadFile extends HttpServlet {
             byte[] bytes = myDataSB.getFileUpDownManager().downloadFile(fileId);
             if (bytes != null) {
                 response.getOutputStream().write(bytes);
+                response.getOutputStream().close();
             }
         }
 

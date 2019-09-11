@@ -11,6 +11,14 @@ import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.dispatcher.DispatcherMB;
 import com.okulapp.forms.CrudMB;
 import com.okulapp.security.SecurityMB;
+import com.okulapp.utils.ByteArrayUploadedFile;
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.inject.Named;
@@ -30,6 +38,7 @@ import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -75,6 +84,7 @@ public class NotificationMB implements Serializable {
 
     private String notificationMessage;
     private List<UploadedFile> uploadedFiles = new ArrayList<>();
+    private List<UploadedFile> uploadedThumbFiles = new ArrayList<>();
 
     /**
      * Creates a new instance of NotificationMB
@@ -124,6 +134,10 @@ public class NotificationMB implements Serializable {
 
     public List<UploadedFile> getUploadedFiles() {
         return uploadedFiles;
+    }
+
+    public List<UploadedFile> getUploadedThumbFiles() {
+        return uploadedThumbFiles;
     }
 
     @PostConstruct
@@ -177,14 +191,37 @@ public class NotificationMB implements Serializable {
         }
     }
 
+    private BufferedImage resizeImage(final Image image, int width, int height) {
+        final BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        final Graphics2D graphics2D = bufferedImage.createGraphics();
+        graphics2D.setComposite(AlphaComposite.Src);
+        //below three lines are for RenderingHints for better image quality at cost of higher processing time
+        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics2D.drawImage(image, 0, 0, width, height, null);
+        graphics2D.dispose();
+        return bufferedImage;
+    }
+
     public CheckboxTreeNode prepearNodeForPersonRecord(Map<String, Object> rec) {
         return new CheckboxTreeNode("", rec, null);
     }
 
     public void handleFileUpload(FileUploadEvent event) {
-        FacesMessage msg = new FacesMessage("Succesful", event.getFile().getFileName() + " is uploaded.");
-        FacesContext.getCurrentInstance().addMessage(null, msg);
-        uploadedFiles.add(event.getFile());
+        try {
+            FacesMessage msg = new FacesMessage("Başarılı", event.getFile().getFileName() + " isimli dosya yüklendi.");
+            FacesContext.getCurrentInstance().addMessage(null, msg);
+            BufferedImage imageOrj = ImageIO.read(event.getFile().getInputstream());
+            BufferedImage imageThumb = resizeImage(imageOrj, 200, 200);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ImageIO.write(imageThumb, "png", bos);
+            UploadedFile resizedImage = new ByteArrayUploadedFile(bos.toByteArray(), event.getFile().getFileName(), event.getFile().getContentType());
+            uploadedFiles.add(event.getFile());
+            uploadedThumbFiles.add(resizedImage);
+        } catch (IOException ex) {
+            Logger.getLogger(NotificationMB.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public void setBranches(List<Map<String, Object>> branches) {
@@ -272,6 +309,21 @@ public class NotificationMB implements Serializable {
         return list;
     }
 
+    private List<ObjectId> getThumbFileIds() {
+        List<ObjectId> list = new ArrayList();
+        for (UploadedFile uploadedFile : uploadedThumbFiles) {
+            try {
+                ObjectId fileId = myDataSB.getFileUpDownManager().uploadFile(uploadedFile.getInputstream(), uploadedFile.getFileName());
+                if (fileId != null) {
+                    list.add(fileId);
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(NotificationMB.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return list;
+    }
+
     private Map<String, Object> prepareNotifiyRecord(String messageType) {
         Map<String, Object> rec = new HashMap();
         rec = new HashMap();
@@ -284,6 +336,7 @@ public class NotificationMB implements Serializable {
         rec.put("messageType", messageType);
         rec.put("message", notificationMessage);
         rec.put("fileIds", getFileIds());
+        rec.put("thumbFileIds", getThumbFileIds());
         rec.put("startDate", new Date());
         rec.put("deleted", false);
         return rec;
@@ -318,5 +371,9 @@ public class NotificationMB implements Serializable {
         FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Mesajınız iletildi.");
         FacesContext.getCurrentInstance().addMessage(null, msg);
         clean();
+    }
+
+    public void setUploadedThumbFiles(List<UploadedFile> uploadedThumbFiles) {
+        this.uploadedThumbFiles = uploadedThumbFiles;
     }
 }

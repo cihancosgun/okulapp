@@ -38,8 +38,8 @@
                 </a>
                 <h:form>
                     <h:panelGroup id="navBarCustomMenu" class="navbar-custom-menu" layout="block">
-                        <p:growl id="myNotifyMsgs" showDetail="true"/>
-                        <ul class="nav navbar-nav">
+                        <p:growl id="myNotifyMsgs" showDetail="true" life="400"/>
+                        <ul class="nav navbar-nav"> 
                             <li class="dropdown messages-menu">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                     <i class="fa fa-envelope-o"></i>
@@ -55,7 +55,7 @@
                                         <ul class="menu">
                                             <c:forEach items="#{chatMB.myUnreadedMessages}" var="rec">
                                                 <li><!-- start message -->
-                                                    <p:commandLink actionListener="#{dispatcherMB.switchToChatPage()}" immediate="true" update="contentCmp:contentPanelGroup">
+                                                    <p:commandLink actionListener="#{dispatcherMB.switchToChatPage(rec.messages)}" immediate="true" update="contentCmp:contentPanelGroup">
                                                         <div class="pull-left">
                                                             <p:graphicImage value="#{chatMB.handleImageFileDownload(securityMB.getUserFromEmail(rec.messages.senderEmail).image)}" stream="false" class="img-circle" alt="Sender User Image"/>
                                                         </div>
@@ -70,11 +70,11 @@
                                             </c:forEach>
                                         </ul>
                                     </li>
-                                    <li class="footer"><p:commandLink immediate="true" actionListener="#{dispatcherMB.switchToChatPage()}" update="contentCmp:contentPanelGroup">Tüm Mesajları Göster</p:commandLink></li>
+                                    <li class="footer"><p:commandLink immediate="true" actionListener="#{dispatcherMB.switchToChatPage(null)}" update="contentCmp:contentPanelGroup">Tüm Mesajları Göster</p:commandLink></li>
                                 </ul>
                             </li>
 
-                            <li class="dropdown notifications-menu">
+                            <li class="dropdown messages-menu">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                     <i class="fa fa-bell-o"></i>
                                     <h:panelGroup class="label label-warning" rendered="#{not boardMB.myUnreadedBoard.isEmpty()}">
@@ -108,20 +108,24 @@
                             </li>
 
                             <!-- User Account: style can be found in dropdown.less -->
-                            <li class="dropdown user user-menu">
+                            <li class="dropdown messages-menu">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">                                
                                     <i class="fa fa-user"></i>
                                 </a>
-                                <ul class="dropdown-menu">                               
-                                    <li class="user-footer">
+                                <ul class="dropdown-menu">       
+                                    <li class="header">
                                         <p:outputLabel value="${securityMB.loginUser.nameSurname}"/>
-                                        <p:commandButton actionListener="#{securityMB.signOut()}" value="#{cc.attrs.logoutText}" immediate="true" ajax="false"/>
+                                    </li>
+                                    <li class="footer">    
+                                        <div class="pull-right">
+                                            <p:commandButton actionListener="#{securityMB.signOut()}" value="#{cc.attrs.logoutText}" immediate="true" ajax="false"/>
+                                        </div>
                                     </li>
                                 </ul>
                             </li>                      
                         </ul>
 
-                    </h:panelGroup>    
+                    </h:panelGroup>
                 </h:form>
             </nav>
         </header>

@@ -56,7 +56,9 @@
                             <p:inputTextarea id="notificationMessage" value="#{notificationMB.notificationMessage}"/>
                             <p:outputLabel for="files" value="Dosyalar"/>
                             <p:fileUpload id="files" fileUploadListener="#{notificationMB.handleFileUpload}" mode="advanced" dragDropSupport="false"
-                                          multiple="true" update="myMsgs" sizeLimit="3145728" fileLimit="50" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" auto="true" />
+                                          multiple="true" update="myMsgs fileCount" sizeLimit="3145728" fileLimit="50" allowTypes="/(\.|\/)(gif|jpe?g|png)$/" auto="true" />
+                            <p:outputLabel value="Yüklenen Dosya Adedi"/>
+                            <p:outputLabel id="fileCount" value="#{notificationMB.uploadedFiles.size()}"/>
                             <p:outputLabel value=""/>
                             <p:panelGrid columns="2">
                                 <p:commandButton id="send" icon="fa fa-send" value="Mesajı Gönder" actionListener="#{notificationMB.sendMessage('board')}" update="@(.notificationForm)" />

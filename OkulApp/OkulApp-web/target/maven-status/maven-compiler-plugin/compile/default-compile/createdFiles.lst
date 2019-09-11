@@ -24,6 +24,7 @@ com/okulapp/texts/TextsMap.class
 com/okulapp/forms/controls/InputImage.class
 com/okulapp/forms/FormControlFactory.class
 com/okulapp/security/CrudSecurityRole.class
+com/okulapp/utils/ByteArrayUploadedFile.class
 com/okulapp/chat/ChatMB.class
 com/okulapp/forms/controls/InputSelectManyDbFormControl.class
 com/okulapp/notify/NotificationMB.class

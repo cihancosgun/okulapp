@@ -44,8 +44,7 @@ public class DispatcherMB implements Serializable {
 
     public Form getCurrentPage() {
         if (currentPage == null) {
-
-            currentPage = new Form(textBundlerSMB.getText("home"), "/pages/home.xhtml");
+            setCurrentPage(new Form(textBundlerSMB.getText("home"), "/pages/home.xhtml"));
         }
         return currentPage;
     }
@@ -54,25 +53,30 @@ public class DispatcherMB implements Serializable {
         this.currentPage = currentPage;
     }
 
-    public void switchToChatPage() {
+    public void switchToChatPage(Map<String, Object> chat) {
         chatMB.refreshChat();
         chatMB.refreshMyUnreadMessages();
-        currentPage = new Form("Mesajlaşma", "/pages/chat.xhtml");
+        if (chat != null) {
+            chatMB.switchToChat(chat);
+        } else {
+            chatMB.showRecentsForm();
+        }
+        setCurrentPage(new Form("Mesajlaşma", "/pages/chat.xhtml"));
     }
 
     public void switchToBoardPage() {
         boardMB.refreshMyBoard();
-        currentPage = new Form("Pano", "/pages/home.xhtml");
+        setCurrentPage(new Form("Pano", "/pages/home.xhtml"));
     }
 
     public void switchToShowImagePage(ObjectId image, Map<String, Object> notify) {
         boardMB.setCurrentImage(image);
         boardMB.setCurrentNotify(notify);
-        currentPage = new Form("Resim", "/pages/showImage.xhtml");
+        setCurrentPage(new Form("Resim", "/pages/showImage.xhtml"));
     }
 
     public void switchToShowNotify(Map<String, Object> notify) {
         boardMB.setCurrentNotify(notify);
-        currentPage = new Form("Resim", "/pages/showNotify.xhtml");
+        setCurrentPage(new Form("Resim", "/pages/showNotify.xhtml"));
     }
 }
