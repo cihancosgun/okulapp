@@ -11,7 +11,6 @@ import com.mongodb.DBObject;
 import com.mongodb.QueryBuilder;
 import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.forms.CrudForm;
-import java.io.IOException;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
 import java.math.BigInteger;

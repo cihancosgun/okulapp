@@ -69,6 +69,7 @@
 
 
         <h:form id="boardForm">
+            <p:remoteCommand name="refreshBoard" actionListener="#{boardMB.refreshAllNotify()}" update="boardForm" />
             <!-- Activity List Start -->
             <div class="activity--list">
                 <!-- Activity Items Start -->
@@ -87,7 +88,7 @@
                             <!-- Activity Item Start -->
                             <div class="activity--item">
                                 <div class="activity--avatar">
-                                    <a href="member-activity-personal.html">
+                                    <a href="#">
                                         <p:graphicImage value="#{notificationMB.handleMessageTypeIcon(rec.messageType)}" width="50" stream="false"/>
                                     </a>
                                 </div>

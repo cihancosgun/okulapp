@@ -5,6 +5,7 @@
  */
 package com.okulapp.data;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ReadPreference;
@@ -214,7 +215,7 @@ public class MongoDataAdapter implements DataAdapter {
         Document df = new Document(find);
         MongoCursor<Document> cursor = collection.find(df).iterator();
         if (cursor.hasNext()) {
-            result = cursor.next();
+            result = BasicDBObject.parse(cursor.next().toJson());
         }
         this.disconnect();
         return result;

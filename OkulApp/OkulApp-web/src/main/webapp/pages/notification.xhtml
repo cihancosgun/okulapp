@@ -61,12 +61,19 @@
                             <p:outputLabel id="fileCount" value="#{notificationMB.uploadedFiles.size()}"/>
                             <p:outputLabel value=""/>
                             <p:panelGrid columns="2">
-                                <p:commandButton id="send" icon="fa fa-send" value="Mesajı Gönder" actionListener="#{notificationMB.sendMessage('board')}" update="@(.notificationForm)" />
+                                <p:commandButton id="send" icon="fa fa-send" value="Mesajı Gönder" actionListener="#{notificationMB.sendMessage('board')}" update="@(.notificationForm)" oncomplete="sendNotificationUpdateMessage()"/>
                                 <p:commandButton id="clean" icon="fa fa-remove" value="Temizle" actionListener="#{notificationMB.clean()}" update="@(.notificationForm)" />
                             </p:panelGrid>
                         </p:panelGrid>
                     </div>
-                </p:tab>                
+
+                    <script>
+                        function sendNotificationUpdateMessage() {
+                            var rec = #{notificationMB.currentNotify};
+                            sendMessage('updatenotify', rec.users);
+                        }
+                    </script>
+                </p:tab>
             </p:tabView>
         </h:form>
     </h:body>

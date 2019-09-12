@@ -137,9 +137,7 @@ public class BoardMB implements Serializable {
     }
 
     public void refreshAllNotify() {
-        if (!dispatcherMB.getCurrentPage().getPageUrl().contains("home.xhtml")) {
-            refreshMyBoard();
-        }
+        refreshMyBoard();
         if (!dispatcherMB.getCurrentPage().getPageUrl().contains("chat.xhtml")) {
             chatMB.refreshMyUnreadMessages();
         }

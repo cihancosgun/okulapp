@@ -18,8 +18,11 @@ com/okulapp/forms/controls/InputSelectOneFormControl.class
 com/okulapp/dispatcher/DispatcherMB.class
 com/okulapp/navigation/Menu$Builder.class
 com/okulapp/security/SecurityMB.class
+com/okulapp/ws/WebSocketSessionManager.class
+com/okulapp/ws/WSFilter.class
 com/okulapp/texts/TextBundlerSMB.class
 com/okulapp/navigation/Navigation$Builder.class
+com/okulapp/ws/WSReceiverManager.class
 com/okulapp/texts/TextsMap.class
 com/okulapp/forms/controls/InputImage.class
 com/okulapp/forms/FormControlFactory.class
@@ -30,6 +33,7 @@ com/okulapp/forms/controls/InputSelectManyDbFormControl.class
 com/okulapp/notify/NotificationMB.class
 com/okulapp/forms/controls/InputIntegerFormControl.class
 com/okulapp/texts/TextsMB.class
+com/okulapp/ws/WebSocketServer.class
 com/okulapp/forms/controls/BaseFormControl.class
 com/okulapp/foodcalendar/FoodCalendarMB.class
 com/okulapp/forms/controls/PhoneConverter.class

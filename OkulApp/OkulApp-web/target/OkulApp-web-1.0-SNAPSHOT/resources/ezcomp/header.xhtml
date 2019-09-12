@@ -17,7 +17,67 @@
     </cc:interface>
 
     <!-- IMPLEMENTATION -->
-    <cc:implementation>
+    <cc:implementation>    
+        <script>
+            var userid = "#{securityMB.loginUser.email}";
+            var wsUrl = "ws://" + window.document.location.host + window.document.location.pathname + "ws";
+            var webSocket;
+
+            function init() {
+                webSocket = new WebSocket(wsUrl);
+                webSocket.onopen = function (evt) {
+                    onOpen(event)
+                };
+                webSocket.onclose = function (evt) {
+                    onClose(event)
+                };
+                webSocket.onmessage = function (evt) {
+                    onMessage(event)
+                };
+                webSocket.onerror = function (evt) {
+                    onError(event)
+                };
+            }
+
+            function onOpen(event) {
+                console.log("OnOpen Event");
+            }
+
+            function onClose(event) {
+                console.log("OnClose Event");
+            }
+
+            function onError(event) {
+                console.log("OnError Event");
+            }
+
+            function sendMessage(message, receivers) {
+                var msg = {"userid": userid, "message": message, "receivers": receivers};
+                webSocket.send(JSON.stringify(msg));
+            }
+
+            function onMessage(event) {
+                if (event.data != null) {
+                    var msg = JSON.parse(event.data);
+                    updateNotification();
+                    if (msg.message == "updatechat") {
+                        if (refreshChat != null) {
+                            refreshChat();
+                        }
+                    } else if (msg.message == "updatenotify") {
+                        if (refreshBoard != null) {
+                            refreshBoard();
+                        }
+                    }
+                }
+            }
+
+            function closeSocket() {
+                webSocket.close();
+            }
+            window.addEventListener("load", init, false);
+            window.addEventListener("unload", closeSocket, false);
+        </script>
 
         <header class="main-header">
             <!-- Logo -->
@@ -37,8 +97,9 @@
                     <span class="icon-bar"></span>
                 </a>
                 <h:form>
+                    <p:remoteCommand name="updateNotification" actionListener="#{boardMB.refreshAllNotify()}"  update="navBarCustomMenu myNotifyMsgs" />
                     <h:panelGroup id="navBarCustomMenu" class="navbar-custom-menu" layout="block">
-                        <p:growl id="myNotifyMsgs" showDetail="true" life="400"/>
+                        <p:growl id="myNotifyMsgs" showDetail="true"/>
                         <ul class="nav navbar-nav"> 
                             <li class="dropdown messages-menu">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -46,7 +107,7 @@
                                     <h:panelGroup id="messageCount" class="label label-success" rendered="#{not chatMB.myUnreadedMessages.isEmpty()}">
                                         ${chatMB.myUnreadedMessages.size()} 
                                     </h:panelGroup>
-                                    <p:poll listener="#{boardMB.refreshAllNotify()}" interval="15" update="navBarCustomMenu myNotifyMsgs"/>
+<!--                                    <p:poll listener="#{boardMB.refreshAllNotify()}" interval="15" update="navBarCustomMenu myNotifyMsgs"/>-->
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li class="header">${chatMB.myUnreadedMessages.size()} adet okunmamış mesajınız var.</li>
@@ -118,7 +179,7 @@
                                     </li>
                                     <li class="footer">    
                                         <div class="pull-right">
-                                            <p:commandButton actionListener="#{securityMB.signOut()}" value="#{cc.attrs.logoutText}" immediate="true" oncomplete="location.reload()"/>
+                                            <p:commandButton actionListener="#{securityMB.signOut()}" value="#{cc.attrs.logoutText}" immediate="true" oncomplete="location.reload();"/>
                                         </div>
                                     </li>
                                 </ul> 
@@ -129,5 +190,7 @@
                 </h:form>
             </nav>
         </header>
+
+
     </cc:implementation>
 </html>

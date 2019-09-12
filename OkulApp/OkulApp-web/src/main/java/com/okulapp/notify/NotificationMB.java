@@ -12,13 +12,13 @@ import com.okulapp.dispatcher.DispatcherMB;
 import com.okulapp.forms.CrudMB;
 import com.okulapp.security.SecurityMB;
 import com.okulapp.utils.ByteArrayUploadedFile;
+import com.okulapp.ws.WSReceiverManager;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.inject.Named;
@@ -40,6 +40,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.primefaces.event.FileUploadEvent;
@@ -70,6 +71,9 @@ public class NotificationMB implements Serializable {
     private @Inject
     DispatcherMB dispatcherMB;
 
+    private @Inject
+    WSReceiverManager receiverManager;
+
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     private List<Map<String, Object>> branches;
@@ -85,6 +89,7 @@ public class NotificationMB implements Serializable {
     private String notificationMessage;
     private List<UploadedFile> uploadedFiles = new ArrayList<>();
     private List<UploadedFile> uploadedThumbFiles = new ArrayList<>();
+    private BasicDBObject currentNotify = new BasicDBObject();
 
     /**
      * Creates a new instance of NotificationMB
@@ -94,6 +99,10 @@ public class NotificationMB implements Serializable {
 
     public List<Map<String, Object>> getBranches() {
         return branches;
+    }
+
+    public Map<String, Object> getCurrentNotify() {
+        return currentNotify;
     }
 
     public List<Map<String, Object>> getListClasses() {
@@ -146,6 +155,12 @@ public class NotificationMB implements Serializable {
         if (branches != null && securityMB.getLoginUser() != null) {
             setSelectedBranch((ObjectId) securityMB.getLoginUser().getOrDefault("branch", branches.get(0).get("_id")));
         }
+    }
+
+    public HttpServletRequest getRequest() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        HttpServletRequest request = (HttpServletRequest) facesContext.getExternalContext().getRequest();
+        return request;
     }
 
     public void searchContactsAction() {
@@ -228,6 +243,10 @@ public class NotificationMB implements Serializable {
         this.branches = branches;
     }
 
+    public void setCurrentNotify(BasicDBObject currentNotify) {
+        this.currentNotify = currentNotify;
+    }
+
     public void setListClasses(List<Map<String, Object>> listClasses) {
         this.listClasses = listClasses;
     }
@@ -274,11 +293,13 @@ public class NotificationMB implements Serializable {
         uploadedFiles.clear();
     }
 
-    private List<String> getReceiverUsers() {
+    public List<String> getReceiverUsers() {
         List<String> list = new ArrayList();
-        for (TreeNode rec : selectedContacts) {
-            if (rec.getData() instanceof Document && ((Document) rec.getData()).containsKey("email")) {
-                list.add(((Document) rec.getData()).getString("email"));
+        if (selectedContacts != null) {
+            for (TreeNode rec : selectedContacts) {
+                if (rec.getData() instanceof Document && ((Document) rec.getData()).containsKey("email")) {
+                    list.add(((Document) rec.getData()).getString("email"));
+                }
             }
         }
         return list;
@@ -286,9 +307,11 @@ public class NotificationMB implements Serializable {
 
     private List<String> getReceiverUsersNS() {
         List<String> list = new ArrayList();
-        for (TreeNode rec : selectedContacts) {
-            if (rec.getData() instanceof Document && ((Document) rec.getData()).containsKey("email")) {
-                list.add(((Document) rec.getData()).getString("nameSurname"));
+        if (selectedContacts != null) {
+            for (TreeNode rec : selectedContacts) {
+                if (rec.getData() instanceof Document && ((Document) rec.getData()).containsKey("email")) {
+                    list.add(((Document) rec.getData()).getString("nameSurname"));
+                }
             }
         }
         return list;
@@ -324,9 +347,8 @@ public class NotificationMB implements Serializable {
         return list;
     }
 
-    private Map<String, Object> prepareNotifiyRecord(String messageType) {
-        Map<String, Object> rec = new HashMap();
-        rec = new HashMap();
+    public BasicDBObject prepareNotifiyRecord(String messageType) {
+        BasicDBObject rec = new BasicDBObject();
         rec.put("_id", new ObjectId());
         rec.put("senderEmail", securityMB.getRemoteUserName());
         rec.put("senderNameSurname", securityMB.getLoginUser().get("nameSurname"));
@@ -364,12 +386,13 @@ public class NotificationMB implements Serializable {
             return;
         }
 
-        Map<String, Object> rec = prepareNotifiyRecord(messageType);
+        currentNotify = prepareNotifiyRecord(messageType);
 
-        myDataSB.getAdvancedDataAdapter().create(myDataSB.getDbName(), "notifications", rec);
+        myDataSB.getAdvancedDataAdapter().create(myDataSB.getDbName(), "notifications", currentNotify);
 
         FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Mesajınız iletildi.");
         FacesContext.getCurrentInstance().addMessage(null, msg);
+        receiverManager.setReceivers(getReceiverUsers());
         clean();
     }
 

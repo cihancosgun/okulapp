@@ -110,7 +110,7 @@
 
                 <div class="messaging">
                     <div class="mesgs">
-                        <h:panelGroup id="msg_history" class="msg_history" layout="block">
+                        <h:panelGroup id="msg_history" class="msg_history" layout="block">                          
                             <c:forEach items="#{chatMB.currentChat.messages}" var="rec">
                                 <c:if test="#{rec.senderEmail eq securityMB.remoteUserName}"> 
                                     <div class="outgoing_msg">
@@ -140,12 +140,12 @@
                             <div class="input_msg_write">
                                 <p:defaultCommand target="sendMsg" />
                                 <p:inputText class="write_msg" placeholder="Mesaj" value="#{chatMB.currentMessageText}" />
-                                <p:commandButton id="sendMsg" class="msg_send_btn" icon="fa fa-paper-plane-o"  actionListener="#{chatMB.addMessageToConversation()}" update="@(.chatForm)" oncomplete="chatScrollToBottom()"/>
+                                <p:commandButton id="sendMsg" class="msg_send_btn" icon="fa fa-paper-plane-o"  actionListener="#{chatMB.addMessageToConversation()}" update="@(.chatForm)" oncomplete="sendMessageToSocket()"/>
                             </div>
                         </div>
                     </div>
                 </div>                
-                <p:poll interval="5" listener="#{chatMB.refreshChat()}" update="msg_history" oncomplete="chatScrollToBottom()" />
+                <p:remoteCommand name="refreshChat" actionListener="#{chatMB.refreshChat()}" update="msg_history" oncomplete="chatScrollToBottom()" />
             </h:panelGroup>
 
             <script type="text/javascript">
@@ -156,6 +156,11 @@
                     }
                 }
                 chatScrollToBottom();
+
+                function sendMessageToSocket() {
+                    sendMessage("updatechat", #{wSReceiverManager.receivers});
+                    chatScrollToBottom();
+                }
             </script>
         </h:form>
     </h:body>

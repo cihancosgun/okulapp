@@ -12,6 +12,7 @@ import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.dispatcher.DispatcherMB;
 import com.okulapp.forms.CrudMB;
 import com.okulapp.security.SecurityMB;
+import com.okulapp.ws.WSReceiverManager;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
@@ -28,6 +29,7 @@ import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.primefaces.model.StreamedContent;
@@ -70,6 +72,9 @@ public class ChatMB implements Serializable {
 
     private @Inject
     DispatcherMB dispatcherMB;
+
+    private @Inject
+    WSReceiverManager receiverManager;
 
     /**
      * Creates a new instance of ChatMB
@@ -244,6 +249,12 @@ public class ChatMB implements Serializable {
         return crudMB.handleImageFileDownload(fileId);
     }
 
+    public HttpServletRequest getRequest() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        HttpServletRequest request = (HttpServletRequest) facesContext.getExternalContext().getRequest();
+        return request;
+    }
+
     public void startNewConversation(Map<String, Object> receiver) {
         if (receiver == null || !receiver.containsKey("email")) {
             return;
@@ -280,6 +291,7 @@ public class ChatMB implements Serializable {
             currentChat.put("deletedUsers", deletedUsers);
         }
         myDataSB.getAdvancedDataAdapter().update(myDataSB.getDbName(), "chat", currentChat);
+        receiverManager.setReceivers((List<String>) currentChat.get("users"));
         showChatForm();
     }
 
