@@ -6,12 +6,18 @@
 package com.okulapp.api;
 
 import com.mongodb.BasicDBObject;
+import com.okulapp.data.okul.MyDataSBLocal;
+import com.okulapp.notify.BoardUtil;
+import com.okulapp.security.SecurityUtil;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.security.Key;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import javax.ejb.EJB;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
@@ -25,6 +31,7 @@ import javax.transaction.Transactional;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.HttpHeaders;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -50,6 +57,9 @@ public class ApiResource {
     @Inject
     private KeyGenerator keyGenerator;
 
+    @EJB
+    MyDataSBLocal myDataSB;
+
     /**
      * Creates a new instance of ApiResource
      */
@@ -71,7 +81,6 @@ public class ApiResource {
             String token = issueToken(login);
 
             //MyLoginBean myLoginBean = new MyLoginBean(login, token);
-
             // Return the token on the response
             return Response.ok().header(AUTHORIZATION, "Bearer " + token).build();
 
@@ -97,9 +106,37 @@ public class ApiResource {
     }
 
     @GET
+    @Path("/getUserRole")
+    @Produces(APPLICATION_JSON)
+    @JWTTokenNeeded
+    public String getUserRole(@Context HttpServletRequest request) {
+        Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        return new BasicDBObject("role", SecurityUtil.getUserRoleFromUserTable(myDataSB, claim.getBody().getSubject())).toJson();
+    }
+
+    @GET
+    @Path("/getBoardOfUser")
+    @Produces(APPLICATION_JSON)
+    @JWTTokenNeeded
+    public String getBoardOfUser(@Context HttpServletRequest request) {
+        Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        return new BasicDBObject("list", BoardUtil.getBoardOfUser(myDataSB, claim.getBody().getSubject())).toJson();
+    }
+
+    @GET
+    @Path("/getUnreadedBoard")
+    @Produces(APPLICATION_JSON)
+    @JWTTokenNeeded
+    public String getUnreadedBoard(@Context HttpServletRequest request) {
+        Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        return new BasicDBObject("list", BoardUtil.getUnreadedBoard(myDataSB, claim.getBody().getSubject())).toJson();
+    }
+
+    @GET
     @Path("/hello")
     @Produces(APPLICATION_JSON)
-    public String echoWithJWTToken(@QueryParam("message") String message) {
+    @JWTTokenNeeded
+    public String hello(@QueryParam("message") String message, @Context HttpServletRequest request) {
         return new BasicDBObject("return", message).toJson();
     }
 

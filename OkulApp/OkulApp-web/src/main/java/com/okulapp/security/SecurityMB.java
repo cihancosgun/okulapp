@@ -8,7 +8,6 @@ package com.okulapp.security;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
-import com.mongodb.QueryBuilder;
 import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.forms.CrudForm;
 import javax.enterprise.context.SessionScoped;
@@ -218,15 +217,7 @@ public class SecurityMB implements Serializable {
     }
 
     public String getUserRoleFromUserTable(String email) {
-        Map<String, Object> userRecord = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "users", QueryBuilder.start("login").is(email).get().toMap());
-        if (userRecord == null) {
-            return "";
-        }
-        List<String> groups = (List<String>) userRecord.get("groups");
-        if (groups == null) {
-            return "";
-        }
-        return groups.get(0);
+        return SecurityUtil.getUserRoleFromUserTable(myDataSB, email);
     }
 
     public Map<String, Object> getUserFromEmail(String email) {
@@ -234,16 +225,7 @@ public class SecurityMB implements Serializable {
         if (email != null) {
             user = (Map<String, Object>) userCache.get(email);
             if (user == null) {
-                String role = getUserRoleFromUserTable(email);
-                if ("admin".equals(role)) {
-                    user = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "stuff", QueryBuilder.start("email").is(email).get().toMap());
-                } else if ("teacher".equals(role)) {
-                    user = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "teachers", QueryBuilder.start("email").is(email).get().toMap());
-                } else if ("stuff".equals(role)) {
-                    user = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "stuff", QueryBuilder.start("email").is(email).get().toMap());
-                } else if ("parent".equals(role)) {
-                    user = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "studentParent", QueryBuilder.start("email").is(email).get().toMap());
-                }
+                user = SecurityUtil.getUserFromEmail(myDataSB, email);
                 userCache.put(email, user);
             }
         }

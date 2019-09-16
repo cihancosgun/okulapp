@@ -7,6 +7,7 @@ com/okulapp/forms/controls/InputSelectOneDbFormControl.class
 com/okulapp/navigation/Menu$1.class
 com/okulapp/inspection/InspectionMB.class
 com/okulapp/forms/controls/InputSelectManyFormControl.class
+com/okulapp/api/TokenUtil.class
 com/okulapp/api/JWTTokenNeededFilter.class
 com/okulapp/forms/controls/InputTextFormControl.class
 com/okulapp/forms/CrudForm$1.class

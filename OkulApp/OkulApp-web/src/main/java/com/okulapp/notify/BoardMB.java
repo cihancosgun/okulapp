@@ -88,22 +88,8 @@ public class BoardMB implements Serializable {
     }
 
     public void refreshMyBoard() {
-        MongoDataAdapter adapter = (MongoDataAdapter) myDataSB.getAdvancedDataAdapter().getSelectedDataAdapter();
-        QueryBuilder filter = QueryBuilder.start("deleted").is(false)
-                .and("users").in(Arrays.asList(securityMB.getRemoteUserName()));
-        QueryBuilder projection = QueryBuilder.start();
-
-        myBoard = adapter.getSortedPagedList(myDataSB.getDbName(), "notifications", filter.get().toMap(), projection.get().toMap(), 0, 20, QueryBuilder.start("startDate").is(-1).get().toMap());
-        for (Map<String, Object> rec : myBoard) {
-            List<ObjectId> fileIds = (List<ObjectId>) rec.getOrDefault("fileIds", new ArrayList());
-            if (fileIds != null && !fileIds.isEmpty() && fileIds.size() > 4) {
-                rec.put("fileIdsLimited", fileIds.subList(0, 4));
-            } else {
-                rec.put("fileIdsLimited", fileIds);
-            }
-        }
-        filter.and("readedUsers").notIn(Arrays.asList(securityMB.getRemoteUserName()));
-        myUnreadedBoard = adapter.getSortedPagedList(myDataSB.getDbName(), "notifications", filter.get().toMap(), projection.get().toMap(), 0, 20, QueryBuilder.start("startDate").is(-1).get().toMap());
+        myBoard = BoardUtil.getBoardOfUser(myDataSB, securityMB.getRemoteUserName());
+        myUnreadedBoard = BoardUtil.getUnreadedBoard(myDataSB, securityMB.getRemoteUserName());
         if (!myUnreadedBoard.isEmpty()) {
             Date dtMsgDate = (Date) myUnreadedBoard.get(0).get("startDate");
             if (dtMsgDate.after(lastMessageDate)) {

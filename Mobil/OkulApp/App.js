@@ -7,7 +7,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { createStackNavigator, createSwitchNavigator, createAppContainer, createDrawerNavigator } from 'react-navigation';
+import { createStackNavigator, createSwitchNavigator, createAppContainer, createBottomTabNavigator } from 'react-navigation';
 import { LoginView } from './views/LoginView';
 import { HomeScreen } from './views/HomeScreen';
 import { OtherScreen } from './views/OtherScreen';
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const AppStack = createDrawerNavigator({ Home: HomeScreen, Other: OtherScreen });
+const AppStack = createBottomTabNavigator({ Home: HomeScreen, Other: OtherScreen });
 const AuthStack = createStackNavigator({ SignIn: LoginView }, {defaultNavigationOptions: {   header: null }});
 
 export default createAppContainer(createSwitchNavigator(
