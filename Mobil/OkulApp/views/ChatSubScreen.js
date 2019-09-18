@@ -28,6 +28,18 @@ export class ChatSubScreen extends React.Component {
     this.props.navigation.navigate('Chat');
   }
 
+  renderMessages(){   
+    //let thumbUrl = OkulApi.currentChat.convReceiverImage != null ? {uri :  OkulApi.apiURL+'getImage?fileId='+ OkulApi.currentChat.convReceiverImage.$oid } : require('../assets/images/user-profile.png'); 
+    const imageComponents = OkulApi.currentChat.messages.map((message, idx)=> 
+      <View  key={Math.random()} style={message.senderEmail==OkulApi.userName ? styles.messageSend : styles.messageReceive}>
+        <Button key={Math.random()} rounded success={message.senderEmail==OkulApi.userName} info={message.senderEmail!=OkulApi.userName}>
+          <Text>{message.message}</Text>
+        </Button>
+        <Text note>{Moment(new Date(message.sendingTime.$date)).format('DD.MM.YYYY HH:mm:ss')}</Text>
+      </View>);
+    return (imageComponents);
+  }
+
   render() {
     return (      
         <Container>
@@ -45,77 +57,7 @@ export class ChatSubScreen extends React.Component {
             <KeyboardAvoidingView style={{flex:1}} behavior="padding" enabled>
           <Content>                
               <ScrollView style={styles.scrollView}>
-                <Button style={{alignSelf:'flex-end'}} rounded success>
-                  <Text>Success</Text>
-                </Button>     
-
-                 <Button style={{alignSelf:'flex-start'}} rounded success>
-                  <Text>Success</Text>
-                </Button>  
-
-
- <Button style={{alignSelf:'flex-end'}} rounded success>
-                  <Text>Success</Text>
-                </Button>     
-
-                 <Button style={{alignSelf:'flex-start'}} rounded success>
-                  <Text>Success</Text>
-                </Button>  
-
-
- <Button style={{alignSelf:'flex-end'}} rounded success>
-                  <Text>Success</Text>
-                </Button>     
-
-                 <Button style={{alignSelf:'flex-start'}} rounded success>
-                  <Text>Success</Text>
-                </Button>  
-
-
- <Button style={{alignSelf:'flex-end'}} rounded success>
-                  <Text>Success</Text>
-                </Button>     
-
-                 <Button style={{alignSelf:'flex-start'}} rounded success>
-                  <Text>Success</Text>
-                </Button>  
-
-
- <Button style={{alignSelf:'flex-end'}} rounded success>
-                  <Text>Success</Text>
-                </Button>     
-
-                 <Button style={{alignSelf:'flex-start'}} rounded success>
-                  <Text>Success</Text>
-                </Button>  
-
-
- <Button style={{alignSelf:'flex-end'}} rounded success>
-                  <Text>Success</Text>
-                </Button>     
-
-                 <Button style={{alignSelf:'flex-start'}} rounded success>
-                  <Text>Success</Text>
-                </Button>  
-
-
- <Button style={{alignSelf:'flex-end'}} rounded success>
-                  <Text>Success</Text>
-                </Button>     
-
-                 <Button style={{alignSelf:'flex-start'}} rounded success>
-                  <Text>Success</Text>
-                </Button>  
-
-
- <Button style={{alignSelf:'flex-end'}} rounded success>
-                  <Text>Success</Text>
-                </Button>     
-
-                 <Button style={{alignSelf:'flex-start'}} rounded success>
-                  <Text>Success</Text>
-                </Button>  
-
+                {this.renderMessages()}                
               </ScrollView>           
               <Item style={styles.message}>
                   <Input placeholder='Mesaj..'/>
@@ -142,6 +84,14 @@ const styles = StyleSheet.create({
     flex:1,
     height: Dimensions.get('window').height-110,
     backgroundColor:'lightblue',
+  },
+  messageReceive:{
+    alignSelf:'flex-start',
+    marginTop:10
+  },
+  messageSend:{
+    alignSelf:'flex-end',
+    marginTop:10
   },
   message:{    
   }

@@ -12,7 +12,12 @@ export class OkulApi extends React.Component {
         super(props);
     }
 
-    static apiURL = "http://192.168.134.36:8080/OkulApp-web/webresources/api/";
+    static apiURL = "http://192.168.1.5:8080/OkulApp-web/webresources/api/";
+    //static apiURL = "http://192.168.134.36:8080/OkulApp-web/webresources/api/";
+
+    static userName="";
+    static pass="";
+    static token="";
 
     static imageGallery = [];
 
@@ -23,6 +28,8 @@ export class OkulApi extends React.Component {
     }
 
     static getToken(user, pass, successCalback, errroCallBack) {
+        this.userName=user;
+        this.pass = pass;        
         var userRecord = {
             "login": user,
             "password": pass
@@ -44,6 +51,7 @@ export class OkulApi extends React.Component {
         }).then((response) => {
             if (response.ok && response.headers.map.authorization != null && successCalback != null) {
                 AsyncStorage.setItem('userToken', response.headers.map.authorization).then(() => {
+                    this.token = response.headers.map.authorization;
                     successCalback(response.headers.map.authorization);
                 })
             } else {

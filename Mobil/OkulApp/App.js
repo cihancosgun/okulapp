@@ -34,6 +34,7 @@ class AuthLoadingScreen extends React.Component {
     });
     this.setState({ isReady: true });
     this._bootstrapAsync();
+    console.disableYellowBox=true;
   }
   
 

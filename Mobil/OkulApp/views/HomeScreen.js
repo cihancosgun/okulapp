@@ -6,7 +6,7 @@ import {
   Alert, KeyboardAvoidingView, AsyncStorage, FlatList, ActivityIndicator, ScrollView
 } from 'react-native';
 import { AppLoading } from 'expo';
-import { Container, Header, Content, Card, CardItem, Text, Body, Left, Right, Title, Thumbnail } from 'native-base';
+import { Container, Header,Grid,Row,Col, Content, Card, CardItem, Text, Body, Left, Right, Title, Thumbnail, Item } from 'native-base';
 import { OkulApi } from '../services/OkulApiService';
 import Moment from 'moment';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -66,14 +66,36 @@ export class HomeScreen extends React.Component {
   }
 
   showGallery(data, thiz){
-    if(data.item.fileIds.length > 0){
+    if(data.fileIds.length > 0){
       let galleryImages = [];
-      for(let file in data.item.fileIds){
-        galleryImages.push({source : { uri: OkulApi.apiURL+'getImage?fileId='+data.item.fileIds[file].$oid }});
+      for(let file in data.fileIds){
+        galleryImages.push({source : { uri: OkulApi.apiURL+'getImage?fileId='+data.fileIds[file].$oid }});
       }
       OkulApi.imageGallery = galleryImages;
       thiz.props.navigation.navigate('Gallery');
     }  
+  }
+
+  renderTopFourImages(fileIds, thiz){
+    let rval = [];
+    for(let i=0;i < 4; i++){
+      if(fileIds.length > i){
+        let imageUrl = OkulApi.apiURL+'getImage?fileId='+fileIds[i].$oid;
+        rval.push(imageUrl);        
+      }
+    }
+    const imageComponents = rval.map((imageUrl, idx)=> <Image key={'image'+idx} style={styles.image} source={{uri:imageUrl}}/>)
+    return (imageComponents);
+  }
+  renderImages(data, thiz){    
+    if(data.fileIds.length > 0){      
+      return (
+      <View style={{flex:1, flexDirection:'row', flexWrap:'wrap'}}>
+                  {thiz.renderTopFourImages(data.fileIds, thiz)}
+                  <Text note onPress={()=>thiz.showGallery(data, thiz)}> {data.fileIds.length} resim... </Text>
+      </View>
+      );
+    }
   }
 
   async componentDidMount() { 
@@ -94,22 +116,7 @@ export class HomeScreen extends React.Component {
           </CardItem> 
           <CardItem cardBody>
             <Body>
-            {
-                data.item.fileIds.length > 0 ? 
-                (                  
-                  <Image style={styles.image} source={{uri:OkulApi.apiURL+'getImage?fileId='+data.item.fileIds[0].$oid}}/>
-                )
-                :
-                null
-            }
-            {
-                data.item.fileIds.length > 0 ? 
-                (
-                  <Text note onPress={()=>showGallery(data, thiz)}> {data.item.fileIds.length} resim... </Text>             
-                )
-                :
-                null
-            }
+              {thiz.renderImages(data.item, thiz)}
               <Text>
                 {data.item.message}
               </Text>
@@ -177,7 +184,7 @@ const styles = StyleSheet.create({
     width:32, height:32
   },
   image:{
-    width:"100%",
-    height:150    
+    width:'50%',
+    height:75,
   }
 });
