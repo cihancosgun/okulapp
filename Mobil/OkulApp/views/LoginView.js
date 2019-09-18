@@ -12,7 +12,7 @@ import {
 import { Svg } from 'expo';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import  { faAt, faKey, faSchool } from '@fortawesome/free-solid-svg-icons';
-
+import { OkulApi } from '../services/OkulApiService';
 
 
 
@@ -27,38 +27,24 @@ export class LoginView extends React.Component {
   }
 
   onLogin = () => {
-    if(this.state == null || this.state.login == null){
-      Alert.alert('Hata', 'Kullanıcı e-posta adresini giriniz');
-      return;
-    }
-    if(this.state.password == null){
-      Alert.alert('Hata','Kullanıcı parolasını giriniz');
-      return;
-    }
-    var formBody = [];
-    for (var property in this.state) {
-      var encodedKey = encodeURIComponent(property);
-      var encodedValue = encodeURIComponent(this.state[property]);
-      formBody.push(encodedKey + "=" + encodedValue);
-    }
-    formBody = formBody.join("&");
-
-    fetch('http://192.168.134.36:8080/OkulApp-web/webresources/api/login', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-      },
-      body: formBody
-    }).then((response) => {    
-      if(response.ok && response.headers.map.authorization != null){
-        this.state.token = response.headers.map.authorization;
-        AsyncStorage.setItem('userToken', this.state);
-        this.props.navigation.navigate('App');
-      }else{
-        Alert.alert("Başarısız", "Kullanıcı adı veya parola hatalı");
+      if(this.state == null || this.state.login == null){
+        Alert.alert('Hata', 'Kullanıcı e-posta adresini giriniz');
+        return;
       }
-    });
+      if(this.state.password == null){
+        Alert.alert('Hata','Kullanıcı parolasını giriniz');
+        return;
+      }
+
+      OkulApi.getToken(this.state.login, this.state.password, (token) => {
+        this.state.token = token;
+        AsyncStorage.setItem('userName',this.state.login);
+        AsyncStorage.setItem('password',this.state.password);
+        this.props.navigation.navigate('App');
+        },()=>{
+          Alert.alert("Başarısız", "Kullanıcı adı veya parola hatalı");
+      });
+      
   }
  
 
@@ -86,7 +72,7 @@ export class LoginView extends React.Component {
               onChangeText={(password) => this.setState({password})}/>
         </View>
 
-        <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={() => this.onLogin()}>
+        <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={this.onLogin}>
           <Text style={styles.loginText}>Giriş</Text>
         </TouchableHighlight>
       

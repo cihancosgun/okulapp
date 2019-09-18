@@ -1,29 +1,151 @@
 import React, { Component } from 'react';
 import {
   StyleSheet,
-  Text,
   View,
-  TextInput,
-  Button,
-  TouchableHighlight,
-  Image,
-  Alert, KeyboardAvoidingView, AsyncStorage
+  TouchableHighlight,Image,
+  Alert, KeyboardAvoidingView, AsyncStorage, FlatList, ActivityIndicator, ScrollView
 } from 'react-native';
-
+import { AppLoading } from 'expo';
+import { Container, Header, Content, Card, CardItem, Text, Body, Left, Right, Title, Thumbnail } from 'native-base';
+import { OkulApi } from '../services/OkulApiService';
+import Moment from 'moment';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export class HomeScreen extends React.Component {
+  constructor(props) {
+    super(props);
+    state = {
+      data:null,
+      isReady : false,
+      isFetching:true,
+      messageTypeImages:{
+        'board':require('../assets/images/board.png'),
+        'angry':require('../assets/images/angry.png'),
+        'cry':require('../assets/images/cry.png'),
+        'event':require('../assets/images/event.png'),
+        'happy':require('../assets/images/happy.png'),
+        'imageholder':require('../assets/images/imageholder.png'),
+        'inspection':require('../assets/images/inspection.png'),
+        'lunch':require('../assets/images/lunch.png'),
+        'pill':require('../assets/images/pill.png'),
+        'remind':require('../assets/images/remind.png'),
+        'sad':require('../assets/images/sad.png'),
+        'sleep':require('../assets/images/sleep.png'),
+        'user-profile':require('../assets/images/user-profile.png')
+      }
+    }
+  }
+
   static navigationOptions = {
     title: 'Ana Sayfa',
-    drawerLabel: 'Ana Sayfa'
+    drawerLabel: 'Ana Sayfa',    
   };
+  
+  onRefresh(){
+    this.loadList();
+  }
 
+  selectMyIcon(icon){
+    if(this.state.messageTypeImages[icon] != null){
+      return this.state.messageTypeImages[icon];
+    }else{
+      return this.state.messageTypeImages.board;
+    }
+  }
+
+
+  loadList(){
+    Moment.locale('tr');
+    OkulApi.getBoardOfUser((result)=>{
+      var newState= {isFetching:false, isReady:true, data:result};
+      this.setState(newState);
+    }, ()=>{
+      var newState= {isFetching:false, isReady:true, data:[]};
+      this.setState(newState);
+    });
+  }
+
+  showGallery(data, thiz){
+    if(data.item.fileIds.length > 0){
+      let galleryImages = [];
+      for(let file in data.item.fileIds){
+        galleryImages.push({source : { uri: OkulApi.apiURL+'getImage?fileId='+data.item.fileIds[file].$oid }});
+      }
+      OkulApi.imageGallery = galleryImages;
+      thiz.props.navigation.navigate('Gallery');
+    }  
+  }
+
+  async componentDidMount() { 
+    this.loadList();
+  }
+
+  renderItem(data, selectMyIcon, showGallery, thiz){
+        return (
+          <Card>
+          <CardItem header>
+            <Left>
+              <Thumbnail style={styles.thumbImage} source={selectMyIcon(data.item.messageType)} />
+              <Body>
+                <Text>{data.item.senderNameSurname}</Text>
+                <Text note>{Moment(new Date(data.item.startDate.$date)).format('DD.MM.YYYY HH:mm:ss')} tarihinde yeni bir gönderi paylaştı.</Text>                
+              </Body>
+            </Left>
+          </CardItem> 
+          <CardItem cardBody>
+            <Body>
+            {
+                data.item.fileIds.length > 0 ? 
+                (                  
+                  <Image style={styles.image} source={{uri:OkulApi.apiURL+'getImage?fileId='+data.item.fileIds[0].$oid}}/>
+                )
+                :
+                null
+            }
+            {
+                data.item.fileIds.length > 0 ? 
+                (
+                  <Text note onPress={()=>showGallery(data, thiz)}> {data.item.fileIds.length} resim... </Text>             
+                )
+                :
+                null
+            }
+              <Text>
+                {data.item.message}
+              </Text>
+            </Body>
+          </CardItem>
+          <CardItem footer>            
+          </CardItem>
+      </Card>
+    );  
+  }
+
+  
   render() {
-    return (
-      <View style={styles.container}>
-        <Button title="Show me more of the app" onPress={this._showMoreApp} />
-        <Button title="Actually, sign me out :)" onPress={this._signOutAsync} />
-      </View>
-    );
+    if (this.state == null) {
+      return <ActivityIndicator />;
+    }
+      return (
+        <Container>
+        <Header>
+            <Left/>
+            <Body>
+              <Title>Ana Sayfa</Title>
+            </Body>
+            <Right />
+          </Header>
+            <FlatList
+              data={this.state.data}
+              renderItem={(item)=> this.renderItem(item, this.selectMyIcon, this.showGallery, this)}
+              keyExtractor={(item) => item._id.$oid}
+              onRefresh={()=>this.onRefresh()}
+              refreshing={this.state.isFetching}
+            />
+        <Content>                
+        </Content>
+      </Container>
+      );
   }
 
   _showMoreApp = () => {
@@ -42,4 +164,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  item: {
+    backgroundColor: '#f9c2ff',
+    padding: 20,
+    marginVertical: 8,
+    marginHorizontal: 16,
+  },
+  title: {
+    fontSize: 32,
+  },
+  thumbImage:{
+    width:32, height:32
+  },
+  image:{
+    width:"100%",
+    height:150    
+  }
 });
