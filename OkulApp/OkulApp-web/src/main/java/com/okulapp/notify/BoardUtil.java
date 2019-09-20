@@ -6,15 +6,18 @@
 package com.okulapp.notify;
 
 import com.mongodb.QueryBuilder;
+import com.okulapp.api.ApiResource;
 import com.okulapp.data.MongoDataAdapter;
 import com.okulapp.data.okul.MyDataSBLocal;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.codec.binary.Base64;
 import org.bson.types.ObjectId;
 
 /**
@@ -24,7 +27,31 @@ import org.bson.types.ObjectId;
  */
 public class BoardUtil {
 
+    private static byte[] inputStreamToByteArray(InputStream initialStream) {
+        try {
+            byte[] targetArray = new byte[initialStream.available()];
+            initialStream.read(targetArray);
+            return targetArray;
+        } catch (IOException ex) {
+            Logger.getLogger(ApiResource.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    private static InputStream handleMessageTypeIcon(String messageType) {
+        InputStream is = BoardUtil.class.getClassLoader().getResourceAsStream(messageType.concat(".png"));
+        if (is != null) {
+            return is;
+        } else {
+            return BoardUtil.class.getClassLoader().getResourceAsStream("board.png");
+        }
+    }
+
     public static List<Map<String, Object>> getBoardOfUser(MyDataSBLocal myDataSB, String userName) {
+        return getBoardOfUser(myDataSB, userName, false, false);
+    }
+
+    public static List<Map<String, Object>> getBoardOfUser(MyDataSBLocal myDataSB, String userName, boolean includeMessageTypeIcon, boolean includeFirstImageThumbnail) {
         List<Map<String, Object>> myBoard = null;
         MongoDataAdapter adapter = (MongoDataAdapter) myDataSB.getAdvancedDataAdapter().getSelectedDataAdapter();
         QueryBuilder filter = QueryBuilder.start("deleted").is(false)
@@ -33,6 +60,16 @@ public class BoardUtil {
 
         myBoard = adapter.getSortedPagedList(myDataSB.getDbName(), "notifications", filter.get().toMap(), projection.get().toMap(), 0, 20, QueryBuilder.start("startDate").is(-1).get().toMap());
         for (Map<String, Object> rec : myBoard) {
+            if (includeMessageTypeIcon) {
+                String b64 = Base64.encodeBase64String(inputStreamToByteArray(handleMessageTypeIcon(rec.get("messageType").toString())));
+                rec.put("messageTypeB64", "data:image/png;base64,".concat(b64));
+            }
+            List<ObjectId> thumbFileIds = (List<ObjectId>) rec.get("thumbFileIds");
+            if (includeFirstImageThumbnail && thumbFileIds != null && !thumbFileIds.isEmpty()) {
+                byte[] bytes = myDataSB.getFileUpDownManager().downloadFile(thumbFileIds.get(0));
+                String firstImageB64 = Base64.encodeBase64String(bytes);
+                rec.put("firstImageB64", "data:image/png;base64,".concat(firstImageB64));
+            }
             List<ObjectId> fileIds = (List<ObjectId>) rec.getOrDefault("fileIds", new ArrayList());
             if (fileIds != null && !fileIds.isEmpty() && fileIds.size() > 4) {
                 rec.put("fileIdsLimited", fileIds.subList(0, 4));

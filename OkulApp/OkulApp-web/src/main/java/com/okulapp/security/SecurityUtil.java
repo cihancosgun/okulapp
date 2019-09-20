@@ -5,10 +5,12 @@
  */
 package com.okulapp.security;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.QueryBuilder;
 import com.okulapp.data.okul.MyDataSBLocal;
 import java.util.List;
 import java.util.Map;
+import org.bson.types.ObjectId;
 
 /**
  *
@@ -16,6 +18,16 @@ import java.util.Map;
  * mailto:cihan_cosgun@outlook.com
  */
 public class SecurityUtil {
+
+    public static ObjectId getBranchOfUser(MyDataSBLocal myDataSB, String email) {
+        Map<String, Object> branches = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "branch", new BasicDBObject());
+        Map<String, Object> user = getUserFromEmail(myDataSB, email);
+        if (branches != null && user != null) {
+            return (ObjectId) user.getOrDefault("branch", branches.get("_id"));
+        } else {
+            return null;
+        }
+    }
 
     public static String getUserRoleFromUserTable(MyDataSBLocal myDataSB, String email) {
         Map<String, Object> userRecord = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "users", QueryBuilder.start("login").is(email).get().toMap());

@@ -36,7 +36,8 @@ public class WebSocketServer {
             List<String> receivers = (List<String>) dboMsg.get("receivers");
             if (receivers != null) {
                 for (Session socketSession : sessionManager.getSocketSessions()) {
-                    if (socketSession.getId() != session.getId() && receivers.contains(socketSession.getUserPrincipal().getName())) {
+                    //if (socketSession.getId() != session.getId() && receivers.contains(socketSession.getUserPrincipal().getName())) {
+                    if (socketSession.getId() != session.getId()) {
                         socketSession.getAsyncRemote().sendText(dboMsg.toJson());
                     }
                 }
@@ -47,15 +48,15 @@ public class WebSocketServer {
 
     @OnOpen
     public void open(Session session) {
-        if (session.getUserPrincipal() == null) {
-            try {
-                session.close();
-                return;
-            } catch (IOException ex) {
-                Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
-                return;
-            }
-        }
+//        if (session.getUserPrincipal() == null) {
+//            try {
+//                session.close();
+//                return;
+//            } catch (IOException ex) {
+//                Logger.getLogger(WebSocketServer.class.getName()).log(Level.SEVERE, null, ex);
+//                return;
+//            }
+//        }
         Logger.getLogger(WebSocketServer.class.getName()).info("connected " + session.getId());
         sessionManager.getSocketSessions().add(session);
     }

@@ -6,6 +6,7 @@
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/security/PasswordHasher.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputSelectManyDbFormControl.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/foodcalendar/FoodCalendarMB.java
+/home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/security/SecurityUtil.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/navigation/NavigationMB.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/dispatcher/DispatcherMB.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/texts/TextBundlerSMB.java
@@ -19,9 +20,11 @@
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/Form.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/texts/TextsMap.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/PhoneConverter.java
+/home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/notify/BoardUtil.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputSelectOneDbFormControl.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/FormControlFactory.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/api/ApiResource.java
+/home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/chat/ChatUtil.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputTextFormControl.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/texts/TextsMB.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/api/KeyGenerator.java

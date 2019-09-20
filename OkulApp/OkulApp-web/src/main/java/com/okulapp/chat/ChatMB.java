@@ -138,27 +138,13 @@ public class ChatMB implements Serializable {
     }
 
     public void searchContactsAction() {
-        QueryBuilder qb = QueryBuilder.start();
-        if (selectedBranch != null) {
-            qb = qb.and("branch").is(selectedBranch);
-        }
-        if (searchContact != null && !searchContact.isEmpty()) {
-            qb = qb.and("nameSurname").is(Pattern.compile(searchContact));
-        }
-
-        listTeacher = myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "teachers", qb.get().toMap(), new BasicDBObject());
-        listStudentParent = myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "studentParent", qb.get().toMap(), new BasicDBObject());
-        listStuff = myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "stuff", qb.and(QueryBuilder.start("title").in(Arrays.asList("Okul Müdürü", "Şube Müdürü")).get()).get().toMap(), new BasicDBObject());
+        listTeacher = ChatUtil.getTeachers(myDataSB, securityMB.getRemoteUserName(), searchContact, selectedBranch);
+        listStudentParent = ChatUtil.getStudentParents(myDataSB, securityMB.getRemoteUserName(), searchContact, selectedBranch);
+        listStuff = ChatUtil.getStuffs(myDataSB, securityMB.getRemoteUserName(), searchContact, selectedBranch);
     }
 
     public void searchConversationsAction() {
-        QueryBuilder qb = QueryBuilder.start("deleted").is(false)
-                .and("users").in(Arrays.asList(securityMB.getRemoteUserName()))
-                .and("deletedUsers").notIn(Arrays.asList(securityMB.getRemoteUserName()));
-        if (searchConversation != null && !searchConversation.trim().isEmpty()) {
-            qb.and("users").is(Pattern.compile(searchConversation));
-        }
-        conversations = myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "chat", qb.get().toMap(), new BasicDBObject());
+        conversations = ChatUtil.getConversations(myDataSB, securityMB.getRemoteUserName(), searchConversation);
     }
 
     public void setConversations(List<Map<String, Object>> conversations) {
@@ -256,41 +242,7 @@ public class ChatMB implements Serializable {
     }
 
     public void startNewConversation(Map<String, Object> receiver) {
-        if (receiver == null || !receiver.containsKey("email")) {
-            return;
-        }
-        Map<String, Object> query = QueryBuilder
-                .start("users").all(Arrays.asList(securityMB.getRemoteUserName(), receiver.get("email")))
-                .and("deleted").is(false).get().toMap();
-        currentChat = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "chat", query);
-        if (currentChat == null) {
-            currentChat = new HashMap();
-            currentChat.put("_id", new ObjectId());
-            currentChat.put("receiverEmail", receiver.get("email"));
-            currentChat.put("receiverNameSurname", receiver.get("nameSurname"));
-            currentChat.put("senderEmail", securityMB.getRemoteUserName());
-            currentChat.put("senderNameSurname", securityMB.getLoginUser().get("nameSurname"));
-            currentChat.put("users", Arrays.asList(securityMB.getRemoteUserName(), receiver.get("email")));
-            currentChat.put("messages", new ArrayList());
-            currentChat.put("startDate", new Date());
-            currentChat.put("starter", securityMB.getRemoteUserName());
-            currentChat.put("deleted", false);
-            myDataSB.getAdvancedDataAdapter().create(myDataSB.getDbName(), "chat", currentChat);
-        }
-        List<Map<String, Object>> messages = (List<Map<String, Object>>) currentChat.getOrDefault("messages", new ArrayList());
-        for (Map<String, Object> message : messages) {
-            if (securityMB.getRemoteUserName().equals(message.get("receiverEmail"))) {
-                message.put("readed", true);
-                message.put("readedDateTime", new Date());
-            }
-        }
-        currentChat.put("messages", messages);
-        List<String> deletedUsers = (List<String>) currentChat.getOrDefault("deletedUsers", new ArrayList());
-        if (deletedUsers.contains(securityMB.getRemoteUserName())) {
-            deletedUsers.remove(securityMB.getRemoteUserName());
-            currentChat.put("deletedUsers", deletedUsers);
-        }
-        myDataSB.getAdvancedDataAdapter().update(myDataSB.getDbName(), "chat", currentChat);
+        currentChat = ChatUtil.startNewConversation(myDataSB, receiver, securityMB.getLoginUser());
         receiverManager.setReceivers((List<String>) currentChat.get("users"));
         showChatForm();
     }
@@ -300,28 +252,8 @@ public class ChatMB implements Serializable {
     }
 
     public void addMessageToConversation() {
-        if (currentMessageText == null || currentMessageText.trim().isEmpty() || currentChat == null) {
-            return;
-        }
-        Map<String, Object> message = new HashMap();
-        message.put("message", currentMessageText);
-        message.put("sendingTime", new Date());
-        message.put("sentStatus", 0);//0 : Not Sended, 1 : Sended, 2: Readed
-        message.put("senderEmail", securityMB.getRemoteUserName());
-        message.put("receiverNameSurname", getConversationReceiver(currentChat).get("nameSurname"));
-        message.put("senderNameSurname", securityMB.getLoginUser().get("nameSurname"));
-        message.put("receiverEmail", getConversationReceiver(currentChat).get("email"));
-        message.put("readed", false);
-        ArrayList msgList = (ArrayList) currentChat.get("messages");
-        msgList.add(message);
-        currentChat.put("messages", msgList);
-        List<String> deletedUsers = (List<String>) currentChat.getOrDefault("deletedUsers", new ArrayList());
-        if (!deletedUsers.isEmpty()) {
-            deletedUsers.clear();
-            currentChat.put("deletedUsers", deletedUsers);
-        }
+        ChatUtil.addMessageToConversation(myDataSB, currentMessageText, currentChat, securityMB.getRemoteUserName(), securityMB.getLoginUser().get("nameSurname").toString());
         currentMessageText = "";
-        myDataSB.getAdvancedDataAdapter().update(myDataSB.getDbName(), "chat", currentChat);
     }
 
     public String formatDateTime(Date dt) {
@@ -389,7 +321,7 @@ public class ChatMB implements Serializable {
 
     public void refreshChat() {
         if (currentChat != null) {
-            currentChat = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "chat", QueryBuilder.start("_id").is(currentChat.get("_id")).get().toMap());
+            currentChat = ChatUtil.getChat(myDataSB, ((ObjectId) currentChat.get("_id")).toHexString(), securityMB.getRemoteUserName());
         }
     }
 }
