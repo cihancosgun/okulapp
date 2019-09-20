@@ -16,6 +16,8 @@ import { GalleryScreen } from './views/GalleryScreen';
 import { MenuScreen } from './views/MenuScreen';
 import { ChatScreen } from './views/ChatScreen';
 import { ChatSubScreen } from './views/ChatSubScreen';
+import { OkulApi } from './services/OkulApiService';
+import { ContactsScreen } from './views/ContactsScreen';
 
 class AuthLoadingScreen extends React.Component {
   constructor(props) {
@@ -34,20 +36,21 @@ class AuthLoadingScreen extends React.Component {
     });
     this.setState({ isReady: true });
     this._bootstrapAsync();
-    console.disableYellowBox=true;
+    console.disableYellowBox=true;    
   }
   
 
   _bootstrapAsync = async () => {
     const userToken = await AsyncStorage.getItem('userToken');    
+    OkulApi.userName = await AsyncStorage.getItem("userName");
+    OkulApi.pass = await AsyncStorage.getItem("password");
     this.props.navigation.navigate(userToken ? 'App' : 'Auth');
   };
 
   render() {
     if (!this.state.isReady) {
       return <AppLoading />;
-    }
-    
+    }    
       return (
         <View style={styles.container}>
           <ActivityIndicator />
@@ -131,6 +134,7 @@ const AppStack = createBottomTabNavigator({ Home: HomeScreen, Chat:ChatScreen, M
   });
 const GalleryStack = createStackNavigator({ Gallery: GalleryScreen }, {defaultNavigationOptions: {   header: null }});
 const ChatSubStack = createStackNavigator({ ChatSub: ChatSubScreen }, {defaultNavigationOptions: {   header: null }});
+const ContactsStack = createStackNavigator({ ContactsStack: ContactsScreen }, {defaultNavigationOptions: {   header: null }});
 const AuthStack = createStackNavigator({ SignIn: LoginView }, {defaultNavigationOptions: {   header: null }});
 
 export default createAppContainer(createSwitchNavigator(
@@ -138,8 +142,9 @@ export default createAppContainer(createSwitchNavigator(
     AuthLoading: AuthLoadingScreen,
     App: AppStack,
     Auth: AuthStack,
-    Gallery:GalleryStack,
+    Gallery: GalleryStack,
     ChatSub: ChatSubStack,
+    Contacts: ContactsStack,
   },
   {
     initialRouteName: 'AuthLoading',

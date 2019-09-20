@@ -46,11 +46,13 @@ export class HomeScreen extends React.Component {
   }
 
   selectMyIcon(icon){
-    if(this.state.messageTypeImages[icon] != null){
-      return this.state.messageTypeImages[icon];
-    }else{
-      return this.state.messageTypeImages.board;
-    }
+    if(this.state != null && this.state.messageTypeImages != null && icon != null){
+      if(this.state.messageTypeImages[icon] != null){
+        return this.state.messageTypeImages[icon];
+      }else{
+        return this.state.messageTypeImages.board;
+      }
+    }    
   }
 
 
@@ -65,34 +67,35 @@ export class HomeScreen extends React.Component {
     });
   }
 
-  showGallery(data, thiz){
+  showGallery(data, thiz, idx){
     if(data.fileIds.length > 0){
       let galleryImages = [];
       for(let file in data.fileIds){
         galleryImages.push({source : { uri: OkulApi.apiURL+'getImage?fileId='+data.fileIds[file].$oid }});
       }
       OkulApi.imageGallery = galleryImages;
+      OkulApi.imageGalleryIndex = idx;
       thiz.props.navigation.navigate('Gallery');
     }  
   }
 
-  renderTopFourImages(fileIds, thiz){
+  renderTopFourImages(data, thiz){
     let rval = [];
     for(let i=0;i < 4; i++){
-      if(fileIds.length > i){
-        let imageUrl = OkulApi.apiURL+'getImage?fileId='+fileIds[i].$oid;
+      if(data.fileIds.length > i){
+        let imageUrl = OkulApi.apiURL+'getImage?fileId='+data.fileIds[i].$oid;
         rval.push(imageUrl);        
       }
     }
-    const imageComponents = rval.map((imageUrl, idx)=> <Image key={'image'+idx} style={styles.image} source={{uri:imageUrl}}/>)
+    const imageComponents = rval.map((imageUrl, idx)=> <TouchableHighlight key={Math.random()} onPress={() => thiz.showGallery(data, thiz, idx)}><Image key={'image'+idx} style={styles.image} source={{uri:imageUrl}}/></TouchableHighlight>)
     return (imageComponents);
   }
   renderImages(data, thiz){    
     if(data.fileIds.length > 0){      
       return (
       <View style={{flex:1, flexDirection:'row', flexWrap:'wrap'}}>
-                  {thiz.renderTopFourImages(data.fileIds, thiz)}
-                  <Text note onPress={()=>thiz.showGallery(data, thiz)}> {data.fileIds.length} resim... </Text>
+                  {thiz.renderTopFourImages(data, thiz)}
+                  <Text note onPress={()=>thiz.showGallery(data, thiz,0)}> {data.fileIds.length} resim... </Text>
       </View>
       );
     }
@@ -184,7 +187,7 @@ const styles = StyleSheet.create({
     width:32, height:32
   },
   image:{
-    width:'50%',
-    height:75,
+    width:170,
+    height:170,
   }
 });

@@ -4,7 +4,7 @@ import {
   TouchableHighlight,
   Alert, KeyboardAvoidingView, AsyncStorage, FlatList, ActivityIndicator
 } from 'react-native';
-import { Container, Header, Text, Content, Item, Input, Icon, List, View, ListItem, Left, Thumbnail, Image, Body, Right,  Fab  } from 'native-base';
+import { Container, Header, Text, Content, Item, Input, Icon, List, View, ListItem, Left, Thumbnail, Image, Body, Right,  Fab, Button  } from 'native-base';
 import Moment from 'moment';
 import { OkulApi } from '../services/OkulApiService';
 
@@ -51,7 +51,10 @@ export class ChatScreen extends React.Component {
 
   renderItem(data, thiz){
     let thumbUrl = data.item.convReceiverImage != null ? {uri :  OkulApi.apiURL+'getImage?fileId='+data.item.convReceiverImage.$oid } : require('../assets/images/user-profile.png');
-    let lastMessage = data.item.messages != null ? data.item.messages[Object.keys(data.item.messages).length-1].message:'';
+    let lastMessage = data.item.messages != null && Object.keys(data.item.messages).length > 0 ? data.item.messages[Object.keys(data.item.messages).length-1].message:'';
+    if(lastMessage.length > 20){
+      lastMessage = lastMessage.substring(0,20);
+    }
         return (
         <ListItem avatar onPress={()=>thiz.showChat(thiz, data.item)}>
           <Left>
@@ -92,17 +95,13 @@ export class ChatScreen extends React.Component {
         </Content>
           <Fab            
             style={{ backgroundColor: 'green' }}
-            position="bottomRight">
+            position="bottomRight" 
+            onPress={()=>{this.props.navigation.navigate('Contacts');}}>
             <Icon name="add" />
           </Fab>
       </Container>
     );
   }
-
-  _signOutAsync = async () => {
-    await AsyncStorage.clear();
-    this.props.navigation.navigate('Auth');
-  };
 }
 
 

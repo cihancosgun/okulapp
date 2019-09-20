@@ -13,11 +13,18 @@ export class ChatSubScreen extends React.Component {
 
   constructor(props) {
     super(props);
-    state = {}
+    this.state = { message: '', currentChat: OkulApi.currentChat };
   }
 
   async componentDidMount() { 
-    Moment.locale('tr');    
+    Moment.locale('tr');
+    OkulApi.myChatView = this;
+  }
+ 
+  myScrollToEnd(){
+    if(this.refs.myScroll != null){      
+      this.refs.myScroll.scrollToEnd();
+    }
   }
 
   static navigationOptions = {
@@ -25,54 +32,69 @@ export class ChatSubScreen extends React.Component {
   };
 
   back(){
+    OkulApi.currentChat = null;
+    OkulApi.myChatView = null;
     this.props.navigation.navigate('Chat');
   }
 
-  renderMessages(){   
-    //let thumbUrl = OkulApi.currentChat.convReceiverImage != null ? {uri :  OkulApi.apiURL+'getImage?fileId='+ OkulApi.currentChat.convReceiverImage.$oid } : require('../assets/images/user-profile.png'); 
-    const imageComponents = OkulApi.currentChat.messages.map((message, idx)=> 
-      <View  key={Math.random()} style={message.senderEmail==OkulApi.userName ? styles.messageSend : styles.messageReceive}>
-        <Button key={Math.random()} rounded success={message.senderEmail==OkulApi.userName} info={message.senderEmail!=OkulApi.userName}>
-          <Text>{message.message}</Text>
-        </Button>
+  sendMessage(){
+    OkulApi.addMessageToChat(OkulApi.currentChat._id, this.state.message,()=>{
+      var msg = {
+          "userid": OkulApi.userName,
+          "message": "updatechat",
+          "receivers": OkulApi.currentChat.users
+      };
+      OkulApi.wsSend(msg);
+      this.setState({message:''});
+      OkulApi.refreshChat();
+      this.myScrollToEnd();
+    });    
+  }
+
+  renderMessages(data){
+    const imageComponents = data.messages.map((message, idx)=> 
+      <View key={Math.random()} style={message.senderEmail==OkulApi.userName ? styles.messageSend : styles.messageReceive}>
+        <Text>{message.message}</Text>
         <Text note>{Moment(new Date(message.sendingTime.$date)).format('DD.MM.YYYY HH:mm:ss')}</Text>
       </View>);
+      setTimeout(()=>{
+          this.myScrollToEnd();
+          },2000);
     return (imageComponents);
   }
 
   render() {
-    return (      
+    let thumbUrl = OkulApi.currentChat.convReceiverImage != null ? {uri :  OkulApi.apiURL+'getImage?fileId='+ OkulApi.currentChat.convReceiverImage.$oid } : require('../assets/images/user-profile.png');
+    return (
         <Container>
             <Header>
               <Left>
                 <Button transparent onPress={()=>this.back()}>
                   <Icon name='arrow-round-back' />
-                </Button>
+                </Button>                
+              </Left>
+              <Left>
+                <Thumbnail source={ thumbUrl } style={{width:32,height:32}} />
               </Left>
               <Body>
-                <Title>Mesajlaşma</Title>
+                <Title>{OkulApi.currentChat.convReceiverNS}</Title>
               </Body>
               <Right />
             </Header>
             <KeyboardAvoidingView style={{flex:1}} behavior="padding" enabled>
-          <Content>                
-              <ScrollView style={styles.scrollView}>
-                {this.renderMessages()}                
-              </ScrollView>           
-              <Item style={styles.message}>
-                  <Input placeholder='Mesaj..'/>
-                  <Icon active name='send'/>
-              </Item>                 
-          </Content>  
-          </KeyboardAvoidingView>          
+              <Content>                
+                  <ScrollView key='myScroll' style={styles.scrollView} ref='myScroll'>
+                    {this.renderMessages(this.state.currentChat)}
+                  </ScrollView>
+                  <Item style={styles.message}>
+                      <Input placeholder='Mesaj..' value={this.state.message} onChangeText={(message)=>{this.setState({message:message});}} />
+                      <Icon active name='send' onPress={()=>{this.sendMessage()}}/>
+                  </Item>
+              </Content>
+          </KeyboardAvoidingView>
         </Container>      
     );
   }
-
-  _signOutAsync = async () => {
-    await AsyncStorage.clear();
-    this.props.navigation.navigate('Auth');
-  };
 }
 
 
@@ -83,15 +105,21 @@ const styles = StyleSheet.create({
   scrollView:{
     flex:1,
     height: Dimensions.get('window').height-110,
-    backgroundColor:'lightblue',
+    backgroundColor:'#ebebe0',
   },
   messageReceive:{
     alignSelf:'flex-start',
-    marginTop:10
+    marginTop:10,
+    backgroundColor: 'white',
+    borderRadius:25,
+    padding:10,
   },
   messageSend:{
     alignSelf:'flex-end',
-    marginTop:10
+    marginTop:10,
+    backgroundColor: '#dcf8c6',
+    borderRadius:25,
+    padding:10,
   },
   message:{    
   }

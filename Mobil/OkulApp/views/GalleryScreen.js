@@ -15,7 +15,7 @@ import { OkulApi } from '../services/OkulApiService';
 export class GalleryScreen extends React.Component {
   constructor(props) {
     super(props);
-    state = { }
+    state = { position:0 }
   }
 
   static navigationOptions = {
@@ -30,11 +30,12 @@ export class GalleryScreen extends React.Component {
   render() {
     return (
       <View style={{ flex: 1}}>
-         <Gallery key="myGallery"
+         <Gallery key="myGallery" initialPage={OkulApi.imageGalleryIndex}
             style={{ flex: 1, backgroundColor: 'black' }}
               images={OkulApi.imageGallery}
+              onPageScroll={(event)=>{ if(event != null) { this.setState({position: event.position}); }}}
           />
-
+        <Text>{ this.state != null && this.state.position != null ? this.state.position+1 : ''} / {OkulApi.imageGallery.length}</Text>
         <Button
           onPress={() => this.props.navigation.navigate('App')}
           title="Geri"
@@ -42,11 +43,6 @@ export class GalleryScreen extends React.Component {
       </View>
     );
   }
-
-  _signOutAsync = async () => {
-    await AsyncStorage.clear();
-    this.props.navigation.navigate('Auth');
-  };
 }
 
 
