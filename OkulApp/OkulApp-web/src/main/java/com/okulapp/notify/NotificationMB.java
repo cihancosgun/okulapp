@@ -372,10 +372,9 @@ public class NotificationMB implements Serializable {
             return;
         }
 
-        currentNotify = prepareNotifiyRecord(messageType);
+        currentNotify = NotifyUtil.insertNotifyMessage(myDataSB, messageType, securityMB.getLoginUser(), getReceiverUsers(), getReceiverUsersNS(), notificationMessage, getFileIds(), getThumbFileIds());  // prepareNotifiyRecord(messageType);
 
-        myDataSB.getAdvancedDataAdapter().create(myDataSB.getDbName(), "notifications", currentNotify);
-
+        //myDataSB.getAdvancedDataAdapter().create(myDataSB.getDbName(), "notifications", currentNotify);
         FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Başarılı", "Mesajınız iletildi.");
         FacesContext.getCurrentInstance().addMessage(null, msg);
         receiverManager.setReceivers(getReceiverUsers());

@@ -9,12 +9,17 @@ import com.mongodb.BasicDBObject;
 import com.okulapp.chat.ChatUtil;
 import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.notify.BoardUtil;
+import com.okulapp.notify.NotifyUtil;
 import com.okulapp.security.SecurityUtil;
 import com.okulapp.utils.ByteArrayUploadedFile;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.Key;
@@ -42,15 +47,13 @@ import javax.ws.rs.core.HttpHeaders;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.MULTIPART_FORM_DATA;
 import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import org.bson.types.ObjectId;
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataParam;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
+import java.util.List;
+import javax.activation.MimetypesFileTypeMap;
 import javax.imageio.ImageIO;
+import static javax.ws.rs.core.MediaType.MULTIPART_FORM_DATA;
 import org.primefaces.model.UploadedFile;
 
 /**
@@ -296,21 +299,21 @@ public class ApiResource {
     @Produces(APPLICATION_JSON)
     @Consumes(MULTIPART_FORM_DATA)
     @JWTTokenNeeded
-    public Response uploadImageFile(@FormDataParam("file") InputStream uploadedInputStream,
-            @FormDataParam("file") FormDataContentDisposition fileDetail, @Context HttpServletRequest request) {
-
+    public Response uploadImageFile(@FormParam("file") File file) {
         try {
-            if (uploadedInputStream == null || fileDetail == null) {
+            if (file == null) {
                 return Response.status(400).entity(new BasicDBObject("error", "Invalid form data").toJson()).build();
             }
+            InputStream uploadedInputStream = new FileInputStream(file);
+            MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
 
             BufferedImage imageOrj = ImageIO.read(uploadedInputStream);
             BufferedImage imageThumb = myDataSB.getFileUpDownManager().resizeImage(imageOrj, 200, 200);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ImageIO.write(imageThumb, "png", bos);
-            UploadedFile resizedImage = new ByteArrayUploadedFile(bos.toByteArray(), fileDetail.getFileName(), fileDetail.getType());
-            ObjectId thumbFileId = myDataSB.getFileUpDownManager().uploadFile(resizedImage.getInputstream(), fileDetail.getFileName());
-            ObjectId fileId = myDataSB.getFileUpDownManager().uploadFile(uploadedInputStream, fileDetail.getFileName());
+            UploadedFile resizedImage = new ByteArrayUploadedFile(bos.toByteArray(), file.getName(), mimeTypesMap.getContentType(file));
+            ObjectId thumbFileId = myDataSB.getFileUpDownManager().uploadFile(resizedImage.getInputstream(), file.getName());
+            ObjectId fileId = myDataSB.getFileUpDownManager().uploadFile(uploadedInputStream, file.getName());
 
             if (fileId == null) {
                 return Response.status(400).entity(new BasicDBObject("error", "Invalid form data").toJson()).build();
@@ -322,6 +325,20 @@ public class ApiResource {
             Logger.getLogger(ApiResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(400).entity(new BasicDBObject("error", "Invalid form data").toJson()).build();
         }
+    }
 
+    @POST
+    @Path("/insertNotifyMessage")
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    @JWTTokenNeeded
+    public String insertNotifyMessage(String jsonData, @Context HttpServletRequest request) {
+        Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        BasicDBObject dbo = BasicDBObject.parse(jsonData);
+        Map<String, Object> user = SecurityUtil.getUserFromEmail(myDataSB, claim.getBody().getSubject());
+
+        Map<String, Object> rec = NotifyUtil.insertNotifyMessage(myDataSB, dbo.getString("messageType"), user,
+                (List<String>) dbo.get("receivers"), (List<String>) dbo.get("receiversNS"), dbo.getString("message"), (List<ObjectId>) dbo.get("fileIds"), (List<ObjectId>) dbo.get("thumbFileIds"));
+        return new BasicDBObject("result", rec).toJson();
     }
 }

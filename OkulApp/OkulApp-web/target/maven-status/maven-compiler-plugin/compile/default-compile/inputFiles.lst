@@ -45,6 +45,7 @@
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/api/ApplicationConfig.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/ws/WebSocketSessionManager.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputImage.java
+/home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/notify/NotifyUtil.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputIntegerFormControl.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/BaseFormControl.java
 /home/cihan/github_cihan/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/CrudDataTableLazyDataModel.java
