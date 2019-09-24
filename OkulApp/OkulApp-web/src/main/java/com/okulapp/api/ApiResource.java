@@ -53,6 +53,7 @@ import org.bson.types.ObjectId;
 import java.util.List;
 import javax.activation.MimetypesFileTypeMap;
 import javax.imageio.ImageIO;
+import javax.ws.rs.core.MediaType;
 import static javax.ws.rs.core.MediaType.MULTIPART_FORM_DATA;
 import org.primefaces.model.UploadedFile;
 
@@ -284,7 +285,7 @@ public class ApiResource {
 
     @GET
     @Path("/getImage")
-    @Produces("image/png")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getImage(@QueryParam("fileId") String fileId) {
         if (fileId != null) {
             byte[] bytes = myDataSB.getFileUpDownManager().downloadFile(new ObjectId(fileId));
