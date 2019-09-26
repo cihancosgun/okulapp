@@ -25,15 +25,18 @@ import org.bson.types.ObjectId;
  */
 public class ChatUtil {
 
-    public static List<Map<String, Object>> getClasses(MyDataSBLocal myDataSB, ObjectId branch) {
-        return myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "classes", QueryBuilder.start("branch").is(branch).get().toMap(), new BasicDBObject());
+    public static List<Map<String, Object>> getClasses(MyDataSBLocal myDataSB, String searcherUserName, String searchText, ObjectId branch) {
+//        String userRole = SecurityUtil.getUserRoleFromUserTable(myDataSB, searcherUserName);
+//        Map<String, Object> user = SecurityUtil.getUserFromEmail(myDataSB, searcherUserName);
+        QueryBuilder qb = QueryBuilder.start("branch").is(branch);
+        if (searchText != null && !searchText.isEmpty()) {
+            qb = qb.and("name").is(Pattern.compile(searchText));
+        }
+        return myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "classes", qb.get().toMap(), new BasicDBObject());
     }
 
     public static List<Map<String, Object>> getTeachers(MyDataSBLocal myDataSB, String searcherUserName, String searchText, ObjectId branch) {
         String userRole = SecurityUtil.getUserRoleFromUserTable(myDataSB, searcherUserName);
-        if (!Arrays.asList("admin", "parent").contains(userRole)) {
-            return null;
-        }
         QueryBuilder qb = QueryBuilder.start("email").notEquals(searcherUserName)
                 .and("deleted").exists(false);
         if (branch != null) {
@@ -42,7 +45,26 @@ public class ChatUtil {
         if (searchText != null && !searchText.isEmpty()) {
             qb = qb.and("nameSurname").is(Pattern.compile(searchText));
         }
-        return myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "teachers", qb.get().toMap(), new BasicDBObject());
+        if ("parent".equals(userRole)) {//veli sadece kendi sınıf öğretmenini listeler
+            Map<String, Object> user = SecurityUtil.getUserFromEmail(myDataSB, searcherUserName);
+            ObjectId classId = (ObjectId) user.get("class");
+            if (classId != null) {
+                Map<String, Object> cls = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "class", QueryBuilder.start("_id").is(classId).get().toMap());
+                if (cls != null) {
+                    qb.and("_id").is(cls.get("teacher"));
+                }
+            }
+        }
+        return myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "teachers", qb.get().toMap(), QueryBuilder.start("password").is(false).get().toMap());
+    }
+
+    public static List<Map<String, Object>> getStudentParentsOfClass(MyDataSBLocal myDataSB, ObjectId clss) {
+
+        QueryBuilder qb = QueryBuilder.start("deleted").exists(false);
+        if (clss != null) {
+            qb = qb.and("class").is(clss);
+        }
+        return myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "studentParent", qb.get().toMap(), QueryBuilder.start("password").is(false).get().toMap());
     }
 
     public static List<Map<String, Object>> getStudentParents(MyDataSBLocal myDataSB, String searcherUserName, String searchText, ObjectId branch) {
@@ -58,12 +80,19 @@ public class ChatUtil {
         if (searchText != null && !searchText.isEmpty()) {
             qb = qb.and("nameSurname").is(Pattern.compile(searchText));
         }
-        return myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "studentParent", qb.get().toMap(), new BasicDBObject());
+        if ("teacher".equals(userRole)) {//öğretmen sadece kendi sınıf velilerini listeler
+            Map<String, Object> user = SecurityUtil.getUserFromEmail(myDataSB, searcherUserName);
+            Map<String, Object> cls = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "class", QueryBuilder.start("teacher").is(user.get("_id")).get().toMap());
+            if (cls != null) {
+                qb.and("class").is(cls.get("_id"));
+            }
+        }
+        return myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "studentParent", qb.get().toMap(), QueryBuilder.start("password").is(false).get().toMap());
     }
 
     public static List<Map<String, Object>> getStuffs(MyDataSBLocal myDataSB, String searcherUserName, String searchText, ObjectId branch) {
         String userRole = SecurityUtil.getUserRoleFromUserTable(myDataSB, searcherUserName);
-        if (!Arrays.asList("admin", "teacher", "parent").contains(userRole)) {
+        if (!Arrays.asList("admin", "teacher").contains(userRole)) {
             return null;
         }
         QueryBuilder qb = QueryBuilder.start("email").notEquals(searcherUserName)
@@ -75,7 +104,7 @@ public class ChatUtil {
             qb = qb.and("nameSurname").is(Pattern.compile(searchText));
         }
         qb.and(QueryBuilder.start("title").in(Arrays.asList("Okul Müdürü", "Şube Müdürü")).get());
-        return myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "stuff", qb.get().toMap(), new BasicDBObject());
+        return myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "stuff", qb.get().toMap(), QueryBuilder.start("password").is(false).get().toMap());
     }
 
     public static Map<String, Object> startNewConversation(MyDataSBLocal myDataSB, Map<String, Object> receiver, Map<String, Object> user) {

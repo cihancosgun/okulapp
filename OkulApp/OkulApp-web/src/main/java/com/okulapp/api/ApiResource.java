@@ -17,14 +17,14 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.Key;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 import java.util.logging.Level;
@@ -51,10 +51,9 @@ import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import org.bson.types.ObjectId;
 import java.util.List;
-import javax.activation.MimetypesFileTypeMap;
+import java.util.UUID;
 import javax.imageio.ImageIO;
 import javax.ws.rs.core.MediaType;
-import static javax.ws.rs.core.MediaType.MULTIPART_FORM_DATA;
 import org.primefaces.model.UploadedFile;
 
 /**
@@ -191,11 +190,11 @@ public class ApiResource {
     @Path("/getClasses")
     @Produces(APPLICATION_JSON)
     @JWTTokenNeeded
-    public String getClasses(@Context HttpServletRequest request) {
+    public String getClasses(@QueryParam("searchText") String searchText, @Context HttpServletRequest request) {
         Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
         ObjectId branchOfUser = SecurityUtil.getBranchOfUser(myDataSB, claim.getBody().getSubject());
         if (branchOfUser != null) {
-            return new BasicDBObject("result", ChatUtil.getClasses(myDataSB, branchOfUser)).toJson();
+            return new BasicDBObject("result", ChatUtil.getClasses(myDataSB, claim.getBody().getSubject(), searchText, branchOfUser)).toJson();
         } else {
             return new BasicDBObject("result", null).toJson();
         }
@@ -224,6 +223,18 @@ public class ApiResource {
         ObjectId branchOfUser = SecurityUtil.getBranchOfUser(myDataSB, claim.getBody().getSubject());
         if (branchOfUser != null) {
             return new BasicDBObject("result", ChatUtil.getStudentParents(myDataSB, claim.getBody().getSubject(), searchText, branchOfUser)).toJson();
+        } else {
+            return new BasicDBObject("result", null).toJson();
+        }
+    }
+
+    @GET
+    @Path("/getStudentParentsOfClass")
+    @Produces(APPLICATION_JSON)
+    @JWTTokenNeeded
+    public String getStudentParentsOfClass(@QueryParam("classId") String classId, @Context HttpServletRequest request) {
+        if (classId != null) {
+            return new BasicDBObject("result", ChatUtil.getStudentParentsOfClass(myDataSB, new ObjectId(classId))).toJson();
         } else {
             return new BasicDBObject("result", null).toJson();
         }
@@ -298,33 +309,36 @@ public class ApiResource {
     @POST
     @Path("/uploadImageFile")
     @Produces(APPLICATION_JSON)
-    @Consumes(MULTIPART_FORM_DATA)
+    @Consumes(APPLICATION_JSON)
     @JWTTokenNeeded
-    public Response uploadImageFile(@FormParam("file") File file) {
+    public String uploadImageFile(String jsonData, @Context HttpServletRequest request) {
         try {
-            if (file == null) {
-                return Response.status(400).entity(new BasicDBObject("error", "Invalid form data").toJson()).build();
+            //Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+            BasicDBObject dbo = BasicDBObject.parse(jsonData);
+            if (jsonData == null) {
+                return new BasicDBObject("error", "Invalid form data").toJson();
             }
-            InputStream uploadedInputStream = new FileInputStream(file);
-            MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
+            byte[] readedBytes = Base64.getDecoder().decode(dbo.getString("base64"));
+            InputStream uploadedInputStream = new ByteArrayInputStream(readedBytes);
 
             BufferedImage imageOrj = ImageIO.read(uploadedInputStream);
             BufferedImage imageThumb = myDataSB.getFileUpDownManager().resizeImage(imageOrj, 200, 200);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ImageIO.write(imageThumb, "png", bos);
-            UploadedFile resizedImage = new ByteArrayUploadedFile(bos.toByteArray(), file.getName(), mimeTypesMap.getContentType(file));
-            ObjectId thumbFileId = myDataSB.getFileUpDownManager().uploadFile(resizedImage.getInputstream(), file.getName());
-            ObjectId fileId = myDataSB.getFileUpDownManager().uploadFile(uploadedInputStream, file.getName());
+            ImageIO.write(imageThumb, "jpg", bos);
+
+            String fileName = UUID.randomUUID() + (dbo.getString("mimeType").equals("image/jpeg") ? ".jpg" : "mp4");
+            UploadedFile resizedImage = new ByteArrayUploadedFile(bos.toByteArray(), fileName, dbo.getString("mimeType"));
+            ObjectId thumbFileId = myDataSB.getFileUpDownManager().uploadFile(resizedImage.getInputstream(), fileName);
+            ObjectId fileId = myDataSB.getFileUpDownManager().uploadFile(new ByteArrayInputStream(readedBytes), fileName);
 
             if (fileId == null) {
-                return Response.status(400).entity(new BasicDBObject("error", "Invalid form data").toJson()).build();
+                return new BasicDBObject("error", "Invalid form data").toJson();
             }
 
-            return Response.status(200)
-                    .entity(new BasicDBObject("fileId", fileId).append("thumbFileId", thumbFileId).toJson()).build();
+            return new BasicDBObject("fileId", fileId).append("thumbFileId", thumbFileId).toJson();
         } catch (IOException ex) {
             Logger.getLogger(ApiResource.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(400).entity(new BasicDBObject("error", "Invalid form data").toJson()).build();
+            return new BasicDBObject("error", "Invalid form data").toJson();
         }
     }
 
@@ -337,7 +351,6 @@ public class ApiResource {
         Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
         BasicDBObject dbo = BasicDBObject.parse(jsonData);
         Map<String, Object> user = SecurityUtil.getUserFromEmail(myDataSB, claim.getBody().getSubject());
-
         Map<String, Object> rec = NotifyUtil.insertNotifyMessage(myDataSB, dbo.getString("messageType"), user,
                 (List<String>) dbo.get("receivers"), (List<String>) dbo.get("receiversNS"), dbo.getString("message"), (List<ObjectId>) dbo.get("fileIds"), (List<ObjectId>) dbo.get("thumbFileIds"));
         return new BasicDBObject("result", rec).toJson();
