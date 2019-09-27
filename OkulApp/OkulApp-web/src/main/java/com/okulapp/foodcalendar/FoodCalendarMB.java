@@ -77,13 +77,7 @@ public class FoodCalendarMB implements Serializable {
 
     public List<String> getMonthList() {
         if (monthList == null) {
-            monthList = new ArrayList();
-            String[] months = new DateFormatSymbols(Locale.forLanguageTag("tr")).getMonths();
-            for (String month : months) {
-                if (!month.isEmpty()) {
-                    monthList.add(month);
-                }
-            }
+            monthList = FoodCalendarUtil.getMonthList();
         }
         return monthList;
     }

@@ -7,8 +7,10 @@ package com.okulapp.api;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.QueryBuilder;
+import com.okulapp.activity.ActivityUtil;
 import com.okulapp.chat.ChatUtil;
 import com.okulapp.data.okul.MyDataSBLocal;
+import com.okulapp.foodcalendar.FoodCalendarUtil;
 import com.okulapp.inspection.InspectionUtil;
 import com.okulapp.notify.BoardUtil;
 import com.okulapp.notify.NotifyUtil;
@@ -27,6 +29,7 @@ import java.security.Key;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Base64;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import java.util.logging.Level;
@@ -395,8 +398,83 @@ public class ApiResource {
         Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
         BasicDBObject dbo = BasicDBObject.parse(jsonData);
         Map<String, Object> user = SecurityUtil.getUserFromEmail(myDataSB, claim.getBody().getSubject());
-        InspectionUtil.setInspectionStatusOfStudent(myDataSB, claim.getBody().getSubject(), user, dbo, dbo.getBoolean("comIn"));
+        InspectionUtil.setInspectionStatusOfStudent(myDataSB, claim.getBody().getSubject(), user, dbo, dbo.getBoolean("comeIn"));
         return new BasicDBObject("result", "ok").toJson();
+    }
+
+    @GET
+    @Path("/getDailyActivity")
+    @Produces(APPLICATION_JSON)
+    @JWTTokenNeeded
+    public String getDailyActivity(@QueryParam("classId") String classId, @QueryParam("activityType") String activityType, @QueryParam("meal") String meal, @Context HttpServletRequest request) {
+        Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        ObjectId branchOfUser = SecurityUtil.getBranchOfUser(myDataSB, claim.getBody().getSubject());
+        if (branchOfUser != null) {
+            return new BasicDBObject("result", ActivityUtil.getDailyActivity(myDataSB, new ObjectId(classId), activityType, meal, claim.getBody().getSubject())).toJson();
+        } else {
+            return new BasicDBObject("result", null).toJson();
+        }
+    }
+
+    @POST
+    @Path("/setMealStatusOfStudent")
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    @JWTTokenNeeded
+    public String setMealStatusOfStudent(String jsonData, @Context HttpServletRequest request) {
+        Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        BasicDBObject dbo = BasicDBObject.parse(jsonData);
+        Map<String, Object> user = SecurityUtil.getUserFromEmail(myDataSB, claim.getBody().getSubject());
+        ActivityUtil.setMealStatusOfStudent(myDataSB, dbo.getObjectId("class"), dbo.getString("activityType"), dbo.getString("meal"), claim.getBody().getSubject(), dbo, dbo.getString("status"), user);
+        return new BasicDBObject("result", "ok").toJson();
+    }
+
+    @POST
+    @Path("/setSleepStatusOfStudent")
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    @JWTTokenNeeded
+    public String setSleepStatusOfStudent(String jsonData, @Context HttpServletRequest request) {
+        Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        BasicDBObject dbo = BasicDBObject.parse(jsonData);
+        Map<String, Object> user = SecurityUtil.getUserFromEmail(myDataSB, claim.getBody().getSubject());
+        ActivityUtil.setSleepStatusOfStudent(myDataSB, dbo.getObjectId("class"), dbo.getString("activityType"), "", claim.getBody().getSubject(), dbo, dbo.getString("status"), user);
+        return new BasicDBObject("result", "ok").toJson();
+    }
+
+    @POST
+    @Path("/setEmotionStatusOfStudent")
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    @JWTTokenNeeded
+    public String setEmotionStatusOfStudent(String jsonData, @Context HttpServletRequest request) {
+        Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        BasicDBObject dbo = BasicDBObject.parse(jsonData);
+        Map<String, Object> user = SecurityUtil.getUserFromEmail(myDataSB, claim.getBody().getSubject());
+        ActivityUtil.setEmotionStatusOfStudent(myDataSB, dbo.getObjectId("class"), dbo.getString("activityType"), "", claim.getBody().getSubject(), dbo, dbo.getString("status"), user);
+        return new BasicDBObject("result", "ok").toJson();
+    }
+
+    @GET
+    @Path("/getFoodCalendar")
+    @Produces(APPLICATION_JSON)
+    @JWTTokenNeeded
+    public String getFoodCalendar(@QueryParam("month") String month, @Context HttpServletRequest request) {
+        Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        ObjectId branchOfUser = SecurityUtil.getBranchOfUser(myDataSB, claim.getBody().getSubject());
+        Calendar cldr = Calendar.getInstance();
+        if (branchOfUser != null) {
+            return new BasicDBObject("result", 
+                    myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "foodCalendar", QueryBuilder
+                            .start("year").is(cldr.get(Calendar.YEAR))
+                            .and("month").is(month)
+                            .and("monthNumber").is(FoodCalendarUtil.getMonthList().indexOf(month)+1)
+                            .and("branch").is(branchOfUser)
+                            .get().toMap())
+            ).toJson();
+        } else {
+            return new BasicDBObject("result", null).toJson();
+        }
     }
 
 }
