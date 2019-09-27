@@ -7,7 +7,6 @@ package com.okulapp.inspection;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.QueryBuilder;
-import com.okulapp.crud.dao.CrudListResult;
 import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.dispatcher.DispatcherMB;
 import com.okulapp.forms.CrudMB;
@@ -26,7 +25,6 @@ import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import org.bson.types.ObjectId;
-import org.primefaces.model.TreeNode;
 
 /**
  *
@@ -68,16 +66,7 @@ public class InspectionMB implements Serializable {
     }
 
     public Map<String, Object> getDailyInspection() {
-        dailyInspection = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "dailyInspection", QueryBuilder.start("date").is(sdfDate.format(new Date())).get().toMap());
-        if (dailyInspection == null) {
-            dailyInspection = new HashMap();
-            dailyInspection.put("_id", new ObjectId());
-            dailyInspection.put("date", sdfDate.format(new Date()));
-            dailyInspection.put("students", new ArrayList());
-            dailyInspection.put("creator", securityMB.getRemoteUserName());
-            dailyInspection.put("createDate", new Date());
-            myDataSB.getAdvancedDataAdapter().create(myDataSB.getDbName(), "dailyInspection", dailyInspection);
-        }
+        dailyInspection = InspectionUtil.getDailyInspection(myDataSB, securityMB.getRemoteUserName());
         return dailyInspection;
     }
 
@@ -179,42 +168,8 @@ public class InspectionMB implements Serializable {
         return students.contains(rec);
     }
 
-    public void sendNotificationsToParents(Map<String, Object> student, boolean comeIn) {
-        CrudListResult listOfParents = myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "studentParent", QueryBuilder.start("student").is(student.get("_id")).get().toMap(), null);
-        if (listOfParents != null && !listOfParents.isEmpty()) {
-            notificationMB.clean();
-            List<TreeNode> receivers = new ArrayList();
-            for (Map<String, Object> parent : listOfParents) {
-                receivers.add(notificationMB.prepearNodeForPersonRecord(parent));
-            }
-            TreeNode[] arrayOfList = new TreeNode[receivers.size()];
-            receivers.toArray(arrayOfList);
-            notificationMB.setSelectedContacts(arrayOfList);
-            notificationMB.setNotificationMessage(student.get("nameSurname").toString().concat(" ").concat(sdf.format(new Date())).concat(" tarihinde okulumuza ").concat(comeIn ? "geldi" : "gelmedi"));
-            notificationMB.sendMessage("inspection");
-        }
-    }
-
     public void setInspectionStatusOfStudent(Map<String, Object> student, boolean comeIn) {
-        Map<String, Object> di = getDailyInspection();
-        List<Map<String, Object>> students = (List<Map<String, Object>>) di.get("students");
-        Map<String, Object> rec = new HashMap();
-        rec.put("studentId", student.get("_id"));
-        rec.put("nameSurname", student.get("nameSurname"));
-        rec.put("comeInStatus", comeIn);
-        Map<String, Object> toRemoveRec = null;
-        for (Map<String, Object> finds : students) {
-            if (finds.get("studentId").equals(rec.get("studentId"))) {
-                toRemoveRec = finds;
-            }
-        }
-        if (toRemoveRec != null) {
-            students.remove(toRemoveRec);
-        }
-        students.add(rec);
-        di.put("students", students);
-        myDataSB.getAdvancedDataAdapter().update(myDataSB.getDbName(), "dailyInspection", di);
-        sendNotificationsToParents(student, comeIn);
+        InspectionUtil.setInspectionStatusOfStudent(myDataSB, securityMB.getRemoteUserName(), securityMB.getLoginUser(), student, comeIn);
     }
 
 }

@@ -29,6 +29,7 @@
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/api/ApplicationConfig.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputTextFormControl.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/ws/WebSocketServer.java
+/home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/inspection/InspectionUtil.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputDateFormControl.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/CrudDataTableLazyDataModel.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/navigation/Navigation.java

@@ -26,19 +26,22 @@ import org.bson.types.ObjectId;
 public class ChatUtil {
 
     public static List<Map<String, Object>> getClasses(MyDataSBLocal myDataSB, String searcherUserName, String searchText, ObjectId branch) {
-//        String userRole = SecurityUtil.getUserRoleFromUserTable(myDataSB, searcherUserName);
-//        Map<String, Object> user = SecurityUtil.getUserFromEmail(myDataSB, searcherUserName);
+        String userRole = SecurityUtil.getUserRoleFromUserTable(myDataSB, searcherUserName);
+        Map<String, Object> user = SecurityUtil.getUserFromEmail(myDataSB, searcherUserName);
         QueryBuilder qb = QueryBuilder.start("branch").is(branch);
         if (searchText != null && !searchText.isEmpty()) {
             qb = qb.and("name").is(Pattern.compile(searchText));
         }
+        if ("teacher".equals(userRole) && user != null) {//öğretmen sadece kendi sınıflarını listeler
+            qb.and("teacher").is(user.get("_id"));
+        }
+
         return myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "classes", qb.get().toMap(), new BasicDBObject());
     }
 
     public static List<Map<String, Object>> getTeachers(MyDataSBLocal myDataSB, String searcherUserName, String searchText, ObjectId branch) {
         String userRole = SecurityUtil.getUserRoleFromUserTable(myDataSB, searcherUserName);
-        QueryBuilder qb = QueryBuilder.start("email").notEquals(searcherUserName)
-                .and("deleted").exists(false);
+        QueryBuilder qb = QueryBuilder.start("deleted").exists(false);
         if (branch != null) {
             qb = qb.and("branch").is(branch);
         }
@@ -72,8 +75,7 @@ public class ChatUtil {
         if (!Arrays.asList("admin", "teacher").contains(userRole)) {
             return null;
         }
-        QueryBuilder qb = QueryBuilder.start("email").notEquals(searcherUserName)
-                .and("deleted").exists(false);
+        QueryBuilder qb = QueryBuilder.start("deleted").exists(false);
         if (branch != null) {
             qb = qb.and("branch").is(branch);
         }
@@ -95,8 +97,7 @@ public class ChatUtil {
         if (!Arrays.asList("admin", "teacher").contains(userRole)) {
             return null;
         }
-        QueryBuilder qb = QueryBuilder.start("email").notEquals(searcherUserName)
-                .and("deleted").exists(false);
+        QueryBuilder qb = QueryBuilder.start("deleted").exists(false);
         if (branch != null) {
             qb = qb.and("branch").is(branch);
         }

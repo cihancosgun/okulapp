@@ -6,8 +6,10 @@
 package com.okulapp.api;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.QueryBuilder;
 import com.okulapp.chat.ChatUtil;
 import com.okulapp.data.okul.MyDataSBLocal;
+import com.okulapp.inspection.InspectionUtil;
 import com.okulapp.notify.BoardUtil;
 import com.okulapp.notify.NotifyUtil;
 import com.okulapp.security.SecurityUtil;
@@ -201,6 +203,20 @@ public class ApiResource {
     }
 
     @GET
+    @Path("/getStudentsOfClass")
+    @Produces(APPLICATION_JSON)
+    @JWTTokenNeeded
+    public String getStudentsOfClass(@QueryParam("classId") String classId, @Context HttpServletRequest request) {
+        Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        ObjectId branchOfUser = SecurityUtil.getBranchOfUser(myDataSB, claim.getBody().getSubject());
+        if (branchOfUser != null) {
+            return new BasicDBObject("result", myDataSB.getAdvancedDataAdapter().getSortedList(myDataSB.getDbName(), "student", QueryBuilder.start("class").is(new ObjectId(classId)).get().toMap(), null, QueryBuilder.start("schoolNo").is(1).get().toMap())).toJson();
+        } else {
+            return new BasicDBObject("result", null).toJson();
+        }
+    }
+
+    @GET
     @Path("/getTeachers")
     @Produces(APPLICATION_JSON)
     @JWTTokenNeeded
@@ -355,4 +371,32 @@ public class ApiResource {
                 (List<String>) dbo.get("receivers"), (List<String>) dbo.get("receiversNS"), dbo.getString("message"), (List<ObjectId>) dbo.get("fileIds"), (List<ObjectId>) dbo.get("thumbFileIds"));
         return new BasicDBObject("result", rec).toJson();
     }
+
+    @GET
+    @Path("/getDailyInspection")
+    @Produces(APPLICATION_JSON)
+    @JWTTokenNeeded
+    public String getDailyInspection(@Context HttpServletRequest request) {
+        Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        ObjectId branchOfUser = SecurityUtil.getBranchOfUser(myDataSB, claim.getBody().getSubject());
+        if (branchOfUser != null) {
+            return new BasicDBObject("result", InspectionUtil.getDailyInspection(myDataSB, claim.getBody().getSubject())).toJson();
+        } else {
+            return new BasicDBObject("result", null).toJson();
+        }
+    }
+
+    @POST
+    @Path("/setInspectionStatusOfStudent")
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    @JWTTokenNeeded
+    public String setInspectionStatusOfStudent(String jsonData, @Context HttpServletRequest request) {
+        Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        BasicDBObject dbo = BasicDBObject.parse(jsonData);
+        Map<String, Object> user = SecurityUtil.getUserFromEmail(myDataSB, claim.getBody().getSubject());
+        InspectionUtil.setInspectionStatusOfStudent(myDataSB, claim.getBody().getSubject(), user, dbo, dbo.getBoolean("comIn"));
+        return new BasicDBObject("result", "ok").toJson();
+    }
+
 }
