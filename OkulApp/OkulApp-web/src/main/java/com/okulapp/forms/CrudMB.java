@@ -31,6 +31,7 @@ import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.forms.controls.InputImage;
 import com.okulapp.forms.controls.InputSelectManyDbFormControl;
 import com.okulapp.forms.controls.InputSelectManyFormControl;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -40,6 +41,7 @@ import java.util.logging.Logger;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.event.AjaxBehaviorEvent;
+import javax.imageio.ImageIO;
 import org.apache.commons.codec.binary.Base64;
 import org.bson.Document;
 import org.primefaces.event.FileUploadEvent;
@@ -53,48 +55,48 @@ import org.primefaces.model.StreamedContent;
 @Named(value = "crudMB")
 @SessionScoped
 public class CrudMB implements Serializable {
-
+    
     private @Inject
     DispatcherMB dispatcherMB;
-
+    
     private @Inject
     SecurityMB securityMB;
-
+    
     private @Inject
     NavigationMB navigationMB;
-
+    
     private @Inject
     TextBundlerSMB textBundlerSMB;
-
+    
     @EJB
     MyDataSBLocal myDataSB;
-
+    
     private static final String CRUD_FORM = "/dialogs/crudForm.xhtml";
     private static final String CRUD_PAGE = "/pages/crudPage.xhtml";
     private final List<String> userForms = Arrays.asList("stuff", "teachers", "studentParent");
     private Map<ObjectId, String> imagesCache = new HashMap();
-
+    
     private String id;
-
+    
     private CrudForm crudForm;
-
+    
     private LazyDataModel<Map<String, Object>> lazyDataModel;
-
+    
     private Map<String, List<Map<String, Object>>> selectItemCache = new HashMap();
-
+    
     private Map<String, Object> selectItemValuesCache = new HashMap();
-
+    
     private boolean showFilter = false;
-
+    
     public CrudMB() {
-
+        
     }
-
+    
     @PostConstruct
     public void init() {
         id = UUID.randomUUID().toString();
     }
-
+    
     public void showCrudPage(String crudFormCode) {
         Form currentForm = new CrudForm.Builder(myDataSB.getAdvancedDataAdapter(), myDataSB.getDbName(), textBundlerSMB.getLoceleStr())
                 .createCrudFromFromDb(crudFormCode)
@@ -109,7 +111,7 @@ public class CrudMB implements Serializable {
             setLazyDataModel(new CrudDataTableLazyDataModel(cf));
         }
     }
-
+    
     public void showCrudFormWithNewMode(String crudFormCode) {
         Form currentForm = new CrudForm.Builder(myDataSB.getAdvancedDataAdapter(), myDataSB.getDbName(), textBundlerSMB.getLoceleStr())
                 .createCrudFromFromDb(crudFormCode)
@@ -126,23 +128,23 @@ public class CrudMB implements Serializable {
             this.newRecord();
         }
     }
-
+    
     public CrudForm getCrudForm() {
         return crudForm;
     }
-
+    
     public void setCrudForm(CrudForm crudForm) {
         this.crudForm = crudForm;
     }
-
+    
     public String getId() {
         return id;
     }
-
+    
     public void setId(String id) {
         this.id = id;
     }
-
+    
     public void newRecord() {
         crudForm.setNewMode(true);
         for (BaseFormControl formControl : crudForm.getFormControls()) {
@@ -153,7 +155,7 @@ public class CrudMB implements Serializable {
         crudForm.setPageUrl(CRUD_FORM);
         dispatcherMB.setCurrentPage(crudForm);
     }
-
+    
     public void saveRecord() {
         Map<String, Object> record = crudForm.fillCrudObjectWithFormControls();
         if (crudForm.getNewMode()) {
@@ -161,23 +163,23 @@ public class CrudMB implements Serializable {
         } else {
             crudForm.update(record);
         }
-
+        
         if (crudForm instanceof CrudForm) {
             CrudForm cf = (CrudForm) crudForm;
             if (userForms.contains(cf.getCrudFormCode())) {
                 securityMB.syncUser(record, cf);
             }
         }
-
+        
         crudForm.setPageUrl(CRUD_PAGE);
         dispatcherMB.setCurrentPage(crudForm);
     }
-
+    
     public void cancelRecord() {
         crudForm.setPageUrl(CRUD_PAGE);
         dispatcherMB.setCurrentPage(crudForm);
     }
-
+    
     public void editRecord(Map<String, Object> rec) {
         crudForm.setNewMode(false);
         rec = crudForm.read(rec);//lazy to eager
@@ -188,7 +190,7 @@ public class CrudMB implements Serializable {
         crudForm.setPageUrl(CRUD_FORM);
         dispatcherMB.setCurrentPage(crudForm);
     }
-
+    
     public void copyRecord(Map<String, Object> rec) {
         crudForm.setNewMode(true);
         rec = crudForm.read(rec);//lazy to eager
@@ -200,13 +202,13 @@ public class CrudMB implements Serializable {
         crudForm.setPageUrl(CRUD_FORM);
         dispatcherMB.setCurrentPage(crudForm);
     }
-
+    
     public void deleteRecord(Map<String, Object> rec) {
         crudForm.setNewMode(false);
         rec = crudForm.read(rec);//lazy to eager
         crudForm.setId(rec.get("_id"));
         crudForm.delete(rec);
-
+        
         if (crudForm instanceof CrudForm) {
             CrudForm cf = (CrudForm) crudForm;
             if (userForms.contains(cf.getCrudFormCode())) {
@@ -214,7 +216,7 @@ public class CrudMB implements Serializable {
             }
         }
     }
-
+    
     public List<Map<String, Object>> getList() {
         Map<String, Object> projection = new HashMap();
         for (ListField listField : crudForm.getListFields()) {
@@ -223,27 +225,27 @@ public class CrudMB implements Serializable {
         CrudListResult clr = crudForm.getPagedList(new HashMap(), projection, 1, 10);
         return clr;
     }
-
+    
     public void listPage(PageEvent pageEvent) {
         pageEvent.getPage();
     }
-
+    
     public LazyDataModel<Map<String, Object>> getLazyDataModel() {
         return lazyDataModel;
     }
-
+    
     public void setLazyDataModel(LazyDataModel<Map<String, Object>> lazyDataModel) {
         this.lazyDataModel = lazyDataModel;
     }
-
+    
     public Map<String, List<Map<String, Object>>> getSelectItemCache() {
         return selectItemCache;
     }
-
+    
     public void setSelectItemCache(Map<String, List<Map<String, Object>>> selectItemCache) {
         this.selectItemCache = selectItemCache;
     }
-
+    
     public List<Map<String, Object>> getSelectItemsFromCacheDB(String controlName, String dbName, String tableName, String itemQuery, String itemValueField, String itemLabelField) {
         Map<String, Object> filter = new HashMap();
         Map<String, Object> sort = new HashMap();
@@ -255,15 +257,15 @@ public class CrudMB implements Serializable {
         sort.put(itemLabelField, 1);
         return myDataSB.getAdvancedDataAdapter().getSortedList(dbName, tableName, filter, projection, sort);
     }
-
+    
     public Map<String, Object> getSelectItemValuesCache() {
         return selectItemValuesCache;
     }
-
+    
     public void setSelectItemValuesCache(Map<String, Object> selectItemValuesCache) {
         this.selectItemValuesCache = selectItemValuesCache;
     }
-
+    
     public Object getSelectItemValuesCacheFromDb(BaseFormControl selectOneDbFormControl, Object itemValueFieldValue) {
         if (selectOneDbFormControl instanceof InputSelectOneDbFormControl && itemValueFieldValue != null) {
             InputSelectOneDbFormControl inputSelectOneDbFormControl = (InputSelectOneDbFormControl) selectOneDbFormControl;
@@ -287,34 +289,34 @@ public class CrudMB implements Serializable {
             return itemValueFieldValue;
         }
     }
-
+    
     public boolean isNotSelectableControl(String controlType) {
         return !Arrays.asList("selectOneDb,selectOne,selectManyDb,selectMany".split(",")).contains(controlType);
     }
-
+    
     public boolean isNotDateControl(String controlType) {
         return !Arrays.asList("date".split(",")).contains(controlType);
     }
-
+    
     public boolean isShowFilter() {
         return showFilter;
     }
-
+    
     public void setShowFilter(boolean showFilter) {
         this.showFilter = showFilter;
     }
-
+    
     public void switchShowFilter() {
         this.showFilter = !showFilter;
     }
-
+    
     public void refreshDatatable() {
         DataTable dataTable = (DataTable) FacesContext.getCurrentInstance().getViewRoot().findComponent("contentCmp:crudListForm:crudDataTable");
         if (dataTable != null) {
             dataTable.loadLazyData();
         }
     }
-
+    
     public void resetFilter() {
         if (crudForm != null && crudForm.getListFields() != null && !crudForm.getListFields().isEmpty()) {
             for (ListField listField : crudForm.getListFields()) {
@@ -324,7 +326,7 @@ public class CrudMB implements Serializable {
             }
         }
     }
-
+    
     public void onSelectOneChanged(AjaxBehaviorEvent event) {
         BaseFormControl fc = crudForm.getFormControls().get(crudForm.getMapFormControlsIndex().get(event.getComponent().getId()));
         if (fc.getValue() != null && fc.getAjaxUpdateFieldName() != null) {
@@ -339,9 +341,9 @@ public class CrudMB implements Serializable {
                 }
             }
         }
-
+        
     }
-
+    
     public void handleFileUpload(FileUploadEvent event) {
         try {
             BaseFormControl fc = crudForm.getFormControls().get(crudForm.getMapFormControlsIndex().get(event.getComponent().getId()));
@@ -349,8 +351,17 @@ public class CrudMB implements Serializable {
                 if ("image".equals(fc.getType())) {
                     InputImage inputImage = (InputImage) fc;
                     InputStream is = event.getFile().getInputstream();
-                    ObjectId fileId = myDataSB.getFileUpDownManager().uploadFile(is, event.getFile().getFileName());
-
+                    BufferedImage imageOrj = ImageIO.read(event.getFile().getInputstream());
+                    ObjectId fileId;
+                    if (imageOrj.getWidth() > 1024) {
+                        double percentageWidth = 1024.0 / imageOrj.getWidth();
+                        BufferedImage imageResized = myDataSB.getFileUpDownManager().resizeImage(imageOrj, 1024, (int) Math.round(imageOrj.getHeight() * percentageWidth));
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        ImageIO.write(imageResized, "png", bos);
+                        fileId = myDataSB.getFileUpDownManager().uploadFile(new ByteArrayInputStream(bos.toByteArray()), event.getFile().getFileName());
+                    } else {
+                        fileId = myDataSB.getFileUpDownManager().uploadFile(is, event.getFile().getFileName());
+                    }
                     if (fileId != null) {
                         inputImage.set(fileId);
                         inputImage.setValue(fileId);
@@ -359,20 +370,20 @@ public class CrudMB implements Serializable {
                     }
                 }
             }
-
+            
         } catch (IOException ex) {
             Logger.getLogger(InputImage.class.getName()).log(Level.SEVERE, null, ex);
             FacesMessage msg = new FacesMessage("Dosya Yüklenemedi", event.getFile().getFileName());
             FacesContext.getCurrentInstance().addMessage(null, msg);
         }
     }
-
+    
     public StreamedContent handleImageFileDownload(ObjectId fileId) {
         if (fileId == null) {
             InputStream is = getClass().getClassLoader().getResourceAsStream("user-profile.png");
             return new DefaultStreamedContent(is, "image/png");
         } else {
-            byte[] bytes = myDataSB.getFileUpDownManager().downloadFile(fileId);
+            byte[] bytes = (byte[]) myDataSB.getFileUpDownManager().downloadFile(fileId).get("bytes");
             if (bytes != null) {
                 return new DefaultStreamedContent(new ByteArrayInputStream(bytes));
             } else {
@@ -380,7 +391,7 @@ public class CrudMB implements Serializable {
             }
         }
     }
-
+    
     public String encodeFileToBase64Binary(ObjectId fileId) {
         String rval = null;
         if (fileId == null) {
@@ -392,7 +403,7 @@ public class CrudMB implements Serializable {
                 while ((nRead = is.read(data, 0, data.length)) != -1) {
                     buffer.write(data, 0, nRead);
                 }
-
+                
                 buffer.flush();
                 byte[] byteArray = buffer.toByteArray();
                 rval = Base64.encodeBase64String(byteArray);
@@ -400,11 +411,11 @@ public class CrudMB implements Serializable {
                 Logger.getLogger(CrudMB.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
-
+            
             if (imagesCache.containsKey(fileId)) {
                 rval = imagesCache.get(fileId);
             } else {
-                byte[] bytes = myDataSB.getFileUpDownManager().downloadFile(fileId);
+                byte[] bytes = (byte[]) myDataSB.getFileUpDownManager().downloadFile(fileId).get("bytes");
                 if (bytes != null) {
                     rval = Base64.encodeBase64String(bytes);
                     imagesCache.put(fileId, rval);
@@ -413,5 +424,5 @@ public class CrudMB implements Serializable {
         }
         return rval;
     }
-
+    
 }

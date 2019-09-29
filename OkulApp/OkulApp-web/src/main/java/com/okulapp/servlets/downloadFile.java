@@ -7,6 +7,7 @@ package com.okulapp.servlets;
 
 import com.okulapp.data.okul.MyDataSBLocal;
 import java.io.IOException;
+import java.util.Map;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -38,8 +39,12 @@ public class downloadFile extends HttpServlet {
         if (request.getParameter("id") != null) {
             response.setContentType("application/octet-stream");
             ObjectId fileId = new ObjectId(request.getParameter("id"));
-            byte[] bytes = myDataSB.getFileUpDownManager().downloadFile(fileId);
-            if (bytes != null) {
+            Map<String, Object> downloadedFile = myDataSB.getFileUpDownManager().downloadFile(fileId);
+            if (downloadedFile != null) {
+                byte[] bytes = (byte[]) downloadedFile.get("bytes");
+                if (!downloadedFile.get("fileName").toString().isEmpty()) {
+                    response.setHeader("Content-Disposition", "attachment; filename=\"" + downloadedFile.get("fileName").toString() + "\"");
+                }
                 response.getOutputStream().write(bytes);
                 response.getOutputStream().close();
             }

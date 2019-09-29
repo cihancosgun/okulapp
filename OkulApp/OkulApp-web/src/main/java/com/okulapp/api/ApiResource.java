@@ -318,8 +318,9 @@ public class ApiResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getImage(@QueryParam("fileId") String fileId) {
         if (fileId != null) {
-            byte[] bytes = myDataSB.getFileUpDownManager().downloadFile(new ObjectId(fileId));
-            return Response.ok(bytes).build();
+            Map<String, Object> file = myDataSB.getFileUpDownManager().downloadFile(new ObjectId(fileId));;
+            byte[] bytes = (byte[]) file.get("bytes");
+            return Response.ok(bytes).header("Content-Disposition", "attachment; filename=\"" + file.get("fileName").toString() + "\"").build();
         } else {
             return Response.noContent().build();
         }
@@ -341,11 +342,20 @@ public class ApiResource {
             InputStream uploadedInputStream = new ByteArrayInputStream(readedBytes);
 
             BufferedImage imageOrj = ImageIO.read(uploadedInputStream);
+
+            if (imageOrj.getWidth() > 1024) {
+                double percentageWidth = 1024.0 / imageOrj.getWidth();
+                imageOrj = myDataSB.getFileUpDownManager().resizeImage(imageOrj, 1024, (int) Math.round(imageOrj.getHeight() * percentageWidth));
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                ImageIO.write(imageOrj, "jpg", bos);
+                readedBytes = bos.toByteArray();
+            }
+
             BufferedImage imageThumb = myDataSB.getFileUpDownManager().resizeImage(imageOrj, 200, 200);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ImageIO.write(imageThumb, "jpg", bos);
 
-            String fileName = UUID.randomUUID() + (dbo.getString("mimeType").equals("image/jpeg") ? ".jpg" : "mp4");
+            String fileName = UUID.randomUUID() + (dbo.getString("mimeType").equals("image/jpeg") ? ".jpg" : ".mp4");
             UploadedFile resizedImage = new ByteArrayUploadedFile(bos.toByteArray(), fileName, dbo.getString("mimeType"));
             ObjectId thumbFileId = myDataSB.getFileUpDownManager().uploadFile(resizedImage.getInputstream(), fileName);
             ObjectId fileId = myDataSB.getFileUpDownManager().uploadFile(new ByteArrayInputStream(readedBytes), fileName);
@@ -464,11 +474,11 @@ public class ApiResource {
         ObjectId branchOfUser = SecurityUtil.getBranchOfUser(myDataSB, claim.getBody().getSubject());
         Calendar cldr = Calendar.getInstance();
         if (branchOfUser != null) {
-            return new BasicDBObject("result", 
+            return new BasicDBObject("result",
                     myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "foodCalendar", QueryBuilder
                             .start("year").is(cldr.get(Calendar.YEAR))
                             .and("month").is(month)
-                            .and("monthNumber").is(FoodCalendarUtil.getMonthList().indexOf(month)+1)
+                            .and("monthNumber").is(FoodCalendarUtil.getMonthList().indexOf(month) + 1)
                             .and("branch").is(branchOfUser)
                             .get().toMap())
             ).toJson();

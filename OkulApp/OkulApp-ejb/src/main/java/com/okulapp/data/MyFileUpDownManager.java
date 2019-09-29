@@ -5,9 +5,11 @@
  */
 package com.okulapp.data;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSBuckets;
+import com.mongodb.client.gridfs.model.GridFSFile;
 import com.mongodb.client.gridfs.model.GridFSUploadOptions;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
@@ -16,8 +18,10 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 
 /**
@@ -91,15 +95,17 @@ public class MyFileUpDownManager {
         }
     }
 
-    public byte[] downloadFile(ObjectId fileId) {
+    public Map<String, Object> downloadFile(ObjectId fileId) {
         try {
             ByteArrayOutputStream streamToDownloadTo = new ByteArrayOutputStream();
             ada.connect();
+            GridFSFile fsFile = getBucket().find(new Document("_id", fileId)).first();
+            String fileName = fsFile != null ? fsFile.getFilename() : "";
             getBucket().downloadToStream(fileId, streamToDownloadTo);
             byte[] bytes = streamToDownloadTo.toByteArray();
             streamToDownloadTo.close();
             ada.disconnect();
-            return bytes;
+            return new BasicDBObject("fileName", fileName).append("bytes", bytes).toMap();
         } catch (Exception e) {
             Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "uploadFile Error", e);
             return null;

@@ -14,6 +14,7 @@ import com.okulapp.security.SecurityMB;
 import com.okulapp.utils.ByteArrayUploadedFile;
 import com.okulapp.ws.WSReceiverManager;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -210,11 +211,19 @@ public class NotificationMB implements Serializable {
             FacesMessage msg = new FacesMessage("Başarılı", event.getFile().getFileName() + " isimli dosya yüklendi.");
             FacesContext.getCurrentInstance().addMessage(null, msg);
             BufferedImage imageOrj = ImageIO.read(event.getFile().getInputstream());
+            UploadedFile file = event.getFile();
+            if (imageOrj.getWidth() > 1024) {
+                double percentageWidth = 1024.0 / imageOrj.getWidth();
+                imageOrj = myDataSB.getFileUpDownManager().resizeImage(imageOrj, 1024, (int) Math.round(imageOrj.getHeight() * percentageWidth));
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                ImageIO.write(imageOrj, "png", bos);
+                file = new ByteArrayUploadedFile(bos.toByteArray(), event.getFile().getFileName(), event.getFile().getContentType());
+            }
             BufferedImage imageThumb = myDataSB.getFileUpDownManager().resizeImage(imageOrj, 200, 200);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ImageIO.write(imageThumb, "png", bos);
             UploadedFile resizedImage = new ByteArrayUploadedFile(bos.toByteArray(), event.getFile().getFileName(), event.getFile().getContentType());
-            uploadedFiles.add(event.getFile());
+            uploadedFiles.add(file);
             uploadedThumbFiles.add(resizedImage);
         } catch (IOException ex) {
             Logger.getLogger(NotificationMB.class.getName()).log(Level.SEVERE, null, ex);
