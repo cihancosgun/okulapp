@@ -8,6 +8,7 @@ package com.okulapp.chat;
 import com.mongodb.BasicDBObject;
 import com.mongodb.QueryBuilder;
 import com.okulapp.data.okul.MyDataSBLocal;
+import com.okulapp.expopush.ExpoPushNotificationUtil;
 import com.okulapp.security.SecurityUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -218,5 +219,8 @@ public class ChatUtil {
             currentChat.put("deletedUsers", deletedUsers);
         }
         myDataSB.getAdvancedDataAdapter().update(myDataSB.getDbName(), "chat", currentChat);
+        List<String> receivers = new ArrayList();
+        receivers.add(receiver.get("email").toString());
+        ExpoPushNotificationUtil.sendPushNotificationToQueue(receivers, "Yeni Mesaj", message.get("message").toString());
     }
 }

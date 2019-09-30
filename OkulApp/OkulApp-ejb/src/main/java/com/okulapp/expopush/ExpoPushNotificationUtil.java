@@ -5,14 +5,14 @@
  */
 package com.okulapp.expopush;
 
-import com.google.gson.Gson;
 import com.mongodb.BasicDBObject;
 import com.mongodb.QueryBuilder;
 import com.okulapp.crud.dao.CrudListResult;
 import com.okulapp.data.okul.MyDataSBLocal;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +26,14 @@ import javax.jms.Queue;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.ws.rs.core.MediaType;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 
 /**
  *
@@ -49,7 +56,7 @@ public class ExpoPushNotificationUtil {
                     try (MessageProducer messageProducer = session.createProducer(queue)) {
                         MapMessage message = session.createMapMessage();
                         message.setString("messageType", "sendPushNotification");
-                        message.setObject("receiverEmails", receiverEmails);
+                        message.setObject("receiverEmails", receiverEmails.toString());
                         message.setString("title", title);
                         message.setString("body", body);
                         messageProducer.send(message);
@@ -66,7 +73,7 @@ public class ExpoPushNotificationUtil {
 
     public static void sendPushNotificationToServer(MyDataSBLocal myData, List<String> receiverEmails, String title, String body) {
         List<String> pushNotificationIds = new ArrayList();
-        CrudListResult list = myData.getAdvancedDataAdapter().getList(myData.getDbName(), "users", QueryBuilder.start("login").in(receiverEmails).get().toMap(), QueryBuilder.start("pushToken").is(true).get().toMap());
+        CrudListResult list = myData.getAdvancedDataAdapter().getList(myData.getDbName(), "users", QueryBuilder.start("login").in(receiverEmails).and("pushToken").exists(true).get().toMap(), QueryBuilder.start("pushToken").is(true).get().toMap());
         for (Map<String, Object> rec : list) {
             pushNotificationIds.add(rec.get("pushToken").toString());
         }
@@ -75,15 +82,41 @@ public class ExpoPushNotificationUtil {
         }
     }
 
-    private static WebResource getWebResource() {
-        String serviceUrl = "https://exp.host/--/api/v2/push/send";
+    static Client getJerseyHTTPSClient() throws KeyManagementException, NoSuchAlgorithmException {
+        SSLContext sslContext = getSslContext();
+        HostnameVerifier allHostsValid = new NoOpHostnameVerifier();
+
+        return ClientBuilder.newBuilder()
+                .sslContext(sslContext)
+                .hostnameVerifier(allHostsValid)
+                .build();
+    }
+
+    private static SSLContext getSslContext() throws NoSuchAlgorithmException,
+            KeyManagementException {
+        SSLContext sslContext = SSLContext.getInstance("TLSv1");
+
+        KeyManager[] keyManagers = null;
+        TrustManager[] trustManager = {new NoOpTrustManager()};
+        SecureRandom secureRandom = new SecureRandom();
+
+        sslContext.init(keyManagers, trustManager, secureRandom);
+
+        return sslContext;
+    }
+
+    private static Client getClient() {
         if (myClient == null) {
-            myClient = Client.create();
+            try {
+                myClient = getJerseyHTTPSClient();
+            } catch (KeyManagementException ex) {
+                Logger.getLogger(ExpoPushNotificationUtil.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (NoSuchAlgorithmException ex) {
+                Logger.getLogger(ExpoPushNotificationUtil.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-        if (myWebResource == null) {
-            myWebResource = myClient.resource(serviceUrl);
-        }
-        return myWebResource;
+
+        return myClient;
     }
 
     private static void sendToExpoServer(List<String> receivers, String title, String body) {
@@ -91,7 +124,14 @@ public class ExpoPushNotificationUtil {
         for (String receiver : receivers) {
             datas.add(new BasicDBObject("to", receiver).append("title", title).append("body", body).toJson());
         }
-        String data = new Gson().toJson(datas);
-        ClientResponse clientResponse = getWebResource().path("create").type(MediaType.APPLICATION_JSON).post(ClientResponse.class, data);
+        String data = datas.toString();
+        try {
+            String serviceUrl = "https://exp.host/--/api/v2/push";
+            Response response = getClient().target(serviceUrl).path("send").request().post(Entity.json(data));
+            response.toString();
+        } catch (Exception e) {
+            Logger.getLogger("sendtoexposerver").log(Level.SEVERE, "send", e);
+        }
+
     }
 }

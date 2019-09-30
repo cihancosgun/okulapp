@@ -1,4 +1,5 @@
 com/okulapp/expopush/ExpoPushNotificationUtil.class
+com/okulapp/expopush/NoOpTrustManager.class
 com/okulapp/data/AdvancedDataAdapter$DbType.class
 com/okulapp/data/MongoDataAdapter.class
 com/okulapp/data/okul/MyDataSBLocal.class
@@ -8,6 +9,7 @@ com/okulapp/OkulAppMDB.class
 com/okulapp/mail/MailSender.class
 com/okulapp/mail/MailSender$1.class
 com/okulapp/data/AdvancedDataAdapter$1.class
+com/okulapp/expopush/NoOpHostnameVerifier.class
 com/okulapp/crud/dao/CrudDao.class
 com/okulapp/data/DataAdapter.class
 com/okulapp/NewSessionBean.class
