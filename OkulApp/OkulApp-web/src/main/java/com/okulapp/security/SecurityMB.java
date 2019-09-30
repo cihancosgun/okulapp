@@ -10,8 +10,10 @@ import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
 import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.forms.CrudForm;
+import com.okulapp.mail.MailSender;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.Principal;
 import java.security.SecureRandom;
@@ -174,6 +176,12 @@ public class SecurityMB implements Serializable {
                 .append("groups", groups)
                 .get();
         cf.getAda().create(cf.getDbName(), "users", newUser.toMap());
+        try {
+            String strPassword = new String(password);
+            MailSender.send_mailToQueue(login, "Bilgiyuvam E-Okul Uygulaması Kullanıcı Bilgileriniz", "Kullanıcı Adınız : " + login + "\r\nParolanız : " + strPassword);
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(SecurityMB.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return (ObjectId) newUser.get("_id");
     }
 

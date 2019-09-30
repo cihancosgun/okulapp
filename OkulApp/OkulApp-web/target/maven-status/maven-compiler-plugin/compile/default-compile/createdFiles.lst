@@ -50,6 +50,7 @@ com/okulapp/api/ApplicationConfig.class
 com/okulapp/api/SimpleKeyGenerator.class
 com/okulapp/forms/controls/BaseFormControl.class
 com/okulapp/foodcalendar/FoodCalendarMB.class
+com/okulapp/utils/PasswordGenerator.class
 com/okulapp/forms/controls/PhoneConverter.class
 com/okulapp/navigation/Navigation.class
 com/okulapp/forms/controls/InputMaskFormControl.class
