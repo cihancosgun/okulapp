@@ -7,5 +7,6 @@
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-ejb/src/main/java/com/okulapp/data/okul/MyDataSBLocal.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-ejb/src/main/java/com/okulapp/data/AdvancedDataAdapter.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-ejb/src/main/java/com/okulapp/crud/dao/CrudDao.java
+/home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-ejb/src/main/java/com/okulapp/expopush/ExpoPushNotificationUtil.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-ejb/src/main/java/com/okulapp/data/MongoDataAdapter.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-ejb/src/main/java/com/okulapp/data/okul/MyDataSB.java

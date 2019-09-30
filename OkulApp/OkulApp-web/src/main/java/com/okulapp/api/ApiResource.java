@@ -487,4 +487,17 @@ public class ApiResource {
         }
     }
 
+    @POST
+    @Path("/setPushToken")
+    @Produces(APPLICATION_JSON)
+    @Consumes(APPLICATION_JSON)
+    @JWTTokenNeeded
+    public String setPushToken(String jsonData, @Context HttpServletRequest request) {
+        BasicDBObject dbo = BasicDBObject.parse(jsonData);
+        Map<String, Object> user = SecurityUtil.getUserRecordFromUserTable(myDataSB, dbo.getString("userName"));
+        user.put("pushToken", dbo.getString("token"));
+        myDataSB.getAdvancedDataAdapter().update(myDataSB.getDbName(), "users", user);
+        return new BasicDBObject("result", "ok").toJson();
+    }
+
 }

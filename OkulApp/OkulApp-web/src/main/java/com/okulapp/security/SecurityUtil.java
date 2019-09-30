@@ -29,8 +29,13 @@ public class SecurityUtil {
         }
     }
 
-    public static String getUserRoleFromUserTable(MyDataSBLocal myDataSB, String email) {
+    public static Map<String, Object> getUserRecordFromUserTable(MyDataSBLocal myDataSB, String email) {
         Map<String, Object> userRecord = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "users", QueryBuilder.start("login").is(email).get().toMap());
+        return userRecord;
+    }
+
+    public static String getUserRoleFromUserTable(MyDataSBLocal myDataSB, String email) {
+        Map<String, Object> userRecord = getUserRecordFromUserTable(myDataSB, email);
         if (userRecord == null) {
             return "";
         }

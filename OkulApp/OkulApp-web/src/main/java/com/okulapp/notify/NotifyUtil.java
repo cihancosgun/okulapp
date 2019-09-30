@@ -7,6 +7,7 @@ package com.okulapp.notify;
 
 import com.mongodb.BasicDBObject;
 import com.okulapp.data.okul.MyDataSBLocal;
+import com.okulapp.expopush.ExpoPushNotificationUtil;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -39,6 +40,7 @@ public class NotifyUtil {
         rec.put("startDate", new Date());
         rec.put("deleted", false);
         myDataSB.getAdvancedDataAdapter().create(myDataSB.getDbName(), "notifications", rec);
+        ExpoPushNotificationUtil.sendPushNotificationToQueue(receivers, "Bildirim", notificationMessage);
         return rec;
     }
 }
