@@ -93,7 +93,7 @@ public class ActivityUtil {
 
     public static void setMealStatusOfStudent(MyDataSBLocal myDataSB, ObjectId selectedClass, String activityType, String selectedMeal, String userName, Map<String, Object> student, String status, Map<String, Object> user) {
         setStatusOfStudent(myDataSB, selectedClass, activityType, selectedMeal, userName, student, status);
-        sendNotificationsToParents(myDataSB, user, student, selectedMeal.concat(" öğününde yemeğini ").concat(status), status, activityType);
+        sendNotificationsToParents(myDataSB, user, student, selectedMeal.concat(" öğününde yemeğini "), status, activityType);
     }
 
     public static void setSleepStatusOfStudent(MyDataSBLocal myDataSB, ObjectId selectedClass, String activityType, String selectedMeal, String userName, Map<String, Object> student, String status, Map<String, Object> user) {

@@ -9,7 +9,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.QueryBuilder;
 import com.okulapp.crud.dao.CrudListResult;
 import com.okulapp.data.okul.MyDataSBLocal;
-import com.sun.jersey.api.client.WebResource;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -42,7 +41,6 @@ import javax.ws.rs.core.Response;
  */
 public class ExpoPushNotificationUtil {
 
-    private static WebResource myWebResource;
     private static Client myClient;
 
     public static void sendPushNotificationToQueue(List<String> receiverEmails, String title, String body) {

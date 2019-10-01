@@ -25,7 +25,6 @@ com/okulapp/dispatcher/DispatcherMB.class
 com/okulapp/navigation/Menu$Builder.class
 com/okulapp/security/SecurityMB.class
 com/okulapp/ws/WebSocketSessionManager.class
-com/okulapp/ws/WSFilter.class
 com/okulapp/texts/TextBundlerSMB.class
 com/okulapp/api/JWTTokenNeeded.class
 com/okulapp/navigation/Navigation$Builder.class

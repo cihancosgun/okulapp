@@ -12,7 +12,7 @@ mongoRealm {
 };
 
 asadmin delete-auth-realm okulAppRealm;
-asadmin create-auth-realm --classname com.tadamski.glassfish.mongo.realm.MongoRealm --property jaas-context=okulAppRealm okulAppRealm;
+asadmin create-auth-realm --classname com.tadamski.glassfish.mongo.realm.MongoRealm --property jaas-context=mongoRealm:mongo.db.name=okulapp okulAppRealm;
 
 Custom configuration:
 
@@ -54,4 +54,33 @@ asadmin create-jms-resource \
 # Connection Factories
 asadmin delete-jms-resource jms/bilgiyuvamQueueConnectionFactory
 asadmin create-jms-resource --restype javax.jms.QueueConnectionFactory --description "Bilgiyuvam Queue Connection Factory" jms/bilgiyuvamQueueConnectionFactory
+
+
+
+
+############################################ ip tables 80 to 8080 redirect ####################################
+
+
+#4848,2707 portu kapat
+iptables -A INPUT -i ens192 -p tcp --dport 4848 -j DROP
+iptables -A INPUT -i ens192 -p tcp --dport 27017 -j DROP
+
+
+iptables -A INPUT -i ens192 -p tcp --dport 80 -j ACCEPT
+iptables -A INPUT -i ens192 -p tcp --dport 8080 -j ACCEPT
+iptables -A PREROUTING -t nat -i ens192 -p tcp --dport 80 -j REDIRECT --to-port 8080
+
+
+iptables -A INPUT -i ens192 -p tcp --dport 443 -j ACCEPT
+iptables -A INPUT -i ens192 -p tcp --dport 9443 -j ACCEPT
+iptables -A PREROUTING -t nat -i ens192 -p tcp --dport 443 -j REDIRECT --to-port 9443
+
+iptables -t nat -L
+
+iptables -t nat -F #tümünü temizle
+
+
+
+
+cd /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-ear/target
 

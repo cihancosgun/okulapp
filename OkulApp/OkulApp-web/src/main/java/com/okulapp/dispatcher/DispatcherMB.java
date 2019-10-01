@@ -6,14 +6,20 @@
 package com.okulapp.dispatcher;
 
 import com.okulapp.chat.ChatMB;
+import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.forms.CrudMB;
 import java.io.Serializable;
 import javax.inject.Inject;
 import javax.inject.Named;
 import com.okulapp.forms.Form;
 import com.okulapp.notify.BoardMB;
+import com.okulapp.notify.BoardUtil;
+import com.okulapp.security.SecurityMB;
 import com.okulapp.texts.TextBundlerSMB;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.ejb.EJB;
 import javax.enterprise.context.SessionScoped;
 import org.bson.types.ObjectId;
 
@@ -37,6 +43,12 @@ public class DispatcherMB implements Serializable {
     @Inject
     BoardMB boardMB;
 
+    @Inject
+    SecurityMB securityMB;
+
+    @EJB
+    MyDataSBLocal myDataSB;
+
     private Form currentPage;
 
     public DispatcherMB() {
@@ -46,6 +58,7 @@ public class DispatcherMB implements Serializable {
         if (currentPage == null) {
             setCurrentPage(new Form(textBundlerSMB.getText("home"), "/pages/home.xhtml"));
         }
+        Logger.getLogger("Dispatcher").log(Level.SEVERE, "getCurrentPage", currentPage.getPageUrl());
         return currentPage;
     }
 
@@ -66,6 +79,7 @@ public class DispatcherMB implements Serializable {
 
     public void switchToBoardPage() {
         boardMB.refreshMyBoard();
+        BoardUtil.setReaded(myDataSB, boardMB.getMyUnreadedBoard(), securityMB.getRemoteUserName());
         setCurrentPage(new Form("Pano", "/pages/home.xhtml"));
     }
 

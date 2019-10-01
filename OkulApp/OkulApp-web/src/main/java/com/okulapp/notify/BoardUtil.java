@@ -26,7 +26,7 @@ import org.bson.types.ObjectId;
  * mailto:cihan_cosgun@outlook.com
  */
 public class BoardUtil {
-    
+
     private static byte[] inputStreamToByteArray(InputStream initialStream) {
         try {
             byte[] targetArray = new byte[initialStream.available()];
@@ -37,7 +37,7 @@ public class BoardUtil {
         }
         return null;
     }
-    
+
     private static InputStream handleMessageTypeIcon(String messageType) {
         InputStream is = BoardUtil.class.getClassLoader().getResourceAsStream(messageType.concat(".png"));
         if (is != null) {
@@ -46,18 +46,18 @@ public class BoardUtil {
             return BoardUtil.class.getClassLoader().getResourceAsStream("board.png");
         }
     }
-    
+
     public static List<Map<String, Object>> getBoardOfUser(MyDataSBLocal myDataSB, String userName) {
         return getBoardOfUser(myDataSB, userName, false, false);
     }
-    
+
     public static List<Map<String, Object>> getBoardOfUser(MyDataSBLocal myDataSB, String userName, boolean includeMessageTypeIcon, boolean includeFirstImageThumbnail) {
         List<Map<String, Object>> myBoard = null;
         MongoDataAdapter adapter = (MongoDataAdapter) myDataSB.getAdvancedDataAdapter().getSelectedDataAdapter();
         QueryBuilder filter = QueryBuilder.start("deleted").is(false)
                 .and("users").in(Arrays.asList(userName));
         QueryBuilder projection = QueryBuilder.start();
-        
+
         myBoard = adapter.getSortedPagedList(myDataSB.getDbName(), "notifications", filter.get().toMap(), projection.get().toMap(), 0, 20, QueryBuilder.start("startDate").is(-1).get().toMap());
         for (Map<String, Object> rec : myBoard) {
             if (includeMessageTypeIcon) {
@@ -79,7 +79,18 @@ public class BoardUtil {
         }
         return myBoard;
     }
-    
+
+    public static void setReaded(MyDataSBLocal myDataSB, List<Map<String, Object>> unreadedBoard, String userName) {
+        for (Map<String, Object> currentNotify : unreadedBoard) {
+            List<String> readedUsers = (List<String>) currentNotify.get("readedUsers");
+            if (!readedUsers.contains(userName)) {
+                readedUsers.add(userName);
+                currentNotify.put("readedUsers", readedUsers);
+                myDataSB.getAdvancedDataAdapter().update(myDataSB.getDbName(), "notifications", currentNotify);
+            }
+        }
+    }
+
     public static List<Map<String, Object>> getUnreadedBoard(MyDataSBLocal myDataSB, String userName) {
         MongoDataAdapter adapter = (MongoDataAdapter) myDataSB.getAdvancedDataAdapter().getSelectedDataAdapter();
         List<Map<String, Object>> myUnreadedBoard = null;
@@ -90,5 +101,5 @@ public class BoardUtil {
         myUnreadedBoard = adapter.getSortedPagedList(myDataSB.getDbName(), "notifications", filter.get().toMap(), projection.get().toMap(), 0, 20, QueryBuilder.start("startDate").is(-1).get().toMap());
         return myUnreadedBoard;
     }
-    
+
 }

@@ -108,9 +108,9 @@ public class BoardMB implements Serializable {
         List<String> readedUsers = (List<String>) currentNotify.get("readedUsers");
         if (!readedUsers.contains(securityMB.getRemoteUserName())) {
             readedUsers.add(securityMB.getRemoteUserName());
+            currentNotify.put("readedUsers", readedUsers);
+            myDataSB.getAdvancedDataAdapter().update(myDataSB.getDbName(), "notifications", currentNotify);
         }
-        currentNotify.put("readedUsers", readedUsers);
-        myDataSB.getAdvancedDataAdapter().update(myDataSB.getDbName(), "notifications", currentNotify);
         this.currentNotify = currentNotify;
     }
 

@@ -2,7 +2,6 @@
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/navigation/NavigationMB.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/security/PasswordHasher.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/ws/WebSocketSessionManager.java
-/home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/ws/WSFilter.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/security/SecurityUtil.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/api/MyLoginBean.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputCodeMirrorFormControl.java
