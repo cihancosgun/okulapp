@@ -2,13 +2,13 @@
 <application xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/application_6.xsd" version="6">
   <display-name>OkulApp-ear</display-name>
   <module>
-    <ejb>OkulApp-ejb-1.0-SNAPSHOT.jar</ejb>
-  </module>
-  <module>
     <web>
       <web-uri>OkulApp-web-1.0-SNAPSHOT.war</web-uri>
-      <context-root>/OkulApp-web</context-root>
+      <context-root>/bilgiyuvam</context-root>
     </web>
+  </module>
+  <module>
+    <ejb>OkulApp-ejb-1.0-SNAPSHOT.jar</ejb>
   </module>
   <library-directory>lib</library-directory>
 </application>
