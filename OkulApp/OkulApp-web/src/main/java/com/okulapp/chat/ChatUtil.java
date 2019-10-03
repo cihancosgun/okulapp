@@ -55,7 +55,7 @@ public class ChatUtil {
             Map<String, Object> user = SecurityUtil.getUserFromEmail(myDataSB, searcherUserName);
             ObjectId classId = (ObjectId) user.get("class");
             if (classId != null) {
-                qb.and("classes").in(classId);
+                qb.and("classes").is(classId);
             }
         }
         return myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "teachers", qb.get().toMap(), QueryBuilder.start("password").is(false).get().toMap());
