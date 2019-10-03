@@ -121,7 +121,7 @@ public class ExpoPushNotificationUtil {
     private static void sendToExpoServer(List<String> receivers, String title, String body) {
         List<String> datas = new ArrayList();
         for (String receiver : receivers) {
-            datas.add(new BasicDBObject("to", receiver).append("title", title).append("body", body).append("sound", "default").toJson());
+            datas.add(new BasicDBObject("to", receiver).append("title", title).append("body", body).append("sound", "default").append("channelId", "bilgiyuvam-notifications").toJson());
         }
         String data = datas.toString();
         try {
