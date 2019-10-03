@@ -7,6 +7,7 @@ package com.okulapp.chat;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.QueryBuilder;
+import com.okulapp.data.MongoDataAdapter;
 import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.expopush.ExpoPushNotificationUtil;
 import com.okulapp.security.SecurityUtil;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 
 /**
@@ -222,5 +224,43 @@ public class ChatUtil {
         List<String> receivers = new ArrayList();
         receivers.add(receiver.get("email").toString());
         ExpoPushNotificationUtil.sendPushNotificationToQueue(receivers, "Yeni Mesaj", message.get("message").toString());
+    }
+
+    public static List<Map<String, Object>> getUnreadedMessages(MyDataSBLocal myDataSB, String userName) {
+        MongoDataAdapter adapter = (MongoDataAdapter) myDataSB.getAdvancedDataAdapter().getSelectedDataAdapter();
+        List<Document> list = new ArrayList();
+        QueryBuilder match = QueryBuilder.start("$match").
+                is(QueryBuilder.start("messages.readed").is(false).and("messages.receiverEmail").is(userName).get());
+        QueryBuilder project = QueryBuilder.start("$project").
+                is(QueryBuilder.start("messages").is(true).get());
+        QueryBuilder unwind = QueryBuilder.start("$unwind").
+                is("$messages");
+
+        list.add(new Document(match.get().toMap()));
+        list.add(new Document(project.get().toMap()));
+        list.add(new Document(unwind.get().toMap()));
+        list.add(new Document(match.get().toMap()));
+        list.add(new Document("$sort", new Document("messages.sendingTime", -1)));
+        List<Map<String, Object>> myUnreadedMessages = adapter.executeAggregation(myDataSB.getDbName(), "chat", list);
+        return myUnreadedMessages;
+    }
+
+    public static List<Map<String, Object>> getUnreadedMessagesInChat(MyDataSBLocal myDataSB, ObjectId chatId, String userName) {
+        MongoDataAdapter adapter = (MongoDataAdapter) myDataSB.getAdvancedDataAdapter().getSelectedDataAdapter();
+        List<Document> list = new ArrayList();
+        QueryBuilder match = QueryBuilder.start("$match").
+                is(QueryBuilder.start("messages.readed").is(false).and("messages.receiverEmail").is(userName).and("_id").is(chatId).get());
+        QueryBuilder project = QueryBuilder.start("$project").
+                is(QueryBuilder.start("messages").is(true).get());
+        QueryBuilder unwind = QueryBuilder.start("$unwind").
+                is("$messages");
+
+        list.add(new Document(match.get().toMap()));
+        list.add(new Document(project.get().toMap()));
+        list.add(new Document(unwind.get().toMap()));
+        list.add(new Document(match.get().toMap()));
+        list.add(new Document("$sort", new Document("messages.sendingTime", -1)));
+        List<Map<String, Object>> myUnreadedMessages = adapter.executeAggregation(myDataSB.getDbName(), "chat", list);
+        return myUnreadedMessages;
     }
 }

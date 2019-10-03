@@ -56,6 +56,7 @@ public class ExpoPushNotificationUtil {
                         message.setString("messageType", "sendPushNotification");
                         message.setObject("receiverEmails", receiverEmails.toString());
                         message.setString("title", title);
+                        message.setString("icon", "http://app.bilgiyuvamanaokulu.com/bilgiyuvam/images/icon.png");
                         message.setString("body", body);
                         messageProducer.send(message);
                     }
@@ -120,7 +121,7 @@ public class ExpoPushNotificationUtil {
     private static void sendToExpoServer(List<String> receivers, String title, String body) {
         List<String> datas = new ArrayList();
         for (String receiver : receivers) {
-            datas.add(new BasicDBObject("to", receiver).append("title", title).append("body", body).toJson());
+            datas.add(new BasicDBObject("to", receiver).append("title", title).append("body", body).append("icon", "http://app.bilgiyuvamanaokulu.com/bilgiyuvam/images/icon.png").toJson());
         }
         String data = datas.toString();
         try {

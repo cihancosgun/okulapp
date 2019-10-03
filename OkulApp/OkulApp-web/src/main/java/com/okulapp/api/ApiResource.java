@@ -500,4 +500,32 @@ public class ApiResource {
         return new BasicDBObject("result", "ok").toJson();
     }
 
+    @GET
+    @Path("/setReadedAllBoard")
+    @Produces(APPLICATION_JSON)
+    @JWTTokenNeeded
+    public String setReadedAllBoard(@Context HttpServletRequest request) {
+        Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        List<Map<String, Object>> list = BoardUtil.getUnreadedBoard(myDataSB, claim.getBody().getSubject());
+        BoardUtil.setReaded(myDataSB, list, claim.getBody().getSubject());
+        return new BasicDBObject("result", "ok").toJson();
+    }
+
+    @GET
+    @Path("/getUnreadedMessages")
+    @Produces(APPLICATION_JSON)
+    @JWTTokenNeeded
+    public String getUnreadedMessages(@Context HttpServletRequest request) {
+        Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        return new BasicDBObject("list", ChatUtil.getUnreadedMessages(myDataSB, claim.getBody().getSubject())).toJson();
+    }
+
+    @GET
+    @Path("/getUnreadedMessagesInChat")
+    @Produces(APPLICATION_JSON)
+    @JWTTokenNeeded
+    public String getUnreadedMessages(@QueryParam("chatId") String chatId, @Context HttpServletRequest request) {
+        Jws<Claims> claim = TokenUtil.parseMyToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        return new BasicDBObject("list", ChatUtil.getUnreadedMessagesInChat(myDataSB, new ObjectId(chatId), claim.getBody().getSubject())).toJson();
+    }
 }

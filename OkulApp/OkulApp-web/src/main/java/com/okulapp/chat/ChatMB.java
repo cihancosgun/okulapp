@@ -6,8 +6,6 @@
 package com.okulapp.chat;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.QueryBuilder;
-import com.okulapp.data.MongoDataAdapter;
 import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.dispatcher.DispatcherMB;
 import com.okulapp.forms.CrudMB;
@@ -20,17 +18,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.primefaces.model.StreamedContent;
 
@@ -282,21 +277,7 @@ public class ChatMB implements Serializable {
     }
 
     public void refreshMyUnreadMessages() {
-        MongoDataAdapter adapter = (MongoDataAdapter) myDataSB.getAdvancedDataAdapter().getSelectedDataAdapter();
-        List<Document> list = new ArrayList();
-        QueryBuilder match = QueryBuilder.start("$match").
-                is(QueryBuilder.start("messages.readed").is(false).and("messages.receiverEmail").is(securityMB.getRemoteUserName()).get());
-        QueryBuilder project = QueryBuilder.start("$project").
-                is(QueryBuilder.start("messages").is(true).get());
-        QueryBuilder unwind = QueryBuilder.start("$unwind").
-                is("$messages");
-
-        list.add(new Document(match.get().toMap()));
-        list.add(new Document(project.get().toMap()));
-        list.add(new Document(unwind.get().toMap()));
-        list.add(new Document(match.get().toMap()));
-        list.add(new Document("$sort", new Document("messages.sendingTime", -1)));
-        myUnreadedMessages = adapter.executeAggregation(myDataSB.getDbName(), "chat", list);
+        myUnreadedMessages = ChatUtil.getUnreadedMessages(myDataSB, securityMB.getRemoteUserName());
         if (!myUnreadedMessages.isEmpty()) {
             Date dtMsgDate = (Date) ((Map) myUnreadedMessages.get(0).get("messages")).get("sendingTime");
             if (dtMsgDate.after(lastMessageDate)) {
