@@ -5,6 +5,7 @@
  */
 package com.okulapp.chat;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.QueryBuilder;
 import com.okulapp.data.MongoDataAdapter;
@@ -36,7 +37,8 @@ public class ChatUtil {
             qb = qb.and("name").is(Pattern.compile(searchText));
         }
         if ("teacher".equals(userRole) && user != null) {//öğretmen sadece kendi sınıflarını listeler
-            qb.and("teacher").is(user.get("_id"));
+            BasicDBList teacherClasses = (BasicDBList) user.get("classes");
+            qb.and("_id").in(teacherClasses);
         }
 
         return myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "classes", qb.get().toMap(), new BasicDBObject());
@@ -53,9 +55,9 @@ public class ChatUtil {
         }
         if ("parent".equals(userRole)) {//veli sadece kendi sınıf öğretmenini listeler
             Map<String, Object> user = SecurityUtil.getUserFromEmail(myDataSB, searcherUserName);
-            ObjectId classId = (ObjectId) user.get("class");
+            BasicDBList classId = (BasicDBList) user.get("class");
             if (classId != null) {
-                qb.and("classes").is(classId);
+                qb.and("classes").in(classId);
             }
         }
         return myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "teachers", qb.get().toMap(), QueryBuilder.start("password").is(false).get().toMap());
@@ -164,10 +166,12 @@ public class ChatUtil {
         List<Map<String, Object>> editedList = new ArrayList();
         for (Map<String, Object> conversation : conversations) {
             Map<String, Object> receiver = getConversationReceiver(myDataSB, conversation, userName);
-            conversation.put("convReceiverEmail", receiver.get("email"));
-            conversation.put("convReceiverNS", receiver.get("nameSurname"));
-            conversation.put("convReceiverImage", receiver.get("image"));
-            editedList.add(conversation);
+            if (receiver != null) {
+                conversation.put("convReceiverEmail", receiver.get("email"));
+                conversation.put("convReceiverNS", receiver.get("nameSurname"));
+                conversation.put("convReceiverImage", receiver.get("image"));
+                editedList.add(conversation);
+            }
         }
         return editedList;
     }

@@ -8,6 +8,7 @@ package com.okulapp.security;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
+import com.okulapp.crud.dao.CrudListResult;
 import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.forms.CrudForm;
 import com.okulapp.mail.MailSender;
@@ -183,6 +184,22 @@ public class SecurityMB implements Serializable {
             Logger.getLogger(SecurityMB.class.getName()).log(Level.SEVERE, null, ex);
         }
         return (ObjectId) newUser.get("_id");
+    }
+
+    public void sendPasswordsToAllUsers() {
+        CrudListResult list = myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "users", new BasicDBObject(), new BasicDBObject());
+        for (Map<String, Object> rec : list) {
+            try {
+                Map<String, Object> recUser = SecurityUtil.getUserFromEmail(myDataSB, rec.get("login").toString());
+                if (recUser != null && rec != null) {
+                    MailSender.send_mailToQueue(rec.get("login").toString(), "Bilgiyuvam E-Okul Uygulaması Kullanıcı Bilgileriniz", "Kullanıcı Adınız : " + rec.get("login") + "\r\nParolanız : " + recUser.get("password"));
+                    Logger.getLogger(SecurityMB.class.getName()).log(Level.SEVERE, null, rec.get("login").toString() + " gönderildi ...");                    
+                }
+            } catch (UnsupportedEncodingException ex) {
+                Logger.getLogger(SecurityMB.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        Logger.getLogger(SecurityMB.class.getName()).log(Level.SEVERE, null, "Toplu email gönderimi tamamlandı.");
     }
 
     public void changePassword(CrudForm cf, ObjectId userId, char[] newPassword) {
