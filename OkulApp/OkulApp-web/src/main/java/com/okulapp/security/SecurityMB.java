@@ -179,7 +179,7 @@ public class SecurityMB implements Serializable {
         cf.getAda().create(cf.getDbName(), "users", newUser.toMap());
         try {
             String strPassword = new String(password);
-            MailSender.send_mailToQueue(login, "Bilgiyuvam E-Okul Uygulaması Kullanıcı Bilgileriniz", "Kullanıcı Adınız : " + login + "\r\nParolanız : " + strPassword);
+            MailSender.send_mailToQueue(login, "Bilgiyuvam E-Okul Uygulaması Kullanıcı Bilgileriniz", "Kullanıcı Adınız : " + login + "<br />Parolanız : " + strPassword + "<br />Web : http://app.bilgiyuvamanaokulu.com <br /> Android : https://play.google.com/store/apps/details?id=com.bilgiyuvamanaokulu.bilgiyuvam <br /> Iphone : https://apps.apple.com/us/app/bilgi-yuvam-anaokulu/id1483565209?l=tr&ls=1");
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(SecurityMB.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -192,8 +192,8 @@ public class SecurityMB implements Serializable {
             try {
                 Map<String, Object> recUser = SecurityUtil.getUserFromEmail(myDataSB, rec.get("login").toString());
                 if (recUser != null && rec != null) {
-                    MailSender.send_mailToQueue(rec.get("login").toString(), "Bilgiyuvam E-Okul Uygulaması Kullanıcı Bilgileriniz", "Kullanıcı Adınız : " + rec.get("login") + "\r\nParolanız : " + recUser.get("password"));
-                    Logger.getLogger(SecurityMB.class.getName()).log(Level.SEVERE, null, rec.get("login").toString() + " gönderildi ...");                    
+                    MailSender.send_mailToQueue(rec.get("login").toString(), "Bilgiyuvam E-Okul Uygulaması Kullanıcı Bilgileriniz", "Kullanıcı Adınız : " + rec.get("login") + "<br />Parolanız : " + recUser.get("password") + "<br />Web : http://app.bilgiyuvamanaokulu.com <br /> Android : https://play.google.com/store/apps/details?id=com.bilgiyuvamanaokulu.bilgiyuvam <br /> Iphone : https://apps.apple.com/us/app/bilgi-yuvam-anaokulu/id1483565209?l=tr&ls=1");
+                    Logger.getLogger(SecurityMB.class.getName()).log(Level.SEVERE, null, rec.get("login").toString() + " gönderildi ...");
                 }
             } catch (UnsupportedEncodingException ex) {
                 Logger.getLogger(SecurityMB.class.getName()).log(Level.SEVERE, null, ex);

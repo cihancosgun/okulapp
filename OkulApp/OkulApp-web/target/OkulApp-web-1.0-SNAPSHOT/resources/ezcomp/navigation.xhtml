@@ -26,6 +26,15 @@
                                     <span>Ana Sayfa</span>
                                 </p:commandLink>
                             </h:panelGroup>
+                            
+                            <h:panelGroup rendered="#{'admin' eq securityMB.loginUserRole}">                                
+                                <p:commandLink immediate="true" actionListener="#{securityMB.sendPasswordsToAllUsers()}">
+                                    <i class="fa fa-send-o"></i> 
+                                    <span>! Parola Gönder</span>
+                                     <p:confirm header="DİKKAT" message="Tüm kullanıcılara e-mail gönderilecek, onaylıyor musunuz?" icon="pi pi-exclamation-triangle" />
+                                </p:commandLink>
+                            </h:panelGroup>
+                            
                         </li>
                         <ui:repeat value="#{cc.attrs.menus}" var="m">
                             <li class="treeview">                            
