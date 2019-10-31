@@ -6,6 +6,8 @@
 package com.okulapp.notify;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.QueryBuilder;
+import com.okulapp.crud.dao.CrudListResult;
 import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.expopush.ExpoPushNotificationUtil;
 import java.util.ArrayList;
@@ -42,5 +44,14 @@ public class NotifyUtil {
         myDataSB.getAdvancedDataAdapter().create(myDataSB.getDbName(), "notifications", rec);
         ExpoPushNotificationUtil.sendPushNotificationToQueue(receivers, "Bildirim", notificationMessage);
         return rec;
+    }
+
+    public static BasicDBObject sendNotificationToAllUser(MyDataSBLocal myDataSB, Map<String, Object> senderUser, String messageType, String notificationMessage) {
+        CrudListResult users = myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "users", new BasicDBObject(), new BasicDBObject());
+        List<String> receivers = new ArrayList();
+        for (Map<String, Object> user : users) {
+            receivers.add(user.get("login").toString());
+        }
+        return insertNotifyMessage(myDataSB, messageType, senderUser, receivers, receivers, notificationMessage, new ArrayList(), new ArrayList());
     }
 }

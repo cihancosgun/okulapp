@@ -7,15 +7,16 @@ package com.okulapp.foodcalendar;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.QueryBuilder;
+import com.okulapp.crud.dao.CrudListResult;
 import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.dispatcher.DispatcherMB;
 import com.okulapp.forms.CrudMB;
 import com.okulapp.notify.NotificationMB;
+import com.okulapp.notify.NotifyUtil;
 import com.okulapp.security.SecurityMB;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
-import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.time.YearMonth;
 import java.util.List;
@@ -183,6 +184,8 @@ public class FoodCalendarMB implements Serializable {
 
         FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Yemek Takvimi Kaydedildi", "");
         FacesContext.getCurrentInstance().addMessage(null, msg);
+        String message = selectedMonth.concat(" ayı yemek takvimi yayınlanmıştır, uygulamamızda ; Menü > Yemek Takvimi ekranından yemek takvimini görebilirsiniz.");
+        NotifyUtil.sendNotificationToAllUser(myDataSB, securityMB.getLoginUser(), "lunch", message);
     }
 
 }
