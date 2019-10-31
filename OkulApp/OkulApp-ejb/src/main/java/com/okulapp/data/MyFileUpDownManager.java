@@ -9,19 +9,21 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.gridfs.GridFSBucket;
 import com.mongodb.client.gridfs.GridFSBuckets;
-import com.mongodb.client.gridfs.model.GridFSFile;
-import com.mongodb.client.gridfs.model.GridFSUploadOptions;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Date;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.bson.Document;
 import org.bson.types.ObjectId;
 
 /**
@@ -34,6 +36,7 @@ public class MyFileUpDownManager {
     private MongoDataAdapter ada;
     private String dbName;
     private String fsName;
+    private final String uploadPath = System.getProperty("user.home").concat("/uploads");
 
     public MyFileUpDownManager() {
     }
@@ -83,10 +86,24 @@ public class MyFileUpDownManager {
 
     public ObjectId uploadFile(InputStream fileInputStream, String fileName) {
         try {
-            GridFSUploadOptions options = new GridFSUploadOptions()
-                    .chunkSizeBytes(358400);
+//            GridFSUploadOptions options = new GridFSUploadOptions()
+//                    .chunkSizeBytes(358400);
             ada.connect();
-            ObjectId fileId = getBucket().uploadFromStream(fileName, fileInputStream, options);
+            ObjectId fileId = new ObjectId();
+            //ObjectId fileId = getBucket().uploadFromStream(fileName, fileInputStream, options);
+            Path filePath = Paths.get(uploadPath.concat("/").concat(fileName));
+            Files.createDirectories(Paths.get(uploadPath));
+            File newFile = filePath.toAbsolutePath().toFile();
+            if (!newFile.exists()) {
+                newFile.createNewFile();
+            }
+            FileOutputStream fos = new FileOutputStream(newFile);
+            int read = 0;
+            byte[] buffer = new byte[4096];
+            while ((read = fileInputStream.read(buffer)) != -1) {
+                fos.write(buffer, 0, read);
+            }
+            ada.create(dbName, "uploadedFiles", new BasicDBObject("_id", fileId).append("fileName", fileName).append("uploadDate", new Date()).append("filePath", filePath.toAbsolutePath().toString()));
             ada.disconnect();
             return fileId;
         } catch (Exception e) {
@@ -97,15 +114,26 @@ public class MyFileUpDownManager {
 
     public Map<String, Object> downloadFile(ObjectId fileId) {
         try {
-            ByteArrayOutputStream streamToDownloadTo = new ByteArrayOutputStream();
+//            ByteArrayOutputStream streamToDownloadTo = new ByteArrayOutputStream();
+//            ada.connect();
+//            GridFSFile fsFile = getBucket().find(new Document("_id", fileId)).first();
+//            String fileName = fsFile != null ? fsFile.getFilename() : "";
+//            getBucket().downloadToStream(fileId, streamToDownloadTo);
+//            byte[] bytes = streamToDownloadTo.toByteArray();
+//            streamToDownloadTo.close();
+//            ada.disconnect();
+//            ByteArrayOutputStream streamToDownloadTo = new ByteArrayOutputStream();
             ada.connect();
-            GridFSFile fsFile = getBucket().find(new Document("_id", fileId)).first();
-            String fileName = fsFile != null ? fsFile.getFilename() : "";
-            getBucket().downloadToStream(fileId, streamToDownloadTo);
-            byte[] bytes = streamToDownloadTo.toByteArray();
-            streamToDownloadTo.close();
+            Map<String, Object> rec = ada.read(dbName, "uploadedFiles", new BasicDBObject("_id", fileId));
             ada.disconnect();
-            return new BasicDBObject("fileName", fileName).append("bytes", bytes).toMap();
+            if (rec != null) {
+                String fileName = rec.get("fileName").toString();
+                byte[] bytes = Files.readAllBytes(Paths.get(rec.get("filePath").toString()));
+                return new BasicDBObject("fileName", fileName).append("bytes", bytes).toMap();
+            } else {
+                return null;
+            }
+
         } catch (Exception e) {
             Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "uploadFile Error", e);
             return null;

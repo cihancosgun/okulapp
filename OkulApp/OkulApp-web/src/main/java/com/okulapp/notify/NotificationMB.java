@@ -14,7 +14,6 @@ import com.okulapp.security.SecurityMB;
 import com.okulapp.utils.ByteArrayUploadedFile;
 import com.okulapp.ws.WSReceiverManager;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +26,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -312,7 +312,8 @@ public class NotificationMB implements Serializable {
         List<ObjectId> list = new ArrayList();
         for (UploadedFile uploadedFile : uploadedFiles) {
             try {
-                ObjectId fileId = myDataSB.getFileUpDownManager().uploadFile(uploadedFile.getInputstream(), uploadedFile.getFileName());
+                String fileName = UUID.randomUUID() + ".jpg";
+                ObjectId fileId = myDataSB.getFileUpDownManager().uploadFile(uploadedFile.getInputstream(), fileName);
                 if (fileId != null) {
                     list.add(fileId);
                 }
@@ -327,7 +328,8 @@ public class NotificationMB implements Serializable {
         List<ObjectId> list = new ArrayList();
         for (UploadedFile uploadedFile : uploadedThumbFiles) {
             try {
-                ObjectId fileId = myDataSB.getFileUpDownManager().uploadFile(uploadedFile.getInputstream(), uploadedFile.getFileName());
+                String fileName = UUID.randomUUID() + ".jpg";
+                ObjectId fileId = myDataSB.getFileUpDownManager().uploadFile(uploadedFile.getInputstream(), fileName);
                 if (fileId != null) {
                     list.add(fileId);
                 }

@@ -173,97 +173,102 @@ okulappDb.subMenu.insert({name: "roles", parentMenuName: "configs", title: "Roll
 ///#################
 
 /*
-{
-	"_id" : ObjectId("5d567168003ac45f92ac50ad"),
-	"crudFormCode" : "menus",
-	"fieldName" : "roles",
-	"name" : "roles",
-	"label" : "Yetkili Roller",
-	"labelEn" : "Authorized Roles",
-	"required" : true,
-	"controllClassName" : "InputSelectManyDbFormControl",
-	"defaultValue" : null,
-	"dbName" : "okulapp",
-	"tableName" : "roles",
-	"itemQuery" : "{enabled:true}",
-	"itemValueField" : "roleByte",
-	"itemLabelField" : "roleName",
-	"order" : 4
-}
-{
-	"_id" : ObjectId("5d567168003ac45f92ac50b8"),
-	"crudFormCode" : "subMenus",
-	"fieldName" : "roles",
-	"name" : "roles",
-	"label" : "Yetkili Roller",
-	"labelEn" : "Authorized Roles",
-	"required" : true,
-	"controllClassName" : "InputSelectManyDbFormControl",
-	"defaultValue" : null,
-	"dbName" : "okulapp",
-	"tableName" : "roles",
-	"itemQuery" : "{enabled:true}",
-	"itemValueField" : "roleByte",
-	"itemLabelField" : "roleName",
-	"order" : 4
-}
-{
-	"_id" : ObjectId("5d567168003ac45f92ac50c6"),
-	"crudFormCode" : "forms",
-	"fieldName" : "roles",
-	"name" : "roles",
-	"label" : "Yetkili Roller",
-	"labelEn" : "Authorized Roles",
-	"required" : true,
-	"controllClassName" : "InputSelectManyDbFormControl",
-	"defaultValue" : null,
-	"dbName" : "okulapp",
-	"tableName" : "roles",
-	"itemQuery" : "{enabled:true}",
-	"itemValueField" : "roleByte",
-	"itemLabelField" : "roleName",
-	"order" : 4
-}
-{
-	"_id" : ObjectId("5d567168003ac45f92ac50d4"),
-	"crudFormCode" : "formFields",
-	"fieldName" : "roles",
-	"name" : "roles",
-	"label" : "Yetkili Roller",
-	"labelEn" : "Authorized Roles",
-	"required" : true,
-	"controllClassName" : "InputSelectManyDbFormControl",
-	"defaultValue" : null,
-	"dbName" : "okulapp",
-	"itemQuery" : "{enabled:true}",
-	"itemValueField" : "roleByte",
-	"itemLabelField" : "roleName",
-	"order" : 10,
-	"tableName" : "roles"
-}
-{
-	"_id" : ObjectId("5d5d3a1e0f43db2ef15a55cb"),
-	"fieldName" : "periods",
-	"labelEn" : "Periods",
-	"defaultValue" : "",
-	"roles" : [
-		0
-	],
-	"dbName" : "okulapp",
-	"crudFormCode" : "classes",
-	"label" : "Dönemler",
-	"required" : true,
-	"enabled" : true,
-	"itemQuery" : "{}",
-	"tableName" : "period",
-	"showList" : false,
-	"itemLabelField" : "periodName",
-	"name" : "periods",
-	"itemValueField" : "code",
-	"ajaxUpdateFieldName" : "",
-	"controllClassName" : "InputSelectManyDbFormControl",
-	"items" : "",
-	"order" : 1,
-	"ajaxUpdateFieldQueryFieldName" : ""
-}
+ {
+ "_id" : ObjectId("5d567168003ac45f92ac50ad"),
+ "crudFormCode" : "menus",
+ "fieldName" : "roles",
+ "name" : "roles",
+ "label" : "Yetkili Roller",
+ "labelEn" : "Authorized Roles",
+ "required" : true,
+ "controllClassName" : "InputSelectManyDbFormControl",
+ "defaultValue" : null,
+ "dbName" : "okulapp",
+ "tableName" : "roles",
+ "itemQuery" : "{enabled:true}",
+ "itemValueField" : "roleByte",
+ "itemLabelField" : "roleName",
+ "order" : 4
+ }
+ {
+ "_id" : ObjectId("5d567168003ac45f92ac50b8"),
+ "crudFormCode" : "subMenus",
+ "fieldName" : "roles",
+ "name" : "roles",
+ "label" : "Yetkili Roller",
+ "labelEn" : "Authorized Roles",
+ "required" : true,
+ "controllClassName" : "InputSelectManyDbFormControl",
+ "defaultValue" : null,
+ "dbName" : "okulapp",
+ "tableName" : "roles",
+ "itemQuery" : "{enabled:true}",
+ "itemValueField" : "roleByte",
+ "itemLabelField" : "roleName",
+ "order" : 4
+ }
+ {
+ "_id" : ObjectId("5d567168003ac45f92ac50c6"),
+ "crudFormCode" : "forms",
+ "fieldName" : "roles",
+ "name" : "roles",
+ "label" : "Yetkili Roller",
+ "labelEn" : "Authorized Roles",
+ "required" : true,
+ "controllClassName" : "InputSelectManyDbFormControl",
+ "defaultValue" : null,
+ "dbName" : "okulapp",
+ "tableName" : "roles",
+ "itemQuery" : "{enabled:true}",
+ "itemValueField" : "roleByte",
+ "itemLabelField" : "roleName",
+ "order" : 4
+ }
+ {
+ "_id" : ObjectId("5d567168003ac45f92ac50d4"),
+ "crudFormCode" : "formFields",
+ "fieldName" : "roles",
+ "name" : "roles",
+ "label" : "Yetkili Roller",
+ "labelEn" : "Authorized Roles",
+ "required" : true,
+ "controllClassName" : "InputSelectManyDbFormControl",
+ "defaultValue" : null,
+ "dbName" : "okulapp",
+ "itemQuery" : "{enabled:true}",
+ "itemValueField" : "roleByte",
+ "itemLabelField" : "roleName",
+ "order" : 10,
+ "tableName" : "roles"
+ }
+ {
+ "_id" : ObjectId("5d5d3a1e0f43db2ef15a55cb"),
+ "fieldName" : "periods",
+ "labelEn" : "Periods",
+ "defaultValue" : "",
+ "roles" : [
+ 0
+ ],
+ "dbName" : "okulapp",
+ "crudFormCode" : "classes",
+ "label" : "Dönemler",
+ "required" : true,
+ "enabled" : true,
+ "itemQuery" : "{}",
+ "tableName" : "period",
+ "showList" : false,
+ "itemLabelField" : "periodName",
+ "name" : "periods",
+ "itemValueField" : "code",
+ "ajaxUpdateFieldName" : "",
+ "controllClassName" : "InputSelectManyDbFormControl",
+ "items" : "",
+ "order" : 1,
+ "ajaxUpdateFieldQueryFieldName" : ""
+ }
  */
+
+
+db.fs.files.find().forEach(function (f) {
+    db.uploadedFiles.insert({_id: f._id, fileName: f.filename, uploadDate:new Date(),filePath: '/home/bilgiyuvam/uploads/' + f.filename});
+});
