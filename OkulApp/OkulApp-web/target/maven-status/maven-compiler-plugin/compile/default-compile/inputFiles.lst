@@ -34,6 +34,7 @@
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/controls/InputDateFormControl.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/forms/CrudDataTableLazyDataModel.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/utils/PasswordGenerator.java
+/home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/chat/AdminChatMB.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/navigation/Navigation.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/foodcalendar/FoodCalendarMB.java
 /home/cihan/github_cihan/okulapp/okulapp/OkulApp/OkulApp-web/src/main/java/com/okulapp/activity/ActivityMB.java

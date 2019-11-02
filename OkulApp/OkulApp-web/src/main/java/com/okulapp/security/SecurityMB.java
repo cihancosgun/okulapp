@@ -8,6 +8,7 @@ package com.okulapp.security;
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
+import com.mongodb.QueryBuilder;
 import com.okulapp.crud.dao.CrudListResult;
 import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.forms.CrudForm;
@@ -55,8 +56,13 @@ public class SecurityMB implements Serializable {
     private String loginUserRole;
     private Map<String, Object> loginUser;
     private Map<String, Object> userCache = new HashMap<>();
+    private List<String> adminUsersEmails = new ArrayList();
 
     public SecurityMB() {
+    }
+
+    public List<String> getAdminUsersEmails() {
+        return adminUsersEmails;
     }
 
     @PostConstruct
@@ -70,6 +76,11 @@ public class SecurityMB implements Serializable {
         ByteToRole.put(1, "teacher");
         ByteToRole.put(2, "stuff");
         ByteToRole.put(3, "parent");
+
+        CrudListResult adminUsers = myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "users", QueryBuilder.start("groups").is("admin").get().toMap(), QueryBuilder.start("login").is(true).get().toMap());
+        for (Map<String, Object> adminUser : adminUsers) {
+            adminUsersEmails.add(adminUser.get("login").toString());
+        }
     }
 
     public HttpServletRequest getRequest() {
@@ -86,6 +97,10 @@ public class SecurityMB implements Serializable {
 
     public String getRemoteUserName() {
         return getRequest().getRemoteUser();
+    }
+
+    public void setAdminUsersEmails(List<String> adminUsersEmails) {
+        this.adminUsersEmails = adminUsersEmails;
     }
 
     public void setLoginUserRole(String loginUserRole) {
@@ -205,13 +220,21 @@ public class SecurityMB implements Serializable {
     public void changePassword(CrudForm cf, ObjectId userId, char[] newPassword) {
         SecureRandom random = new SecureRandom();
         String salt = new BigInteger(130, random).toString(32);
-        DBObject update = BasicDBObjectBuilder.start()
-                .push("$set")
-                .append("password", PasswordHasher.hash(concatenatePasswordWithSalt(newPassword, salt.toCharArray()), "SHA-512"))
-                .append("salt", salt)
-                .pop()
-                .get();
-        cf.getAda().update(cf.getDbName(), "users", update.toMap());
+        String passwordHash = PasswordHasher.hash(concatenatePasswordWithSalt(newPassword, salt.toCharArray()), "SHA-512");
+        Map update = cf.getAda().read(cf.getDbName(), "users", QueryBuilder.start("_id").is(userId).get().toMap());
+        update.put("password", passwordHash);
+        update.put("salt", salt);
+        cf.getAda().update(cf.getDbName(), "users", update);
+        Map rec = update;
+        Map recUser = SecurityUtil.getUserFromEmail(myDataSB, rec.get("login").toString());
+        if (update != null && recUser != null) {
+            try {
+                MailSender.send_mailToQueue(rec.get("login").toString(), "Bilgiyuvam E-Okul Uygulaması Kullanıcı Bilgileriniz", "Kullanıcı Adınız : " + rec.get("login") + "<br />Parolanız : " + recUser.get("password") + "<br />Web : http://app.bilgiyuvamanaokulu.com <br /> Android : https://play.google.com/store/apps/details?id=com.bilgiyuvamanaokulu.bilgiyuvam <br /> Iphone : https://apps.apple.com/us/app/bilgi-yuvam-anaokulu/id1483565209?l=tr&ls=1");
+                Logger.getLogger(SecurityMB.class.getName()).log(Level.SEVERE, null, rec.get("login").toString() + " gönderildi ...");
+            } catch (UnsupportedEncodingException ex) {
+                Logger.getLogger(SecurityMB.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     public void deleteUser(Map<String, Object> userRecord, CrudForm cf) {

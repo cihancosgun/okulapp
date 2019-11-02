@@ -6,10 +6,10 @@
 package com.okulapp.notify;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.QueryBuilder;
 import com.okulapp.crud.dao.CrudListResult;
 import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.expopush.ExpoPushNotificationUtil;
+import com.okulapp.security.SecurityUtil;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,6 +28,12 @@ public class NotifyUtil {
             List<String> receiversNS,
             String notificationMessage,
             List<ObjectId> fileIds, List<ObjectId> thumbFileIds) {
+        if (!receivers.contains(senderUser.get("email").toString())) {
+            receivers.add(senderUser.get("email").toString());
+        }
+        if (!receivers.containsAll(SecurityUtil.getAdminUsersEmails(myDataSB))) {
+            receivers.addAll(SecurityUtil.getAdminUsersEmails(myDataSB));
+        }
         BasicDBObject rec = new BasicDBObject();
         rec.put("_id", new ObjectId());
         rec.put("senderEmail", senderUser.get("email"));

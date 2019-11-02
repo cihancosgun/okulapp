@@ -59,7 +59,7 @@ public class ChatUtil {
             if (classId != null) {
                 qb.and("classes").in(classId);
             }
-        }
+        }        
         return myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "teachers", qb.get().toMap(), QueryBuilder.start("password").is(false).get().toMap());
     }
 
@@ -86,10 +86,7 @@ public class ChatUtil {
         }
         if ("teacher".equals(userRole)) {//öğretmen sadece kendi sınıf velilerini listeler
             Map<String, Object> user = SecurityUtil.getUserFromEmail(myDataSB, searcherUserName);
-            Map<String, Object> cls = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "class", QueryBuilder.start("teacher").is(user.get("_id")).get().toMap());
-            if (cls != null) {
-                qb.and("class").is(cls.get("_id"));
-            }
+            qb.and("class").in(user.get("classes"));
         }
         return myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "studentParent", qb.get().toMap(), QueryBuilder.start("password").is(false).get().toMap());
     }

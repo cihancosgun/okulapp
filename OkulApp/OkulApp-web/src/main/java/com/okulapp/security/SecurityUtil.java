@@ -7,7 +7,9 @@ package com.okulapp.security;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.QueryBuilder;
+import com.okulapp.crud.dao.CrudListResult;
 import com.okulapp.data.okul.MyDataSBLocal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.bson.types.ObjectId;
@@ -18,6 +20,18 @@ import org.bson.types.ObjectId;
  * mailto:cihan_cosgun@outlook.com
  */
 public class SecurityUtil {
+
+    private static List<String> adminUsersEmails = new ArrayList();
+
+    public static List<String> getAdminUsersEmails(MyDataSBLocal myDataSB) {
+        if (adminUsersEmails == null || adminUsersEmails.isEmpty()) {
+            CrudListResult adminUsers = myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "users", QueryBuilder.start("groups").is("admin").get().toMap(), QueryBuilder.start("login").is(true).get().toMap());
+            for (Map<String, Object> adminUser : adminUsers) {
+                adminUsersEmails.add(adminUser.get("login").toString());
+            }
+        }
+        return adminUsersEmails;
+    }
 
     public static ObjectId getBranchOfUser(MyDataSBLocal myDataSB, String email) {
         Map<String, Object> branches = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "branch", new BasicDBObject());
@@ -61,5 +75,9 @@ public class SecurityUtil {
             }
         }
         return user;
+    }
+
+    public static void setAdminUsersEmails(List<String> aAdminUsersEmails) {
+        adminUsersEmails = aAdminUsersEmails;
     }
 }

@@ -60,5 +60,6 @@ com/okulapp/forms/CrudMB.class
 com/okulapp/notify/BoardMB.class
 com/okulapp/navigation/Menu.class
 com/okulapp/forms/ListField.class
+com/okulapp/chat/AdminChatMB.class
 com/okulapp/dispatcher/NewJSFManagedBean.class
 com/okulapp/chat/ChatUtil.class

@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:head>
+        <title>Yönetici Mesaj İzleme</title>
+        <link href="#{request.contextPath}/css/chat.css" rel="stylesheet" type="text/css"/>
+    </h:head>
+    <h:body>
+        <h:form id="adminChatForm" class="adminChatForm">
+            <p:panel rendered="#{not adminChatMB.showDetail}">
+                <p:panelGrid columns="2">
+                    <h:outputText value="Ara : " />
+                    <p:inputText id="globalFilter" placeholder="Ara.." value="#{adminChatMB.globalFilter}">
+                        <p:ajax event="keyup" update="chatTable" listener="#{adminChatMB.filterListener}" />
+                    </p:inputText>
+                </p:panelGrid>
+                <p:dataTable id="chatTable" var="chat" value="#{adminChatMB.chatList}" rows="10"
+                             paginator="true" widgetVar="chatTable"
+                             paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                             rowsPerPageTemplate="5,10,15" emptyMessage="Kayıt bulunamadı">                
+
+
+
+                    <p:column headerText="Başlatan">
+                        <h:outputText value="#{chat.starter}" />
+                    </p:column>
+
+                    <p:column headerText="Gönderici">
+                        <h:outputText value="#{chat.senderNameSurname}" />
+                    </p:column>
+
+                    <p:column headerText="Alıcı">
+                        <h:outputText value="#{chat.receiverNameSurname}" />
+                    </p:column>
+
+                    <p:column headerText="Kullanıcılar">
+                        <h:outputText value="#{chat.users.toString()}" />
+                    </p:column>                
+
+                    <p:column headerText="Konuşma Başlama Zamanı">
+                        <h:outputText value="#{chat.startDate}">
+                            <f:convertDateTime pattern = "dd.MM.yyyy HH:mm:ss" />
+                        </h:outputText>
+                    </p:column>                
+                    <p:column headerText="Detay">
+                        <p:commandButton value="Detay Göster" actionListener="#{adminChatMB.swtichToChat(chat)}" update="@(.adminChatForm)"/>
+                    </p:column>   
+                </p:dataTable>
+            </p:panel>
+
+            <p:panel rendered="#{adminChatMB.showDetail}">
+                <p:panel>
+                    <p:commandButton value="Listeye Dön" actionListener="#{adminChatMB.setShowDetail(false)}" update="@(.adminChatForm)"/>
+                </p:panel>
+                <h:panelGroup id="msg_history" class="msg_history" layout="block">                          
+                    <c:forEach items="#{adminChatMB.currentChat.messages}" var="rec">
+                        <c:if test="#{rec.senderEmail eq adminChatMB.currentChat.senderEmail}"> 
+                            <div class="outgoing_msg">
+                                <div class="sent_msg">
+                                    <p>#{adminChatMB.currentChat.senderNameSurname}</p>
+                                    <p>#{rec.message}</p>
+                                    <span class="time_date">#{chatMB.formatDateTime(rec.sendingTime)}</span></div>
+                            </div>
+                        </c:if>
+
+                        <c:if test="#{not (rec.senderEmail eq adminChatMB.currentChat.senderEmail)}"> 
+                            <div class="incoming_msg">                                
+                                <div class="received_msg">
+                                    <div class="received_withd_msg">
+                                        <p>#{adminChatMB.currentChat.receiverNameSurname}</p>
+                                        <p>#{rec.message}</p>
+                                        <span class="time_date">#{chatMB.formatDateTime(rec.sendingTime)}</span></div>
+                                </div>
+                            </div>
+                        </c:if>
+                    </c:forEach>                                
+                </h:panelGroup>
+
+                <script type="text/javascript">
+                    function chatScrollToBottom() {
+                        var objDiv = $(".msg_history")[0];
+                        if (objDiv != null) {
+                            objDiv.scrollTop = objDiv.scrollHeight;
+                        }
+                    }
+                    chatScrollToBottom();
+                </script>
+
+            </p:panel>
+        </h:form>
+    </h:body>
+</html>
+

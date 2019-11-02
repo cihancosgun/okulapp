@@ -122,6 +122,7 @@ public class ChatMB implements Serializable {
         showRecents = true;
         showContacts = false;
         showChat = false;
+        securityMB.getUserRoles();
         canSeeStudentParent = Arrays.asList("admin", "teacher").contains(securityMB.getLoginUserRole());
         branches = myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "branch", new BasicDBObject(), new BasicDBObject());
         if (branches != null && securityMB.getLoginUser() != null) {
