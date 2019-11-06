@@ -5,9 +5,7 @@
  */
 package com.okulapp.notify;
 
-import com.mongodb.QueryBuilder;
 import com.okulapp.chat.ChatMB;
-import com.okulapp.data.MongoDataAdapter;
 import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.dispatcher.DispatcherMB;
 import com.okulapp.forms.CrudMB;
@@ -17,7 +15,6 @@ import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;

@@ -10,6 +10,7 @@ import com.mongodb.QueryBuilder;
 import com.okulapp.crud.dao.CrudListResult;
 import com.okulapp.data.okul.MyDataSBLocal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.bson.types.ObjectId;
@@ -25,7 +26,7 @@ public class SecurityUtil {
 
     public static List<String> getAdminUsersEmails(MyDataSBLocal myDataSB) {
         if (adminUsersEmails == null || adminUsersEmails.isEmpty()) {
-            CrudListResult adminUsers = myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "users", QueryBuilder.start("groups").is("admin").get().toMap(), QueryBuilder.start("login").is(true).get().toMap());
+            CrudListResult adminUsers = myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "users", QueryBuilder.start("groups").in(Arrays.asList("admin", "manager")).get().toMap(), QueryBuilder.start("login").is(true).get().toMap());
             for (Map<String, Object> adminUser : adminUsers) {
                 adminUsersEmails.add(adminUser.get("login").toString());
             }
@@ -65,6 +66,8 @@ public class SecurityUtil {
         if (email != null) {
             String role = getUserRoleFromUserTable(myDataSB, email);
             if ("admin".equals(role)) {
+                user = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "stuff", QueryBuilder.start("email").is(email).get().toMap());
+            } else if ("manager".equals(role)) {
                 user = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "stuff", QueryBuilder.start("email").is(email).get().toMap());
             } else if ("teacher".equals(role)) {
                 user = myDataSB.getAdvancedDataAdapter().read(myDataSB.getDbName(), "teachers", QueryBuilder.start("email").is(email).get().toMap());

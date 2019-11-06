@@ -59,7 +59,7 @@ public class ChatUtil {
             if (classId != null) {
                 qb.and("classes").in(classId);
             }
-        }        
+        }
         return myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "teachers", qb.get().toMap(), QueryBuilder.start("password").is(false).get().toMap());
     }
 
@@ -74,7 +74,7 @@ public class ChatUtil {
 
     public static List<Map<String, Object>> getStudentParents(MyDataSBLocal myDataSB, String searcherUserName, String searchText, ObjectId branch) {
         String userRole = SecurityUtil.getUserRoleFromUserTable(myDataSB, searcherUserName);
-        if (!Arrays.asList("admin", "teacher").contains(userRole)) {
+        if (!Arrays.asList("admin", "manager", "teacher").contains(userRole)) {
             return null;
         }
         QueryBuilder qb = QueryBuilder.start("deleted").exists(false);
@@ -93,7 +93,7 @@ public class ChatUtil {
 
     public static List<Map<String, Object>> getStuffs(MyDataSBLocal myDataSB, String searcherUserName, String searchText, ObjectId branch) {
         String userRole = SecurityUtil.getUserRoleFromUserTable(myDataSB, searcherUserName);
-        if (!Arrays.asList("admin", "teacher").contains(userRole)) {
+        if (!Arrays.asList("admin", "manager", "teacher").contains(userRole)) {
             return null;
         }
         QueryBuilder qb = QueryBuilder.start("deleted").exists(false);

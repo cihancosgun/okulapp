@@ -71,13 +71,15 @@ public class SecurityMB implements Serializable {
         RolesToByte.put("teacher", 1);
         RolesToByte.put("stuff", 2);
         RolesToByte.put("parent", 3);
+        RolesToByte.put("manager", 4);
 
         ByteToRole.put(0, "admin");
         ByteToRole.put(1, "teacher");
         ByteToRole.put(2, "stuff");
         ByteToRole.put(3, "parent");
+        ByteToRole.put(4, "manager");
 
-        CrudListResult adminUsers = myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "users", QueryBuilder.start("groups").is("admin").get().toMap(), QueryBuilder.start("login").is(true).get().toMap());
+        CrudListResult adminUsers = myDataSB.getAdvancedDataAdapter().getList(myDataSB.getDbName(), "users", QueryBuilder.start("groups").in(Arrays.asList("admin", "manager")).get().toMap(), QueryBuilder.start("login").is(true).get().toMap());
         for (Map<String, Object> adminUser : adminUsers) {
             adminUsersEmails.add(adminUser.get("login").toString());
         }
@@ -248,8 +250,10 @@ public class SecurityMB implements Serializable {
 
     private String getUserRoleFromCrudForm(CrudForm cf, Map<String, Object> userRecord) {
         if ("stuff".equals(cf.getCrudFormCode())) {
-            if (Arrays.asList("Okul Müdürü", "Şube Müdürü").contains(userRecord.get("title").toString())) {
+            if (Arrays.asList("Okul Müdürü").contains(userRecord.get("title").toString())) {
                 return "admin";
+            } else if (Arrays.asList("Şube Müdürü").contains(userRecord.get("title").toString())) {
+                return "manager";
             } else {
                 return "stuff";
             }

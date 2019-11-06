@@ -62,8 +62,8 @@
                             <div class="outgoing_msg">
                                 <div class="sent_msg">
                                     <p>#{adminChatMB.currentChat.senderNameSurname}</p>
-                                    <p>#{rec.message}</p>
-                                    <span class="time_date">#{chatMB.formatDateTime(rec.sendingTime)}</span></div>
+                                    <p>#{rec.message}</p>                                    
+                                    <span class="time_date">#{chatMB.formatDateTime(rec.sendingTime).concat(' : ').concat(rec.readed ? 'Okundu' : 'İletildi')}</span></div>
                             </div>
                         </c:if>
 
@@ -72,8 +72,8 @@
                                 <div class="received_msg">
                                     <div class="received_withd_msg">
                                         <p>#{adminChatMB.currentChat.receiverNameSurname}</p>
-                                        <p>#{rec.message}</p>
-                                        <span class="time_date">#{chatMB.formatDateTime(rec.sendingTime)}</span></div>
+                                        <p>#{rec.message}</p>                                        
+                                        <span class="time_date">#{chatMB.formatDateTime(rec.sendingTime).concat(' : ').concat(rec.readed ? 'Okundu' : 'İletildi')}</span></div>
                                 </div>
                             </div>
                         </c:if>

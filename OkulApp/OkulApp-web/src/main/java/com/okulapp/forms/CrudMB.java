@@ -357,9 +357,9 @@ public class CrudMB implements Serializable {
                     InputStream is = event.getFile().getInputstream();
                     BufferedImage imageOrj = ImageIO.read(event.getFile().getInputstream());
                     ObjectId fileId;
-                    if (imageOrj.getWidth() > 1024) {
-                        double percentageWidth = 1024.0 / imageOrj.getWidth();
-                        BufferedImage imageResized = myDataSB.getFileUpDownManager().resizeImage(imageOrj, 1024, (int) Math.round(imageOrj.getHeight() * percentageWidth));
+                    if (imageOrj.getWidth() > 1920) {
+                        double percentageWidth = 1920.0 / imageOrj.getWidth();
+                        BufferedImage imageResized = myDataSB.getFileUpDownManager().resizeImage(imageOrj, 1920, (int) Math.round(imageOrj.getHeight() * percentageWidth));
                         ByteArrayOutputStream bos = new ByteArrayOutputStream();
                         ImageIO.write(imageResized, "png", bos);
                         fileId = myDataSB.getFileUpDownManager().uploadFile(new ByteArrayInputStream(bos.toByteArray()), event.getFile().getFileName());
@@ -403,7 +403,7 @@ public class CrudMB implements Serializable {
                 InputStream is = getClass().getClassLoader().getResourceAsStream("user-profile.png");
                 ByteArrayOutputStream buffer = new ByteArrayOutputStream();
                 int nRead;
-                byte[] data = new byte[1024];
+                byte[] data = new byte[1920];
                 while ((nRead = is.read(data, 0, data.length)) != -1) {
                     buffer.write(data, 0, nRead);
                 }

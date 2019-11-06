@@ -102,6 +102,7 @@
         <auth-constraint>
             <description/>
             <role-name>admin</role-name>
+            <role-name>manager</role-name>
             <role-name>teacher</role-name>
             <role-name>stuff</role-name>
             <role-name>parent</role-name>
@@ -118,6 +119,10 @@
     <security-role>
         <description/>
         <role-name>admin</role-name>
+    </security-role>
+    <security-role>
+        <description/>
+        <role-name>manager</role-name>
     </security-role>
     <security-role>
         <description/>

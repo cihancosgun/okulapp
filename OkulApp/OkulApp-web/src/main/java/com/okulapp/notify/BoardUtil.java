@@ -58,7 +58,7 @@ public class BoardUtil {
                 .and("users").in(Arrays.asList(userName));
         QueryBuilder projection = QueryBuilder.start();
 
-        myBoard = adapter.getSortedPagedList(myDataSB.getDbName(), "notifications", filter.get().toMap(), projection.get().toMap(), 0, 20, QueryBuilder.start("startDate").is(-1).get().toMap());
+        myBoard = adapter.getSortedPagedList(myDataSB.getDbName(), "notifications", filter.get().toMap(), projection.get().toMap(), 0, 1000, QueryBuilder.start("startDate").is(-1).get().toMap());
         for (Map<String, Object> rec : myBoard) {
             if (includeMessageTypeIcon) {
                 String b64 = Base64.encodeBase64String(inputStreamToByteArray(handleMessageTypeIcon(rec.get("messageType").toString())));
@@ -98,7 +98,7 @@ public class BoardUtil {
         QueryBuilder filter = QueryBuilder.start("deleted").is(false)
                 .and("users").in(Arrays.asList(userName)).
                 and("readedUsers").notIn(Arrays.asList(userName));
-        myUnreadedBoard = adapter.getSortedPagedList(myDataSB.getDbName(), "notifications", filter.get().toMap(), projection.get().toMap(), 0, 20, QueryBuilder.start("startDate").is(-1).get().toMap());
+        myUnreadedBoard = adapter.getSortedPagedList(myDataSB.getDbName(), "notifications", filter.get().toMap(), projection.get().toMap(), 0, 1000, QueryBuilder.start("startDate").is(-1).get().toMap());
         return myUnreadedBoard;
     }
 

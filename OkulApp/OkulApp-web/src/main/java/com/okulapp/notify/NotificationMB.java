@@ -212,9 +212,9 @@ public class NotificationMB implements Serializable {
             FacesContext.getCurrentInstance().addMessage(null, msg);
             BufferedImage imageOrj = ImageIO.read(event.getFile().getInputstream());
             UploadedFile file = event.getFile();
-            if (imageOrj.getWidth() > 1024) {
-                double percentageWidth = 1024.0 / imageOrj.getWidth();
-                imageOrj = myDataSB.getFileUpDownManager().resizeImage(imageOrj, 1024, (int) Math.round(imageOrj.getHeight() * percentageWidth));
+            if (imageOrj.getWidth() > 1920) {
+                double percentageWidth = 1920.0 / imageOrj.getWidth();
+                imageOrj = myDataSB.getFileUpDownManager().resizeImage(imageOrj, 1920, (int) Math.round(imageOrj.getHeight() * percentageWidth));
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 ImageIO.write(imageOrj, "png", bos);
                 file = new ByteArrayUploadedFile(bos.toByteArray(), event.getFile().getFileName(), event.getFile().getContentType());
