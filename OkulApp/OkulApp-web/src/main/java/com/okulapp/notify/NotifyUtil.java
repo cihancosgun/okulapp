@@ -11,6 +11,7 @@ import com.okulapp.data.okul.MyDataSBLocal;
 import com.okulapp.expopush.ExpoPushNotificationUtil;
 import com.okulapp.security.SecurityUtil;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -28,11 +29,13 @@ public class NotifyUtil {
             List<String> receiversNS,
             String notificationMessage,
             List<ObjectId> fileIds, List<ObjectId> thumbFileIds) {
-        if (!receivers.contains(senderUser.get("email").toString())) {
-            receivers.add(senderUser.get("email").toString());
-        }
-        if (!receivers.containsAll(SecurityUtil.getAdminUsersEmails(myDataSB))) {
-            receivers.addAll(SecurityUtil.getAdminUsersEmails(myDataSB));
+        if (Arrays.asList("board", "event", "remind").contains(messageType)) {
+            if (!receivers.contains(senderUser.get("email").toString())) {
+                receivers.add(senderUser.get("email").toString());
+            }
+            if (!receivers.containsAll(SecurityUtil.getAdminUsersEmails(myDataSB))) {
+                receivers.addAll(SecurityUtil.getAdminUsersEmails(myDataSB));
+            }
         }
         BasicDBObject rec = new BasicDBObject();
         rec.put("_id", new ObjectId());
