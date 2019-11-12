@@ -45,11 +45,11 @@ public class MongoDataAdapter implements DataAdapter {
 
     @Override
     public void connect() {
-        MongoClientOptions.Builder builder = MongoClientOptions.builder();
-        if (isSlaveServer) {
-            builder.readPreference(ReadPreference.secondary());
-        }
         if (mongoHost != null && !mongoHost.isEmpty() && client == null) {
+            MongoClientOptions.Builder builder = MongoClientOptions.builder();
+            if (isSlaveServer) {
+                builder.readPreference(ReadPreference.secondary());
+            }
             builder.socketTimeout(300000);
             builder.serverSelectionTimeout(300000);
             client = new MongoClient(new ServerAddress(mongoHost, mongoPort), builder.build());

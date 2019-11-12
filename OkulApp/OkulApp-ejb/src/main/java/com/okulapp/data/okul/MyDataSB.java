@@ -8,18 +8,20 @@ package com.okulapp.data.okul;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ejb.Stateless;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import com.okulapp.data.AdvancedDataAdapter;
 import com.okulapp.data.MongoDataAdapter;
 import com.okulapp.data.MyFileUpDownManager;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.ejb.Singleton;
 
 /**
  *
  * @author cihan
  */
-@Stateless
+@Singleton
 public class MyDataSB implements MyDataSBLocal {
 
     private AdvancedDataAdapter ada;
@@ -68,6 +70,16 @@ public class MyDataSB implements MyDataSBLocal {
     @Override
     public MyFileUpDownManager getFileUpDownManager() {
         return fileUpDownManager;
+    }
+
+    @PostConstruct
+    public void init() {
+        Logger.getLogger(MyDataSB.class.getName()).info("MyDataSB init");
+    }
+
+    @PreDestroy
+    public void destroy() {
+        Logger.getLogger(MyDataSB.class.getName()).info("MyDataSB destroy");
     }
 
 }
